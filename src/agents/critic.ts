@@ -36,7 +36,7 @@ export async function runCritic(ctx: RunContext, task: TaskSpec, extras?: Critic
     executed.join('\n') || '(none)',
     '',
     'Evidence ledger:',
-    renderLedger(Object.values(s.evidence)),
+    renderLedger(Object.values(s.evidence), 1400, ctx.collapsedEvidence),
     '',
     'Decide.',
   ].join('\n');

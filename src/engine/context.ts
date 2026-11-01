@@ -20,6 +20,8 @@ export type ToolViewHook = (ctx: RunContext, task: TaskSpec, result: ToolCallRes
  */
 export class RunContext {
   readonly executedFingerprints = new Set<string>();
+  /** Arm D: evidence judged neutral to every hypothesis; later synthesis calls see only its id. */
+  readonly collapsedEvidence = new Set<string>();
   stopReason: StopReason | null = null;
   toolViewHook: ToolViewHook | null = null;
   private stateCache: { seq: number; state: RunState } | null = null;

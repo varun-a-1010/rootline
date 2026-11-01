@@ -44,10 +44,11 @@ export function renderBudget(ctx: RunContext): string {
 }
 
 /** The evidence ledger: one block per record, with a bounded excerpt. */
-export function renderLedger(records: EvidenceRecord[], excerptChars = 1400): string {
+export function renderLedger(records: EvidenceRecord[], excerptChars = 1400, collapsed: ReadonlySet<string> = new Set()): string {
   if (records.length === 0) return '(no evidence recorded yet)';
   return records
     .map((e) => {
+      if (collapsed.has(e.evidenceId)) return `[${e.evidenceId}] ${e.tool} (judged neutral to every hypothesis; excerpt omitted, still citable)`;
       const req = JSON.stringify(e.request);
       const ex = e.excerpt.length > excerptChars ? e.excerpt.slice(0, excerptChars) + ' …' : e.excerpt;
       return `[${e.evidenceId}] ${e.tool} ${req}\n  completeness=${e.completeness} records=${e.recordCount}${e.truncated ? ' (truncated)' : ''}${e.notes.length ? ` notes: ${e.notes.join(' | ')}` : ''}\n  ${ex.replace(/\n/g, '\n  ')}`;

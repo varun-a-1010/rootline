@@ -18,6 +18,8 @@ export interface LoopSpec<T> {
   /** Budget kind for normal turns, and for the forced final turn. */
   kind: LlmKind;
   finalKind: LlmKind;
+  /** Message sent when the loop switches to the forced final turn. */
+  finalNotice?: string;
 }
 
 export interface LoopResult<T> {
@@ -68,7 +70,7 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
     }
     if (final && !finalNoticeSent) {
       finalNoticeSent = true;
-      contents.push({ role: 'user', parts: [{ text: `Your tool budget for this task is used up. Call ${spec.terminal.name} now with what you have, and list what you could not check as gaps.` }] });
+      contents.push({ role: 'user', parts: [{ text: spec.finalNotice ?? `Your tool budget for this task is used up. Call ${spec.terminal.name} now with what you have, and list what you could not check as gaps.` }] });
     }
     turns += 1;
     let res;

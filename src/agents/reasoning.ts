@@ -52,7 +52,7 @@ export async function runReasoning(ctx: RunContext, task: TaskSpec, extras?: Rea
     ...(extras ? ['', extras(ctx)] : []),
     '',
     'Evidence ledger:',
-    renderLedger(Object.values(s.evidence)),
+    renderLedger(Object.values(s.evidence), 1400, ctx.collapsedEvidence),
     '',
     'Produce the ranked hypotheses.',
   ].join('\n');

@@ -7,4 +7,4 @@ When you are done, or your budget is nearly used up, call submit_report with the
 - ranked hypotheses with supporting and contradicting evidence ids and a status;
 - facts cite evidence ids; inferences cite what they rest on; assumptions cite nothing;
 - timeline, confidence with rationale, gaps with impact, and recommended actions (recommendations only, never claims that something was done) each with a verification step;
-- justification: leave empty.
+- justification: leave empty, unless your budget ran out before you finished and you still report conclusive; then explain why the evidence suffices.

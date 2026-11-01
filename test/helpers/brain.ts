@@ -62,6 +62,7 @@ export function brain(o: BrainOptions = {}): ScriptedProvider {
   let criticN = 0;
   const specialist = (role: 'observability' | 'dependency'): Script => (req) => {
     if (o.failRole === role) return { error: new LlmError('invalid_output', 'scripted failure') };
+    if ((req.tools ?? []).length === 1) return { functionCalls: [{ name: 'submit_findings', args: findings(req, role) }] };
     if (!lastIsToolResponse(req)) {
       const calls =
         role === 'observability'
@@ -117,7 +118,8 @@ export function brain(o: BrainOptions = {}): ScriptedProvider {
     reporting: (req) => ({ json: reportBody(evidenceIds(req), o.reportOutcome ?? 'conclusive', o.reportJustification ?? '') }),
     baseline: (req, n) => {
       const turns = o.baselineToolTurns ?? 2;
-      if (n < turns) return { functionCalls: [{ name: n === 0 ? 'query_logs' : 'get_changes', args: n === 0 ? { services: ['broker-connector'], from: W.from, to: W.to, contains: '429' } : { from: W.from, to: W.to } }], delayMs: delay };
+      const onlyTerminal = (req.tools ?? []).length === 1;
+      if (n < turns && !onlyTerminal) return { functionCalls: [{ name: n === 0 ? 'query_logs' : 'get_changes', args: n === 0 ? { services: ['broker-connector'], from: W.from, to: W.to, contains: '429' } : { from: W.from, to: W.to } }], delayMs: delay };
       return { functionCalls: [{ name: 'submit_report', args: reportBody(evidenceIds(req), o.reportOutcome ?? 'conclusive', '') }] };
     },
   };

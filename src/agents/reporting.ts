@@ -28,7 +28,7 @@ export async function runReporting(ctx: RunContext, task: TaskSpec, signal: Abor
     renderToolFailures(s),
     '',
     'Evidence ledger:',
-    renderLedger(Object.values(s.evidence), 900),
+    renderLedger(Object.values(s.evidence), 900, ctx.collapsedEvidence),
     '',
     'Write the final report.',
   ].join('\n');
