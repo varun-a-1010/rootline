@@ -14,3 +14,6 @@ CLAUDE.local.md
 DEPLOY.local.md
 *.local.md
 .claude/settings.local.json
+
+# company assignment PDF: its text is in docs/assignment.md
+*.pdf
