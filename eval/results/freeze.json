@@ -1,0 +1,28 @@
+{
+  "promptHash": "fbb5303b5fc5eeaa",
+  "frozenAt": "2026-11-01T21:14:33.318Z",
+  "gitSha": "213ad08",
+  "armDBase": "B",
+  "devTally": {
+    "A": {
+      "arm": "A",
+      "runs": 6,
+      "earned": 5,
+      "meanCostUsd": 0.597
+    },
+    "B": {
+      "arm": "B",
+      "runs": 6,
+      "earned": 6,
+      "meanCostUsd": 0.627
+    }
+  },
+  "note": "Prompts frozen after the dev phase. Arm D base picked by the rule in plan.json: A earned 5/6, B earned 6/6 on dev scenarios.",
+  "devRuns": {
+    "count": 18,
+    "archivedIn": "eval/runs-dev/",
+    "estimatedSpendUsd": 9.86
+  },
+  "evaluationBudgetUsd": 40.14,
+  "deviationFromPlan": "plan.json said dev runs made with the frozen prompt hash would be kept. After the dev phase the engine changed (longer backoff on Vertex 429s, the baseline's own final report at the deadline instead of the reporting agent, deadline stop reasons, critic decisions taking precedence over budget stops), so the dev runs no longer reflect the frozen system. They are archived in eval/runs-dev/ and used only for what the plan assigned them (cost per run and arm D's base); every scored run is made after the freeze, dev scenarios included."
+}
