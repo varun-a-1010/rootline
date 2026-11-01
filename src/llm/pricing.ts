@@ -3,8 +3,8 @@ import type { TokenUsage } from './types.js';
 /**
  * Cost estimates (brief §5). Tokens are the primary measure; dollars are an estimate at the
  * standard rates below. Gemini 3.8 Flash: $1.50/M input, $7.50/M output (thinking billed as
- * output), cached input at 0.1x. Jev 1.13: $0.042/M input, output free (TypeSafe docs). Any
- * promotional credits are ignored.
+ * output), cached input at 0.1x. Jev 1.13: $0.042/M input, output free (TypeSafe docs). These
+ * are Google's rates from 2027-01-01; its lower promotional rates until then are ignored.
  */
 export interface RateCard {
   inputPerM: number;

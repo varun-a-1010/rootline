@@ -46,7 +46,11 @@ missing data; random transient faults everywhere), and two scenarios whose corre
    Because the engine changed after the dev runs, they are archived in `eval/runs-dev/` and not
    scored; every scored run, dev scenarios included, was made after the freeze. This is
    stricter than the plan, which would have kept them, and is recorded in `freeze.json`.
-4. **Budget:** $50 in total, so the scored runs had $40.14 after the dev phase.
+4. **Budget:** $50 in total, so the scored runs had $40.14 after the dev phase. Eight minutes
+   into the evaluation a coding-session restart killed the runner. Three runs were already
+   recorded; two in-flight runs were lost before they wrote a file, so their partial spend is
+   unknown. They were started again from scratch on resume, the only runs ever redone, and the
+   cap was lowered to $39.64 (an estimated $0.50 allowance) to keep the total within $50.
 5. Runs execute at concurrency 2 through `npm run eval`. Each run file in `eval/runs/` holds the
    full event log, the report, the metrics and the environment (model, versions reported by the
    API, thinking level, budgets, prompt hash, fixture hash, git SHA, machine). Crashed runs are

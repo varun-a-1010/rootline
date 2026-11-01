@@ -52,7 +52,10 @@ on. The evaluation-specific items at the end are filled in from `eval/results/`.
   with the stop reason `deadline`.
 - Cost figures are estimates at standard list rates (`src/llm/pricing.ts`): Gemini 3.8 Flash
   $1.50/M input, $7.50/M output including thinking, $0.15/M cached input; Jev $0.042/M input.
-  Promotional credits are ignored. Tokens are the primary measure.
+  Checked on 2026-11-02 against Google's Gemini API pricing page, which lists those rates from
+  1 January 2027 and half of them through 31 December 2026, so a run today likely costs about
+  half the estimate. Google's Vertex AI pricing page returned no content when checked, so the
+  Vertex rates are assumed to match. Tokens are the primary measure.
 - The model's "thinking" tokens dominate output for the synthesis agents; they are reported but
   their content is not inspected.
 
