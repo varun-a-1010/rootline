@@ -80,5 +80,12 @@ on. The evaluation-specific items at the end are filled in from `eval/results/`.
 | Deltabase-hosted Postgres | hosted demo database | PGlite is used locally and in tests |
 | npm packages | see `package.json` | — |
 
+The hosted database was set up through the Deltabase workflow: schema previewed, applied with the
+exact plan hash and read back; all 28 worlds loaded and checked against the fixtures
+(`eval/verify-worlds.ts`); and `test/deltabase.integration.test.ts` runs scripted arms A and E
+against it. Deltabase's schema language has no double-precision type, so `value` and `latency_ms`
+are `numeric` there and `double precision` on PGlite; queries convert both to JavaScript numbers.
+The evaluation itself ran on PGlite.
+
 The Jev 1.13 model page on OpenRouter was not reachable during the build (its hub lists 1.14 as
 current and 1.13 as still available); its price is taken from TypeSafe's documentation.
