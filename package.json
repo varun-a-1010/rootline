@@ -14,7 +14,8 @@
     "fixtures:check": "tsx scenarios/generate.ts --check",
     "fixtures:load": "tsx src/cli/fixtures.ts load",
     "tool": "tsx src/cli/tool.ts",
-    "investigate": "tsx src/cli/investigate.ts"
+    "investigate": "tsx src/cli/investigate.ts",
+    "llm:check": "tsx src/cli/llm-check.ts"
   },
   "license": "MIT",
   "dependencies": {

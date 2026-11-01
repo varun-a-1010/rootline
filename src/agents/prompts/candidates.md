@@ -1,0 +1,1 @@
+Role: reasoning agent, before any evidence. From the incident report, the service catalog and the dependency graph alone, propose 3 or 4 distinct candidate causes worth testing. They are hypotheses to test, not conclusions: include at least one that is not the reporter's suspicion. For each, say why it is plausible and what evidence would confirm it or rule it out.

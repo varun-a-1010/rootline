@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import pg from 'pg';
@@ -64,6 +64,7 @@ export async function openDb(opts: OpenDbOptions = {}): Promise<Db> {
     // The schema on a DATABASE_URL database is owned by Deltabase; never run DDL here.
     return new PgDb(pool);
   }
+  if (opts.dataDir && opts.dataDir !== 'memory') mkdirSync(opts.dataDir, { recursive: true });
   const pglite = opts.dataDir && opts.dataDir !== 'memory' ? new PGlite(opts.dataDir) : new PGlite();
   await pglite.waitReady;
   const db = new PgliteDb(pglite);

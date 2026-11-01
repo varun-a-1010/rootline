@@ -62,7 +62,7 @@ export class VertexGeminiProvider implements LlmProvider {
     this.url = `https://${host}/v1/projects/${opts.projectId}/locations/${opts.location}/publishers/google/models/${opts.model}:generateContent`;
     this.maxAttempts = opts.maxAttempts ?? 3;
     this.backoffBaseMs = opts.backoffBaseMs ?? 2000;
-    this.requestTimeoutMs = opts.requestTimeoutMs ?? 120_000;
+    this.requestTimeoutMs = opts.requestTimeoutMs ?? 90_000;
   }
 
   async generate(req: GenerateRequest): Promise<GenerateResponse> {

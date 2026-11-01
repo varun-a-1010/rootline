@@ -444,7 +444,28 @@ export class WorldBuilder {
         };
         const fmt = (v: number) => Number(v.toPrecision(5));
         if (!def.labels) {
-          out.push({ s: svc.id, m: def.name, points: grid.map((t) => [t.toISOString(), fmt(apply(null, t, this.baseValue(def, svc.profile, t, r, 1, 1, jobRuns)))]) });
+          if (svc.id === 'job-scheduler' && (def.name === 'jobs_running' || def.name === 'jobs_failed')) {
+          // Derived from the actual job timeline (a rollup point averages its 5 minutes).
+          out.push({
+            s: svc.id,
+            m: def.name,
+            points: grid.map((t) => {
+              const step = t.getTime() < this.highResFrom.getTime() ? 5 * MIN : MIN;
+              const a = t.getTime();
+              const b = a + step;
+              let v = 0;
+              for (const run of jobRuns) {
+                if (def.name === 'jobs_running') {
+                  const overlap = Math.min(b, run.end.getTime()) - Math.max(a, run.start.getTime());
+                  if (overlap > 0 && run.outcome !== 'skipped') v += overlap / step;
+                } else if (run.outcome === 'failed' && run.end.getTime() >= a && run.end.getTime() < b) v += MIN / step;
+              }
+              return [t.toISOString(), fmt(v)] as [string, number];
+            }),
+          });
+          continue;
+        }
+        out.push({ s: svc.id, m: def.name, points: grid.map((t) => [t.toISOString(), fmt(apply(null, t, this.baseValue(def, svc.profile, t, r, 1, 1, jobRuns)))]) });
           continue;
         }
         const { key, values } = def.labels;

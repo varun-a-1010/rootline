@@ -1049,13 +1049,13 @@
     {
      "name": "jobs_running",
      "unit": "count",
-     "description": "Jobs currently running",
+     "description": "Scheduled jobs currently running",
      "labels": []
     },
     {
      "name": "jobs_failed",
      "unit": "count/min",
-     "description": "Job runs that ended in failure",
+     "description": "Scheduled job runs that ended in failure",
      "labels": []
     }
    ]
@@ -1354,7 +1354,7 @@
    "critical": true,
    "timeoutMs": null,
    "retries": null,
-   "notes": null
+   "notes": "triggers sip-debit-batch Mon-Fri 06:00 IST"
   },
   {
    "from": "job-scheduler",
@@ -1363,7 +1363,7 @@
    "critical": false,
    "timeoutMs": null,
    "retries": null,
-   "notes": "triggers factsheet-sync and index builds"
+   "notes": "triggers factsheet-sync (monthly, first business days, 07:00 IST) and index builds"
   },
   {
    "from": "job-scheduler",
@@ -1372,7 +1372,7 @@
    "critical": true,
    "timeoutMs": null,
    "retries": null,
-   "notes": "triggers nav-import nightly"
+   "notes": "triggers nav-import Mon-Fri 23:30 IST"
   },
   {
    "from": "job-scheduler",
@@ -1381,7 +1381,7 @@
    "critical": true,
    "timeoutMs": null,
    "retries": null,
-   "notes": "triggers payout batches"
+   "notes": "triggers payout batches Mon-Fri 10:00 and 14:00 IST"
   },
   {
    "from": "kyc-agency",
@@ -1453,7 +1453,7 @@
    "critical": true,
    "timeoutMs": 30000,
    "retries": 3,
-   "notes": "nightly NAV import (job-scheduler: nav-import)"
+   "notes": "NAV import job nav-import runs Mon-Fri at 23:30 IST (scheduled by job-scheduler)"
   },
   {
    "from": "market-data-service",
