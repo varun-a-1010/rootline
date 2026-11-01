@@ -96,11 +96,13 @@ describe('HTTP API (scripted models, no browser)', () => {
     expect((await post({ worldId, arm: 'A', accessCode: 'letmein' })).status).toBe(202);
     expect((await post({ worldId, arm: 'A', accessCode: 'letmein' })).status).toBe(429);
     expect((await post({ worldId, arm: 'D', accessCode: 'letmein' })).status).toBe(503); // no Jev configured
+    expect((await post({ arm: 'A', accessCode: 'letmein' })).status).toBe(400);
   });
 
-  it('starts a run, streams its events over SSE until the end, then serves state and flow', async () => {
-    const { app, worldId } = await makeApp();
-    const res = await app.request('/api/runs', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ worldId, arm: 'A' }) });
+  it('starts a run (by incident id), streams its events over SSE until the end, then serves state and flow', async () => {
+    const { app } = await makeApp();
+    const inc: any = await (await app.request('/api/incidents')).json();
+    const res = await app.request('/api/runs', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ incidentId: inc[0].incident.incidentId, arm: 'A' }) });
     const { runId } = (await res.json()) as any;
     const sse = await app.request(`/api/runs/${runId}/events?after=0`);
     const text = await sse.text(); // ends when the run ends

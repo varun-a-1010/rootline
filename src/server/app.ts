@@ -27,7 +27,9 @@ export interface AppDeps {
   root?: string;
 }
 
-const StartRun = z.object({ worldId: z.string().regex(/^w_[0-9a-f]{8}$/), arm: ArmId, accessCode: z.string().max(200).optional() });
+const StartRun = z
+  .object({ worldId: z.string().regex(/^w_[0-9a-f]{8}$/).optional(), incidentId: z.string().max(40).optional(), arm: ArmId, accessCode: z.string().max(200).optional() })
+  .refine((b) => b.worldId || b.incidentId, 'worldId or incidentId is required');
 
 function safeEqual(a: string, b: string): boolean {
   const x = Buffer.from(a);
@@ -62,14 +64,17 @@ export function createApp(d: AppDeps): Hono {
 
   app.post('/api/runs', async (c) => {
     const body = StartRun.safeParse(await c.req.json().catch(() => ({})));
-    if (!body.success) return c.json({ error: 'expected { worldId, arm, accessCode? }' }, 400);
+    if (!body.success) return c.json({ error: 'expected { incidentId | worldId, arm, accessCode? }' }, 400);
     if (d.accessCode && !safeEqual(body.data.accessCode ?? '', d.accessCode)) return c.json({ error: 'a valid access code is required to start live runs' }, 403);
     const why = d.runs.canRun(body.data.arm);
     if (why) return c.json({ error: why }, 503);
     const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() || c.req.header('x-real-ip') || 'local';
     const refused = d.limiter.take(ip);
     if (refused) return c.json({ error: refused }, 429);
-    const runId = d.runs.start(body.data.worldId, body.data.arm);
+    let worldId = body.data.worldId;
+    if (!worldId) worldId = (await listIncidents(d.db)).find((i) => i.incident.incidentId === body.data.incidentId)?.worldId;
+    if (!worldId) return c.json({ error: 'unknown incident' }, 404);
+    const runId = d.runs.start(worldId, body.data.arm);
     return c.json({ runId }, 202);
   });
 

@@ -36,13 +36,22 @@ missing data; random transient faults everywhere), and two scenarios whose corre
 
 1. The plan (coverage order, budget, headline comparison, arm D base rule) was recorded before
    any held-out run: `eval/results/plan.json`.
-2. Prompts were frozen and their hash recorded: `eval/results/freeze.json`. Only runs with the
-   frozen prompt hash are scored.
-3. Runs execute at concurrency 2 through `npm run eval`. Each run file in `eval/runs/` holds the
+2. **Dev phase:** 18 runs (the six dev scenarios on arms A, B and E), $9.86 estimated. They
+   measured cost per run (about $0.3-0.9) and picked arm D's base by the pre-registered rule
+   (B earned 6/6, A 5/6, so **D's base is B**). They also exposed three engine problems: Vertex
+   429 quota errors with too-short backoff, the baseline falling back to the multi-agent
+   reporting agent at the deadline, and budget stops masking a critic's decision. These were
+   fixed before the freeze.
+3. **Freeze:** prompts frozen with hash `fbb5303b5fc5eeaa` (`eval/results/freeze.json`).
+   Because the engine changed after the dev runs, they are archived in `eval/runs-dev/` and not
+   scored; every scored run, dev scenarios included, was made after the freeze. This is
+   stricter than the plan, which would have kept them, and is recorded in `freeze.json`.
+4. **Budget:** $50 in total, so the scored runs had $40.14 after the dev phase.
+5. Runs execute at concurrency 2 through `npm run eval`. Each run file in `eval/runs/` holds the
    full event log, the report, the metrics and the environment (model, versions reported by the
    API, thinking level, budgets, prompt hash, fixture hash, git SHA, machine). Crashed runs are
    recorded as failed and never silently rerun.
-4. Scoring follows `eval/rubric.md` (deterministic) and `eval/judge-questions.md` (Jev judge,
+6. Scoring follows `eval/rubric.md` (deterministic) and `eval/judge-questions.md` (Jev judge,
    blind to the arm, validated first on `eval/judge-validation/`).
 
 ## Metrics
