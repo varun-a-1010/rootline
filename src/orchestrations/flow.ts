@@ -114,22 +114,21 @@ export async function runFlow(ctx: RunContext, opts: FlowOptions): Promise<void>
       ctx.stop(ctx.budget.exhausted ?? 'unrecoverable_error');
       return;
     }
-    if (ctx.budget.exhausted) {
-      ctx.stop(ctx.budget.exhausted);
-      return;
-    }
     if (!critic) {
-      ctx.stop('completed');
+      ctx.stop(ctx.budget.exhausted ?? 'completed');
       return;
     }
     if (sched.outcome(critic.id) !== 'completed') {
       ctx.stop(ctx.budget.exhausted ?? 'unrecoverable_error');
       return;
     }
+    // A critic decision to stop is the reason the run stopped, even if a budget also ran out;
+    // a budget only decides when the critic wants to continue.
     const s = ctx.state();
     const decision = s.criticDecisions[s.criticDecisions.length - 1]!;
     if (decision.decision === 'accept') return ctx.stop('critic_accepted');
     if (decision.decision === 'insufficient_evidence') return ctx.stop('critic_insufficient_evidence');
+    if (ctx.budget.exhausted) return ctx.stop(ctx.budget.exhausted);
     if (round + 1 >= maxRounds) return ctx.stop('max_rounds');
     specialists = validateFollowUps(ctx, decision.followUps, round + 1, critic.id, () => ctx.nextTaskId());
     if (specialists.length === 0) return ctx.stop('no_new_evidence');

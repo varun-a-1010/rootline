@@ -1,0 +1,24 @@
+{
+  "schema": "rootline.eval-plan.v1",
+  "recordedAt": "2026-11-02T02:15:00+05:30",
+  "recordedBefore": "any held-out evaluation run",
+  "budgetUsd": 50,
+  "budgetCounts": "every recorded run in eval/runs/, including the dev phase; estimated at standard list rates",
+  "concurrency": 2,
+  "headlineComparison": "Arm A (split by source, then critique) is the multi-agent implementation compared with the single-agent baseline (arm E). Arms B, C and D are variants/ablations.",
+  "phases": [
+    { "id": "dev", "description": "Dev scenarios (s01, s02, s04, s06, s12, s13, variant A) on arms A, B and E. Measures cost per run, allows prompt iteration, and picks arm D's base." },
+    { "id": "freeze", "description": "Freeze prompts (hash in eval/results/freeze.json) before the first held-out run. If prompts change after the freeze, every run is redone and the change is reported. Dev runs made with the frozen prompt hash are kept." },
+    { "id": "phase1", "description": "Arms A and E on every remaining world (held-out A variants and all B variants), paired per world." },
+    { "id": "phase2", "description": "Arms B and C on every A variant; arm D on every A variant if Jev is available." },
+    { "id": "phase3", "description": "Arms B, C and D on the B variants." },
+    { "id": "phase4", "description": "Repetitions on A variants." }
+  ],
+  "stopRule": "Stop starting new runs when the estimated spend would exceed the budget; report the coverage reached.",
+  "armDBaseRule": "Arm D's base is whichever of A and B earns more on the dev scenarios (root-cause credit plus correct abstentions). Tie: the one with the lower mean estimated cost per run.",
+  "scoring": "eval/rubric.md, frozen with the prompts",
+  "notes": [
+    "Crashed runs are recorded as failed and never silently rerun.",
+    "Arm D and the judge need OPENROUTER_API_KEY; if it is unavailable they are reported as not run."
+  ]
+}
