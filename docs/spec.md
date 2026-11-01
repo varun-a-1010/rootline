@@ -1,9 +1,14 @@
 # Multi-Agent Production Incident Investigation System — design proposal
 
-> **Decisions made after this proposal was written (2026-11-01). They override it.**
+> **Build decisions (2026-11-01).**
 >
-> - **Product name:** Rootline. The fictional system under investigation is **Aaroh**.
-> - **Model:** `gemini-4-argon` on Vertex AI (global endpoint).
+> - **Product name:** Rootline. The fictional system under investigation is an Indian investing
+>   app with an AI assistant built in (§3).
+> - **Model:** `gemini-3.8-flash` on Vertex AI (global endpoint) for every agent and the
+>   baseline. The Jev decision model (via OpenRouter) makes small typed decisions in one
+>   orchestration and judges the evaluation.
+> - **Comparison:** four multi-agent orchestrations plus the single-agent baseline, on the same
+>   tools, limits, incidents and model. Evaluation budget: $50.
 > - **Language:** TypeScript on Node.js, with no agent framework.
 > - **Data (resolves §8 and §15):** the query tools use Postgres SQL everywhere. They run on **PGlite**
 >   (in-process Postgres) by default for local runs, tests and reviewers, and on a dedicated
@@ -25,13 +30,13 @@
 
 ## 1. Purpose
 
-Build a multi-agent system that investigates production incidents in a fictional financial-education assistant. It must retrieve and compare evidence, develop competing explanations, challenge its own conclusions, and recommend operational corrective actions. Its output should remain honest when evidence is missing, contradictory, or a tool fails.
+Build a multi-agent system that investigates production incidents in a fictional Indian investing app with an AI assistant built in. It must retrieve and compare evidence, develop competing explanations, challenge its own conclusions, and recommend operational corrective actions. Its output should remain honest when evidence is missing, contradictory, or a tool fails.
 
 The system will be developed in a **separate repository**. It will use a dedicated Deltabase database for synthetic operational data and embed the existing hosted Agentflow viewer to display live investigation progress. The hosted application is the primary review experience; the submission will also include documented evaluation results and downloadable synthetic fixtures.
 
 ### Context and boundaries
 
-Orange's [homepage](https://www.orangeinvest.app/) describes a financial companion people can call, starting with investments. Its [privacy policy](https://www.orangeinvest.app/privacypolicy) describes Padii as a financial education and information platform and refers to voice and chat inputs. The assignment itself asks for an incident investigation system.
+Orange's [homepage](https://www.orangeinvest.app/) describes a financial companion people can call, starting with investments. Its [privacy policy](https://www.orangeinvest.app/privacypolicy) describes Padii as a financial education and information platform and refers to voice and chat inputs. The assignment itself asks for an incident investigation system. The fictional system under investigation is therefore an investing app with an AI assistant inside it, so its incidents resemble the ones such a product would face.
 
 The fictional application, architecture, incidents, service names, users, datasets, and failures in this document are **invented**. They are not claims about Orange's infrastructure, customers, practices, or incidents. The system investigates service reliability and information quality; it does not give personalized investment advice or execute financial transactions.
 
@@ -64,18 +69,29 @@ The system must be able to conclude **inconclusive**. A polished graph or fluent
 
 ## 3. Fictional system under investigation
 
-Use a clearly fictional product name, such as **Aaroh**. It is a financial-education assistant available through chat and voice. It can explain concepts and retrieve simulated public financial information and user preferences.
+The system under investigation is a fictional Indian investing app with an AI assistant built in. Users buy stocks and mutual funds, run SIPs on UPI autopay, track their portfolio, redeem to their bank account, and ask the assistant about funds and their own holdings.
 
 | Component | Simulated responsibility | Example operational signal |
 | --- | --- | --- |
-| `chat-gateway` | Receives text requests and returns responses | request errors, p95 latency |
-| `voice-gateway` | Handles voice sessions and speech provider calls | transcription timeouts, session failures |
-| `assistant-orchestrator` | Coordinates model, retrieval, and user context | token use, retries, request completion |
-| `llm-provider` | Produces model responses | response latency, rate limits |
-| `financial-data-service` | Retrieves simulated product or market information | data freshness, provider errors |
-| `education-retrieval` | Retrieves educational material | index version, result freshness |
-| `user-context-service` | Retrieves fictional preferences | cache age, missing-context rate |
-| `cache` / `database` | Supports application and data flows | hit rate, connection latency |
+| `api-gateway` | Receives app requests | request errors, p95 latency |
+| `auth-service` | OTP login | OTP success rate, SMS send errors |
+| `order-service` / `broker-connector` | Stock orders and the broker/exchange APIs | order success rate, rate-limit responses |
+| `mf-order-service` | Mutual fund purchases and SIPs | order and SIP counts, failures |
+| `mandate-service` | UPI autopay and e-mandates through NPCI | mandate success rate by bank |
+| `payment-service` / `debit-worker` / `bank-connector` | Collects SIP instalments from banks | debit counts, retries, bank latency |
+| `portfolio-service` | Holdings, values, P&L | value computation errors, staleness |
+| `market-data-service` | Stock prices, and fund NAVs from the AMFI feed | NAV age, feed errors |
+| `payout-service` | Redemptions back to bank accounts | batch duration, lock waits |
+| `kyc-service` | KYC through the registration agency | pending count, webhook errors |
+| `notification-service` | SMS, push and email | send failures |
+| `assistant-orchestrator` | Runs each assistant conversation | token use, retries, request completion |
+| `llm-provider` | Produces model responses (external) | response latency, rate limits |
+| `knowledge-index` / `indexing-pipeline` | Fund factsheets and help articles | index version, freshness |
+| `user-context-service` | The user's holdings, for personal answers | timeouts, missing-context rate |
+| `compliance-filter` | Blocks direct buy/sell advice (SEBI) | block rate |
+| `cache` / `database` / `job-scheduler` / `message-queue` | Shared infrastructure | hit rate, lock waits, queue depth |
+
+External partners (banks, NPCI, the broker and exchange, the AMFI feed, the KYC agency, the SMS provider and the LLM provider) can each fail in ways that look like the app's own fault.
 
 These components are **records in a synthetic environment**, not a requirement to run real microservices. All names, values, customers, and provider integrations are fictional. Do not use real customer data or imply an actual Orange service integration.
 
@@ -145,7 +161,7 @@ A failed specialist should leave a structured error and gap; independent complet
 
 ### Illustrative interaction
 
-An incident reports delayed chat answers around 10:05. The dependency agent finds a deployment at 10:04; observability finds financial-data latency began at 10:01. The reasoning agent lists both a deployment regression and an upstream provider slowdown. The critic asks for a provider error/latency breakdown and a comparison with unaffected routes. A follow-up query yields partial results. The report identifies what the evidence supports, what remains uncertain, and whether the system has enough to rank either cause confidently.
+An incident reports slow assistant answers around 10:05. The dependency agent finds an `assistant-orchestrator` deployment at 10:04; observability finds `market-data-service` latency began at 10:01. The reasoning agent lists both a deployment regression and an upstream provider slowdown. The critic asks for a provider error/latency breakdown and a comparison with unaffected routes. A follow-up query yields partial results. The report identifies what the evidence supports, what remains uncertain, and whether the system has enough to rank either cause confidently.
 
 ## 6. Shared state and evidence
 
@@ -153,7 +169,7 @@ Use typed, versioned structures. The exact implementation language is a build de
 
 ### Investigation state
 
-- `run_id`, incident reference, dataset version, mode (`multi_agent` or `single_agent`), timestamps, status, and stop reason.
+- `run_id`, incident reference, dataset version, arm (one of four multi-agent orchestrations or the single-agent baseline), timestamps, status, and stop reason.
 - Task list with agent role, requested question, dependencies, status, start/end times, and result references.
 - Evidence records and tool-attempt records.
 - Hypothesis versions, critic decisions, follow-up requests, and final report.
@@ -227,20 +243,20 @@ Build at least 12 hand-reviewed incidents, with at least 10 evaluated. Each fixt
 
 | ID | Scenario | Intended challenge / evaluator label |
 | --- | --- | --- |
-| 01 | Financial data becomes stale near an unrelated assistant deployment | Cache refresh failed before deployment; recognize misleading chronology. |
-| 02 | Voice sessions time out but text chat works | Speech provider latency, with unrelated model latency as a distractor. |
-| 03 | Responses omit a caveat after a prompt change and index refresh | Prompt change is supported; separately inspect the competing index hypothesis. |
-| 04 | Chat slows during a traffic surge | Provider throttling versus app capacity; use metrics and rate-limit evidence. |
-| 05 | Responses lose personalization | Context-service failures plus stale cache; distinguish missing from old data. |
-| 06 | Users receive duplicate responses | Retry/deduplication interaction across services. |
-| 07 | Educational answers cite outdated content | Indexing pipeline missed an update despite healthy query service. |
-| 08 | Rupee values are formatted or scaled incorrectly | Formatting/config regression, with healthy upstream values. |
-| 09 | Some financial-data requests fail | Partial upstream provider failure; do not mistake partial success for full health. |
-| 10 | A past incident looks like a match | Current root cause differs; past similarity is a lead, not proof. |
-| 11 | Deployment and alert times appear inconsistent | Source clock or timezone mismatch changes event ordering. |
-| 12 | Critical logs are missing | Insufficient evidence; an unsupported definite diagnosis is a failure. |
-| 13 | Metrics tool times out | Retry and/or use alternative data within limits; disclose remaining coverage gaps. |
-| 14 | Conflicting evidence and repeated tool failure | Remain inconclusive when competing causes cannot be distinguished. |
+| 01 | Portfolio shows yesterday's values near an unrelated portfolio deployment | The overnight NAV import failed before the deployment; recognize misleading chronology. |
+| 02 | Assistant replies take 20 s or more | LLM provider throttling, with a concurrent knowledge-index rebuild as a distractor. |
+| 03 | Assistant starts giving direct "buy this fund" advice | A prompt change weakened the compliance filter; separately inspect the same-day LLM model update. |
+| 04 | Stock orders fail at the 09:15 IST market open | Broker rate limiting versus app capacity; use metrics and rate-limit evidence. |
+| 05 | Assistant says the user holds no funds | Context-service timeouts plus a stale empty cache; distinguish missing from old data. |
+| 06 | SIP debited twice | A bank slowdown interacting with a shortened retry timeout, near an unrelated release. |
+| 07 | Assistant quotes an old expense ratio | The factsheet update never reached the index despite a healthy search service. |
+| 08 | Portfolio values 100× too high | A config regression treats paise as rupees, with healthy upstream values. |
+| 09 | Autopay setup fails for some users | One bank's mandate API fails; do not mistake 94% overall success for full health. |
+| 10 | A past incident looks like a match | The current cause is our own config change, not the past broker outage; past similarity is a lead, not proof. |
+| 11 | Deployment and alert times appear inconsistent | One source logs IST without an offset, which changes event ordering. |
+| 12 | OTP login failures with critical logs missing | Insufficient evidence; an unsupported definite diagnosis is a failure. |
+| 13 | Redemption payouts delayed and the metrics tool times out | Retry and/or use alternative data within limits; disclose remaining coverage gaps. |
+| 14 | KYC stuck at pending, with conflicting evidence and repeated tool failure | Remain inconclusive when competing causes cannot be distinguished. |
 
 During fixture authoring, define the exact timestamps, causal mechanism, evidence IDs, red herrings, coverage, allowable outcomes, and fault schedule for each case. Have a human inspect whether the labeled answer follows from evidence available through the tools. Include cases where multiple causes are defensible and grade them explicitly rather than forcing an artificial single answer.
 
@@ -366,7 +382,7 @@ The Agentflow source repository and Slate source repository are not deliverables
 
 ## 16. Draft technical note template (under 500 words)
 
-> We built a multi-agent incident investigator for a fictional financial-education assistant. An orchestrator runs independent observability and dependency investigations, stores source-linked results, and asks a reasoning agent to compare possible causes. A critic reviews contradictions and missing evidence and can request bounded follow-up queries. The reporter summarizes ranked hypotheses, confidence, counterevidence, and corrective actions; it can return an inconclusive result.
+> We built a multi-agent incident investigator for a fictional investing app with an AI assistant built in. An orchestrator runs independent observability and dependency investigations, stores source-linked results, and asks a reasoning agent to compare possible causes. A critic reviews contradictions and missing evidence and can request bounded follow-up queries. The reporter summarizes ranked hypotheses, confidence, counterevidence, and corrective actions; it can return an inconclusive result.
 >
 > Synthetic operational records are stored in a dedicated Deltabase environment and exposed through structured read-only tools. Tool failures and incomplete responses are reproducible, and every attempt is recorded. The hosted interface embeds the separately maintained Agentflow viewer; its graph is driven by recorded investigation events. We compared the system with a single agent using the same tools, incident inputs, and documented limits.
 >
