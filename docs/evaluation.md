@@ -58,6 +58,10 @@ missing data; random transient faults everywhere), and two scenarios whose corre
    - The cap was lowered to $39.14 ($0.50 per interruption, an estimate for the unrecorded
      spend) so the total stays within $50. The engine changed at this point, so scored runs
      span two git SHAs, recorded per run; only the baseline's deadline path differs.
+   - The cap was later raised to $89.14 at list rates, because the owner confirmed Google's
+     half pricing applies on Vertex AI: the $50 budget is real money, so it buys $100 at the
+     list rates these estimates use, less the dev phase and the unrecorded allowance. That
+     let every arm run on every world. Repetitions were not run.
    - During step 4 and 5 live checks two processes opened the same PGlite directory, which
      PGlite does not support. `eval/verify-worlds.ts` found all 28 worlds in that directory
      identical to the fixtures, so no run read damaged data.
