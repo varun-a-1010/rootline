@@ -1,0 +1,323 @@
+{
+  "summary": {
+    "items": 40,
+    "agreement": 0.925,
+    "mechanism": {
+      "items": 20,
+      "agree": 20
+    },
+    "claim": {
+      "items": 20,
+      "agree": 17
+    },
+    "disagreements": [
+      {
+        "id": "c01",
+        "kind": "claim",
+        "expected": true,
+        "p": 0.25,
+        "agree": false
+      },
+      {
+        "id": "c07",
+        "kind": "claim",
+        "expected": true,
+        "p": 0.14,
+        "agree": false
+      },
+      {
+        "id": "c17",
+        "kind": "claim",
+        "expected": true,
+        "p": 0.06,
+        "agree": false
+      }
+    ],
+    "labeledBy": "coding agent (not human)",
+    "jevModel": "typesafe/jev-1.13",
+    "inputTokens": 18110,
+    "estCostUsd": 0.00076062
+  },
+  "results": [
+    {
+      "id": "m01",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.97,
+      "agree": true
+    },
+    {
+      "id": "m02",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.06,
+      "agree": true
+    },
+    {
+      "id": "m03",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.98,
+      "agree": true
+    },
+    {
+      "id": "m04",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.03,
+      "agree": true
+    },
+    {
+      "id": "m05",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.96,
+      "agree": true
+    },
+    {
+      "id": "m06",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.08,
+      "agree": true
+    },
+    {
+      "id": "m07",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.97,
+      "agree": true
+    },
+    {
+      "id": "m08",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.04,
+      "agree": true
+    },
+    {
+      "id": "m09",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.9,
+      "agree": true
+    },
+    {
+      "id": "m10",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.2,
+      "agree": true
+    },
+    {
+      "id": "m11",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.98,
+      "agree": true
+    },
+    {
+      "id": "m12",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.06,
+      "agree": true
+    },
+    {
+      "id": "m13",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.97,
+      "agree": true
+    },
+    {
+      "id": "m14",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.17,
+      "agree": true
+    },
+    {
+      "id": "m15",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.98,
+      "agree": true
+    },
+    {
+      "id": "m16",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.02,
+      "agree": true
+    },
+    {
+      "id": "m17",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.87,
+      "agree": true
+    },
+    {
+      "id": "m18",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.11,
+      "agree": true
+    },
+    {
+      "id": "m19",
+      "kind": "mechanism",
+      "expected": true,
+      "p": 0.98,
+      "agree": true
+    },
+    {
+      "id": "m20",
+      "kind": "mechanism",
+      "expected": false,
+      "p": 0.02,
+      "agree": true
+    },
+    {
+      "id": "c01",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.25,
+      "agree": false
+    },
+    {
+      "id": "c02",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.02,
+      "agree": true
+    },
+    {
+      "id": "c03",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.95,
+      "agree": true
+    },
+    {
+      "id": "c04",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.03,
+      "agree": true
+    },
+    {
+      "id": "c05",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.9,
+      "agree": true
+    },
+    {
+      "id": "c06",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.04,
+      "agree": true
+    },
+    {
+      "id": "c07",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.14,
+      "agree": false
+    },
+    {
+      "id": "c08",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.23,
+      "agree": true
+    },
+    {
+      "id": "c09",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.94,
+      "agree": true
+    },
+    {
+      "id": "c10",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.42,
+      "agree": true
+    },
+    {
+      "id": "c11",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.87,
+      "agree": true
+    },
+    {
+      "id": "c12",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.06,
+      "agree": true
+    },
+    {
+      "id": "c13",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.92,
+      "agree": true
+    },
+    {
+      "id": "c14",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.17,
+      "agree": true
+    },
+    {
+      "id": "c15",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.86,
+      "agree": true
+    },
+    {
+      "id": "c16",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.02,
+      "agree": true
+    },
+    {
+      "id": "c17",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.06,
+      "agree": false
+    },
+    {
+      "id": "c18",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.02,
+      "agree": true
+    },
+    {
+      "id": "c19",
+      "kind": "claim",
+      "expected": true,
+      "p": 0.86,
+      "agree": true
+    },
+    {
+      "id": "c20",
+      "kind": "claim",
+      "expected": false,
+      "p": 0.12,
+      "agree": true
+    }
+  ]
+}

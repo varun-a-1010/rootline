@@ -10,7 +10,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join } from 'node:path';
 import { projectRoot } from '../src/util/paths.js';
 import type { RunMetrics } from './metrics.js';
-import { readRunFiles, RUNS_DIR, runFileName, type RunFile } from './runner.js';
+import { readRunFiles, RUNS_DIR, runFileName, spentUsd, SUPERSEDED_DIR, type RunFile } from './runner.js';
 import { scoreRun, type CaseScore } from './score.js';
 
 export const RESULTS_DIR = join(projectRoot(), 'eval', 'results');
@@ -147,7 +147,9 @@ function main() {
   const keysFor = (a: string) => new Set(rows.filter((r) => r.arm === a).map((r) => r.key));
   const common = arms.length ? [...keysFor(arms[0]!)].filter((k) => arms.every((a) => keysFor(a).has(k))) : [];
   const byArmCommon = Object.fromEntries(arms.map((a) => [a, aggregate(rows.filter((r) => r.arm === a && common.includes(r.key)))]));
-  const spend = files.reduce((n, f) => n + (f.metrics?.costUsd.total ?? 0), 0);
+  const devSpend = spentUsd(readRunFiles(join(projectRoot(), 'eval', 'runs-dev')));
+  const superseded = readRunFiles(SUPERSEDED_DIR);
+  const spend = spentUsd(files) + devSpend + spentUsd(superseded);
   const env = files.find((f) => f.environment.promptHash === freeze?.promptHash)?.environment ?? files[0]?.environment ?? null;
   const plan = existsSync(join(RESULTS_DIR, 'plan.json')) ? JSON.parse(readFileSync(join(RESULTS_DIR, 'plan.json'), 'utf8')) : null;
   const judge = existsSync(join(RESULTS_DIR, 'judge.json')) ? JSON.parse(readFileSync(join(RESULTS_DIR, 'judge.json'), 'utf8')) : null;
@@ -157,8 +159,9 @@ function main() {
     freeze,
     environment: env,
     plan,
-    runs: { files: names.length, included: rows.length, excluded, crashed: rows.filter((r) => r.status === 'crashed').length },
+    runs: { files: names.length, included: rows.length, excluded, crashed: rows.filter((r) => r.status === 'crashed').length, superseded: superseded.map((f) => runFileName(f.job)) },
     spendUsdAllRecordedRuns: r3(spend),
+    spendBreakdownUsd: { scored: r3(spentUsd(files)), dev: r3(devSpend), superseded: r3(spentUsd(superseded)) },
     byArm,
     byArmSplit,
     commonCases: common.sort(),
@@ -182,7 +185,7 @@ function renderMd(s: any, rows: Row[], arms: string[], common: string[]): string
   L.push(`Generated ${s.generatedAt} by \`eval/summarize.ts\` from \`eval/runs/\`. Do not edit by hand.`, '');
   if (s.freeze) L.push(`Prompt freeze: hash \`${s.freeze.promptHash}\` at ${s.freeze.frozenAt} (git ${s.freeze.gitSha}); arm D base: ${s.freeze.armDBase}.`);
   if (s.environment) L.push(`Model: ${s.environment.model}; Jev: ${s.environment.jevModel ?? 'n/a'}; thinking: ${s.environment.thinkingLevel}; fixtures: \`${String(s.environment.fixtureCorpusSha256).slice(0, 16)}\`; node ${s.environment.node}; ${s.environment.machine}.`);
-  L.push(`Runs: ${s.runs.included} included, ${s.runs.excluded.length} excluded (pre-freeze), ${s.runs.crashed} crashed. Estimated spend over all recorded runs: $${s.spendUsdAllRecordedRuns}.`, '');
+  L.push(`Runs: ${s.runs.included} included, ${s.runs.excluded.length} excluded (pre-freeze), ${s.runs.crashed} crashed, ${s.runs.superseded.length} superseded and redone (see eval/runs-superseded/README.md). Estimated spend over all recorded runs: $${s.spendUsdAllRecordedRuns} (scored $${s.spendBreakdownUsd.scored}, dev $${s.spendBreakdownUsd.dev}, superseded $${s.spendBreakdownUsd.superseded}).`, '');
   const head = ['Metric', ...arms.map((a) => `Arm ${a}`)];
   const line = (name: string, f: (a: any) => string) => `| ${name} | ${arms.map((a) => f(s.byArm[a])).join(' | ')} |`;
   L.push('## By arm (all included runs)', '', `| ${head.join(' | ')} |`, `| ${head.map(() => '---').join(' | ')} |`);

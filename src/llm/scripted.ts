@@ -37,6 +37,7 @@ export class ScriptedProvider implements LlmProvider {
 
   async generate(req: GenerateRequest): Promise<GenerateResponse> {
     if (req.signal.aborted) throw new AbortedError();
+    assertVertexConversation(req);
     const n = this.counts.get(req.role) ?? 0;
     this.counts.set(req.role, n + 1);
     const script = this.scripts[req.role] ?? this.scripts['*'];
@@ -68,6 +69,20 @@ export class ScriptedProvider implements LlmProvider {
       latencyMs: Date.now() - started,
       attempts: 1,
     };
+  }
+}
+
+/**
+ * The conversation rules the live API enforces with a 400, so scripted tests fail the same way:
+ * a request must end with a user turn, and a function-response turn may not contain text.
+ */
+function assertVertexConversation(req: GenerateRequest): void {
+  const last = req.contents[req.contents.length - 1];
+  if (last?.role === 'model') throw new LlmError('bad_request', 'Requests ending with a model turn are not supported.', 400);
+  for (const c of req.contents) {
+    if (c.parts.some((p) => p.functionResponse) && c.parts.some((p) => p.text !== undefined)) {
+      throw new LlmError('bad_request', 'Requests ending with a model turn are not supported. (text inside a function-response turn)', 400);
+    }
   }
 }
 

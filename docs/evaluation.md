@@ -46,16 +46,26 @@ missing data; random transient faults everywhere), and two scenarios whose corre
    Because the engine changed after the dev runs, they are archived in `eval/runs-dev/` and not
    scored; every scored run, dev scenarios included, was made after the freeze. This is
    stricter than the plan, which would have kept them, and is recorded in `freeze.json`.
-4. **Budget:** $50 in total, so the scored runs had $40.14 after the dev phase. Eight minutes
-   into the evaluation a coding-session restart killed the runner. Three runs were already
-   recorded; two in-flight runs were lost before they wrote a file, so their partial spend is
-   unknown. They were started again from scratch on resume, the only runs ever redone, and the
-   cap was lowered to $39.64 (an estimated $0.50 allowance) to keep the total within $50.
-5. Runs execute at concurrency 2 through `npm run eval`. Each run file in `eval/runs/` holds the
+4. **Budget:** $50 in total, so the scored runs had $40.14 after the dev phase.
+5. **Interruptions and redone runs, all of them.**
+   - Eight minutes in, a coding-session restart killed the runner, losing two in-flight runs
+     before they wrote a file. They restarted from scratch and their partial spend is unknown.
+   - After 25 runs the log showed baseline runs ending `failed` at the deadline. The cause was
+     an engine bug in the baseline's final report turn, not the agent's work
+     (`eval/runs-superseded/README.md`). The runner was stopped on purpose, losing two more
+     in-flight runs, the bug was fixed, and the affected baseline runs were redone. Their
+     originals are kept in `eval/runs-superseded/` and still count toward the budget.
+   - The cap was lowered to $39.14 ($0.50 per interruption, an estimate for the unrecorded
+     spend) so the total stays within $50. The engine changed at this point, so scored runs
+     span two git SHAs, recorded per run; only the baseline's deadline path differs.
+   - During step 4 and 5 live checks two processes opened the same PGlite directory, which
+     PGlite does not support. `eval/verify-worlds.ts` found all 28 worlds in that directory
+     identical to the fixtures, so no run read damaged data.
+6. Runs execute at concurrency 2 through `npm run eval`. Each run file in `eval/runs/` holds the
    full event log, the report, the metrics and the environment (model, versions reported by the
    API, thinking level, budgets, prompt hash, fixture hash, git SHA, machine). Crashed runs are
    recorded as failed and never silently rerun.
-6. Scoring follows `eval/rubric.md` (deterministic) and `eval/judge-questions.md` (Jev judge,
+7. Scoring follows `eval/rubric.md` (deterministic) and `eval/judge-questions.md` (Jev judge,
    blind to the arm, validated first on `eval/judge-validation/`).
 
 ## Metrics

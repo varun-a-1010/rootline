@@ -68,10 +68,8 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
   const deadlineFinal = (): boolean => {
     if (grace || !spec.deadlineGraceMs || !ctx.signal.aborted || !ctx.budget.deadlinePassed()) return false;
     grace = AbortSignal.timeout(spec.deadlineGraceMs);
-    const notice = { text: spec.finalNotice ?? `Time is up. Call ${spec.terminal.name} now with what you have.` };
-    const last = contents[contents.length - 1];
-    if (last?.role === 'user') last.parts.push(notice);
-    else contents.push({ role: 'user', parts: [notice] });
+    // Always its own user turn: Vertex rejects text inside a function-response turn.
+    contents.push({ role: 'user', parts: [{ text: spec.finalNotice ?? `Time is up. Call ${spec.terminal.name} now with what you have.` }] });
     finalNoticeSent = true;
     return true;
   };

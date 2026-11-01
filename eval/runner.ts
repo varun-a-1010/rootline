@@ -23,6 +23,8 @@ import { projectRoot } from '../src/util/paths.js';
 import { computeMetrics, type RunMetrics } from './metrics.js';
 
 export const RUNS_DIR = join(projectRoot(), 'eval', 'runs');
+/** Runs replaced after an engine bug: kept and counted in spend, never scored. */
+export const SUPERSEDED_DIR = join(projectRoot(), 'eval', 'runs-superseded');
 
 export interface Job {
   key: string; // s01-A
@@ -121,7 +123,7 @@ async function main() {
   const settings = settingsFromEnv(env);
   const machine = `${platform()} ${release()} ${cpus()[0]?.model ?? ''} x${cpus().length}`;
 
-  let spent = spentUsd(readRunFiles()) + (runsDir === RUNS_DIR ? 0 : spentUsd(readRunFiles(runsDir)));
+  let spent = spentUsd(readRunFiles()) + spentUsd(readRunFiles(SUPERSEDED_DIR)) + (runsDir === RUNS_DIR ? 0 : spentUsd(readRunFiles(runsDir)));
   let inflight = 0;
   let stopped = false;
   const queue = [...pending];
