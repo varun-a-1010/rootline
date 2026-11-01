@@ -32,7 +32,10 @@ as excluded.
 
 - Correct abstention: outcome `inconclusive`.
 - Unsupported definitive diagnosis: outcome `conclusive` (any cause).
-- `failed` outcomes are neither and are listed as other.
+- `failed` outcomes are neither and are listed as other. So is a report built by code after an
+  agent failed, whatever outcome it states: it is not an agent's judgment. (Amendment, 2026-11-02,
+  after the freeze: this can only lower a score. It affected `s14-A-A-r1`, where a code-built
+  report said inconclusive on a scenario expected to be inconclusive.)
 - False abstentions on conclusive scenarios are reported under root cause (above).
 
 ## Evidence grounding

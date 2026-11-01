@@ -3,15 +3,16 @@
  * Integrity check: compare every world in a PGlite data directory with the fixture files
  * (row counts and value sums). PGlite is single-process, so this guards against a directory
  * that two processes opened at once.
- *   npx tsx eval/verify-worlds.ts [data-dir]
+ *   npx tsx eval/verify-worlds.ts [data-dir]     (or DATABASE_URL for a hosted database)
  */
 import { readManifest } from '../src/db/bootstrap.js';
 import { openDb } from '../src/db/client.js';
 import { readWorld } from '../src/db/fixtures.js';
 
 async function main() {
-  const dir = process.argv[2] ?? '.data/pglite';
-  const db = await openDb({ dataDir: dir });
+  const url = process.env.DATABASE_URL;
+  const dir = url ? 'DATABASE_URL' : (process.argv[2] ?? '.data/pglite');
+  const db = await openDb(url ? { url } : { dataDir: dir });
   const manifest = readManifest()!;
   let bad = 0;
   let checked = 0;
@@ -40,7 +41,9 @@ async function main() {
       sum: Math.round(await q('SELECT coalesce(sum(value),0) n FROM metric_points WHERE world_id = $1')),
       logChars: await q('SELECT coalesce(sum(length(message)),0) n FROM log_events WHERE world_id = $1'),
     };
-    if (JSON.stringify(want) !== JSON.stringify(got)) {
+    // numeric and float8 sums can differ in the last rounded unit.
+    const sumClose = Math.abs(want.sum - got.sum) <= 2;
+    if (!sumClose || JSON.stringify({ ...want, sum: 0 }) !== JSON.stringify({ ...got, sum: 0 })) {
       bad++;
       console.log(`MISMATCH ${id}: want ${JSON.stringify(want)} got ${JSON.stringify(got)}`);
     }
