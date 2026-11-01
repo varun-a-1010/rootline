@@ -1,0 +1,43 @@
+{
+  "scenario": "s12",
+  "variant": "A",
+  "key": "s12-A",
+  "worldId": "w_03129b9e",
+  "split": "dev",
+  "title": "OTP logins failing",
+  "expectedOutcome": "inconclusive",
+  "acceptableCauses": [],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [
+    "A failure inside auth-service OTP verification (unknown; its logs for the window are missing)",
+    "SMS delivery problem (not supported: SMS sends are accepted normally and send failures are flat)"
+  ],
+  "requiredEvidence": [
+    {
+      "description": "auth-service logs for the window (missing/incomplete)",
+      "match": {
+        "tool": "query_logs",
+        "service": "auth-service"
+      }
+    },
+    {
+      "description": "OTP success drop",
+      "match": {
+        "tool": "query_metrics",
+        "service": "auth-service",
+        "metric": "otp_success_rate"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "notification-service accepts OTP SMS normally and sms_send_failures is flat, so the SMS provider is not supported."
+  ],
+  "redHerrings": [
+    "SMS provider (reporter suspicion)",
+    "OTP expiry change two days earlier",
+    "log shipper upgrade (explains missing logs, not failures)"
+  ],
+  "scriptedFaults": [],
+  "notes": "A definite diagnosis is an unsupported diagnosis. The report should state the log gap."
+}

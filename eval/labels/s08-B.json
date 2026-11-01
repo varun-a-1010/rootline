@@ -1,0 +1,51 @@
+{
+  "scenario": "s08",
+  "variant": "B",
+  "key": "s08-B",
+  "worldId": "w_789ba27b",
+  "split": "heldout",
+  "title": "Fund values shown 100x too high",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "portfolio-service"
+      ],
+      "causeTypes": [
+        "config_change"
+      ],
+      "mechanism": "The nav_v2_endpoint flag (portfolio-service, 14:35 IST) switched to a NAV endpoint that returns paise, treated as rupees: fund values x100."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "the portfolio-service change",
+      "match": {
+        "tool": "get_changes",
+        "service": "portfolio-service"
+      }
+    },
+    {
+      "description": "displayed value jump",
+      "match": {
+        "tool": "query_metrics",
+        "service": "portfolio-service",
+        "metric": "displayed_value_total_cr"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "market-data-service metrics are normal and it serves the same values; the v2 endpoint documents unit=paise.",
+    "The broker-connector quotes cache change affects stock quotes, but only fund values jumped."
+  ],
+  "redHerrings": [
+    "broker-connector quotes cache change at 14:20 IST",
+    "price feed reconnect warnings"
+  ],
+  "scriptedFaults": [],
+  "notes": "Unit mismatch, not data corruption upstream."
+}

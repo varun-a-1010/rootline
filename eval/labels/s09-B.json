@@ -1,0 +1,54 @@
+{
+  "scenario": "s09",
+  "variant": "B",
+  "key": "s09-B",
+  "worldId": "w_b31b9c3d",
+  "split": "heldout",
+  "title": "Autopay setup failing for some users",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "bank-apis",
+        "bank-connector"
+      ],
+      "causeTypes": [
+        "upstream_dependency_degradation"
+      ],
+      "mechanism": "Bank gomti started declining mandates with U16 'risk threshold exceeded' at 13:40 IST; only its users fail."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "mandate success split by bank",
+      "match": {
+        "tool": "query_metrics",
+        "service": "mandate-service",
+        "metric": "mandate_success_rate"
+      }
+    },
+    {
+      "description": "bank-specific errors",
+      "match": {
+        "tool": "query_logs",
+        "service": "bank-connector",
+        "contains": "mandates"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Only bank gomti fails; the other banks' success is unchanged after the config change.",
+    "NPCI-wide problems hit every bank; this hits one."
+  ],
+  "redHerrings": [
+    "npci client timeout change at 13:30 IST",
+    "npci slow warnings",
+    "past NPCI incident"
+  ],
+  "scriptedFaults": [],
+  "notes": "Requires grouping mandate_success_rate (or errors) by bank."
+}

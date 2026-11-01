@@ -1,0 +1,53 @@
+{
+  "scenario": "s04",
+  "variant": "B",
+  "key": "s04-B",
+  "worldId": "w_e0b978f0",
+  "split": "heldout",
+  "title": "Orders erroring at the open",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "broker-api",
+        "broker-connector",
+        "order-service"
+      ],
+      "causeTypes": [
+        "rate_limiting_or_quota"
+      ],
+      "mechanism": "Our opening order burst exceeded the broker API's rate limit (300 req/s); the broker returned 429 on /orders and orders failed after retries."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "429 responses on /orders",
+      "match": {
+        "tool": "query_metrics",
+        "service": "broker-connector",
+        "metric": "rate_limited_count"
+      }
+    },
+    {
+      "description": "429 errors in broker-connector logs",
+      "match": {
+        "tool": "query_logs",
+        "service": "broker-connector",
+        "contains": "429"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Order failures are broker 429s; database slow queries are on holdings reads, not the order path."
+  ],
+  "redHerrings": [
+    "database CPU spike at the open",
+    "past incident: unindexed query at open"
+  ],
+  "scriptedFaults": [],
+  "notes": "Background transient tool faults only."
+}

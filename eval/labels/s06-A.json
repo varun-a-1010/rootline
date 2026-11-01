@@ -1,0 +1,65 @@
+{
+  "scenario": "s06",
+  "variant": "A",
+  "key": "s06-A",
+  "worldId": "w_9e48f020",
+  "split": "dev",
+  "title": "SIP instalments debited twice",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "debit-worker"
+      ],
+      "causeTypes": [
+        "retry_or_idempotency_bug",
+        "config_change",
+        "deployment_regression"
+      ],
+      "mechanism": "Bank kaveri slowed down during the SIP batch; debit-worker's shortened confirmation timeout (3000 ms) made it resubmit debits without an idempotency key, and the bank later confirmed both."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "bank-apis",
+        "bank-connector"
+      ],
+      "causeTypes": [
+        "upstream_dependency_degradation"
+      ],
+      "credit": 0.5,
+      "reason": "The bank slowdown is a contributing cause but not why debits were duplicated."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "resubmission logs",
+      "match": {
+        "tool": "query_logs",
+        "service": "debit-worker",
+        "contains": "resubmitting"
+      }
+    },
+    {
+      "description": "the timeout change",
+      "match": {
+        "tool": "get_changes",
+        "service": "debit-worker"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "The 09:15 IST release came after the debits (06:00-08:00 IST batch).",
+    "job-scheduler shows sip-debit-batch ran once today, unlike the past double-run incident."
+  ],
+  "redHerrings": [
+    "mf-order-service release at 09:15 IST",
+    "past incident: batch ran twice"
+  ],
+  "scriptedFaults": [],
+  "notes": "Slow bank: kaveri from 06:20 IST to 08:05 IST."
+}

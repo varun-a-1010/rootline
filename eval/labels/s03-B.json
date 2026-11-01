@@ -1,0 +1,50 @@
+{
+  "scenario": "s03",
+  "variant": "B",
+  "key": "s03-B",
+  "worldId": "w_9f00cd52",
+  "split": "heldout",
+  "title": "Assistant recommending specific funds to buy",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "compliance-filter"
+      ],
+      "causeTypes": [
+        "config_change",
+        "deployment_regression"
+      ],
+      "mechanism": "A compliance-filter config change at 11:40 IST (advice_score_threshold 0.55 -> 0.85) stopped blocking direct advice; the block rate collapsed."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "compliance-filter config change",
+      "match": {
+        "tool": "get_changes",
+        "service": "compliance-filter"
+      }
+    },
+    {
+      "description": "block rate drop",
+      "match": {
+        "tool": "query_metrics",
+        "service": "compliance-filter",
+        "metric": "block_rate"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "The block rate stayed ~2% for 25 minutes after the 11:15 IST prompt deploy and only collapsed at the 11:40 IST threshold change."
+  ],
+  "redHerrings": [
+    "assistant-orchestrator tone-prompt deploy at 11:15 IST"
+  ],
+  "scriptedFaults": [],
+  "notes": "The filter, not the generator, is the control that failed."
+}

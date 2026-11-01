@@ -1,0 +1,62 @@
+{
+  "scenario": "s10",
+  "variant": "B",
+  "key": "s10-B",
+  "worldId": "w_8b0a470f",
+  "split": "heldout",
+  "title": "Orders failing at market open again",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "order-service"
+      ],
+      "causeTypes": [
+        "config_change"
+      ],
+      "mechanism": "A config change on Friday cut order-service's HTTP client pool to broker-connector to 20 connections; at the open requests timed out waiting for a connection."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "order-service"
+      ],
+      "causeTypes": [
+        "capacity_saturation"
+      ],
+      "credit": 0.5,
+      "reason": "Finds the saturated pool but not the config change that caused it."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "pool exhaustion errors",
+      "match": {
+        "tool": "query_logs",
+        "service": "order-service",
+        "contains": "pool"
+      }
+    },
+    {
+      "description": "the pool config change",
+      "match": {
+        "tool": "get_changes",
+        "service": "order-service"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "broker-connector shows no 429s or upstream errors; broker latency is normal.",
+    "Errors are connection-pool timeouts inside order-service, not broker rejections."
+  ],
+  "redHerrings": [
+    "past incidents: broker outage/limit at the open",
+    "reporter suspects the broker"
+  ],
+  "scriptedFaults": [],
+  "notes": "A similar past incident is a lead, not proof."
+}

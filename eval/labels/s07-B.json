@@ -1,0 +1,64 @@
+{
+  "scenario": "s07",
+  "variant": "B",
+  "key": "s07-B",
+  "worldId": "w_ac20dbf4",
+  "split": "heldout",
+  "title": "Assistant quoting outdated expense ratios",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "job-scheduler",
+        "indexing-pipeline"
+      ],
+      "causeTypes": [
+        "config_change",
+        "data_pipeline_failure"
+      ],
+      "mechanism": "A job-schedule change (cron typo) stopped factsheet-sync from running, so the September factsheets never reached the index."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "knowledge-index"
+      ],
+      "causeTypes": [
+        "data_pipeline_failure",
+        "cache_or_staleness"
+      ],
+      "credit": 0.5,
+      "reason": "Right symptom location (stale index), wrong place for the failure."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "factsheet-sync schedule change",
+      "match": {
+        "tool": "get_changes",
+        "service": "job-scheduler"
+      }
+    },
+    {
+      "description": "freshness check warning",
+      "match": {
+        "tool": "query_logs",
+        "service": "indexing-pipeline",
+        "contains": "freshness"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "knowledge-index latency and errors are normal: search works, it is serving old content.",
+    "Retrieved factsheets carry as_of=2026-08-01."
+  ],
+  "redHerrings": [
+    "knowledge-index deploy at 11:40 IST"
+  ],
+  "scriptedFaults": [],
+  "notes": "The pipeline failure happened days earlier; in-window evidence is retries, queue lag and as_of dates."
+}

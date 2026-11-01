@@ -1,0 +1,37 @@
+{
+ "seed": "82fd3b0bf86d6b9a",
+ "latency": {
+  "minMs": 50,
+  "maxMs": 400
+ },
+ "transient": [
+  {
+   "p": 0.05,
+   "maxAttempt": 1,
+   "effect": {
+    "kind": "timeout"
+   }
+  },
+  {
+   "p": 0.04,
+   "maxAttempt": 2,
+   "effect": {
+    "kind": "error",
+    "code": "unavailable"
+   }
+  },
+  {
+   "p": 0.04,
+   "tools": [
+    "query_logs",
+    "query_metrics"
+   ],
+   "maxAttempt": 3,
+   "effect": {
+    "kind": "partial",
+    "dropFraction": 0.15
+   }
+  }
+ ],
+ "rules": []
+}

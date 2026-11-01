@@ -1,0 +1,65 @@
+{
+  "scenario": "s06",
+  "variant": "B",
+  "key": "s06-B",
+  "worldId": "w_680a1e03",
+  "split": "heldout",
+  "title": "SIP instalments debited twice",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "debit-worker"
+      ],
+      "causeTypes": [
+        "retry_or_idempotency_bug",
+        "config_change",
+        "deployment_regression"
+      ],
+      "mechanism": "Bank northstar slowed down during the SIP batch; debit-worker's shortened confirmation timeout (2500 ms) made it resubmit debits without an idempotency key, and the bank later confirmed both."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "bank-apis",
+        "bank-connector"
+      ],
+      "causeTypes": [
+        "upstream_dependency_degradation"
+      ],
+      "credit": 0.5,
+      "reason": "The bank slowdown is a contributing cause but not why debits were duplicated."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "resubmission logs",
+      "match": {
+        "tool": "query_logs",
+        "service": "debit-worker",
+        "contains": "resubmitting"
+      }
+    },
+    {
+      "description": "the timeout change",
+      "match": {
+        "tool": "get_changes",
+        "service": "debit-worker"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "The 05:50 IST bank-connector deploy did not slow other banks; only one bank was slow.",
+    "job-scheduler shows sip-debit-batch ran once today, unlike the past double-run incident."
+  ],
+  "redHerrings": [
+    "bank-connector deploy at 05:50 IST",
+    "past incident: bank duplicate presentment"
+  ],
+  "scriptedFaults": [],
+  "notes": "Slow bank: northstar from 06:40 IST to 07:55 IST."
+}

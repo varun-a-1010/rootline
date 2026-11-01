@@ -1,0 +1,74 @@
+{
+  "scenario": "s01",
+  "variant": "B",
+  "key": "s01-B",
+  "worldId": "w_415adb6a",
+  "split": "heldout",
+  "title": "Mutual fund values not updating",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "market-data-service"
+      ],
+      "causeTypes": [
+        "data_pipeline_failure"
+      ],
+      "mechanism": "The overnight nav-import job in market-data-service (23:30 IST, 2026-09-22) was OOM-killed and rolled back, so fund values still use the 2026-09-21 NAVs."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "amfi-nav-feed"
+      ],
+      "causeTypes": [
+        "upstream_dependency_degradation",
+        "data_pipeline_failure"
+      ],
+      "credit": 0.5,
+      "reason": "Right pipeline, wrong side: the feed was delivered; our import failed."
+    },
+    {
+      "components": [
+        "job-scheduler"
+      ],
+      "causeTypes": [
+        "data_pipeline_failure"
+      ],
+      "credit": 0.5,
+      "reason": "Names the failed job but attributes it to the scheduler."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "nav-import failure logs",
+      "match": {
+        "tool": "query_logs",
+        "service": "market-data-service",
+        "contains": "nav-import"
+      }
+    },
+    {
+      "description": "NAV age metric showing staleness since the failed import",
+      "match": {
+        "tool": "query_metrics",
+        "service": "market-data-service",
+        "metric": "nav_age_s"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "nav_age_s in market-data-service (the source) was already ~34 h before the 08:55 IST cache TTL change; the cache only serves what market-data publishes.",
+    "NAV lookups report nav_date=2026-09-21, i.e. the previous import's data."
+  ],
+  "redHerrings": [
+    "cache nav TTL change at 08:55 IST",
+    "past incident: stale values from cache TTL"
+  ],
+  "scriptedFaults": [],
+  "notes": "Background transient tool faults only."
+}

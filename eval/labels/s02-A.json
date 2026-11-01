@@ -1,0 +1,63 @@
+{
+  "scenario": "s02",
+  "variant": "A",
+  "key": "s02-A",
+  "worldId": "w_ac29e755",
+  "split": "dev",
+  "title": "Assistant replies taking 20+ seconds",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "llm-provider",
+        "assistant-orchestrator"
+      ],
+      "causeTypes": [
+        "rate_limiting_or_quota"
+      ],
+      "mechanism": "The LLM provider started rejecting our calls with 429 (quota exceeded: tokens per minute, limit=200000); the orchestrator retries with backoff, so answers take 20 s+ and some fail."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "llm-provider"
+      ],
+      "causeTypes": [
+        "upstream_dependency_degradation"
+      ],
+      "credit": 0.5,
+      "reason": "Right dependency, but misses that it is quota throttling."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "429 quota errors from the LLM provider",
+      "match": {
+        "tool": "query_logs",
+        "service": "assistant-orchestrator",
+        "contains": "429"
+      }
+    },
+    {
+      "description": "rate-limited call count",
+      "match": {
+        "tool": "query_metrics",
+        "service": "assistant-orchestrator",
+        "metric": "rate_limited_count"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "knowledge-index p95 rose only to ~0.35 s and retrieval logs show passages returned in well under 0.5 s, which cannot explain 20 s answers."
+  ],
+  "redHerrings": [
+    "knowledge-index rebuild at 11:00 IST",
+    "past incident: assistant slow during index rebuild"
+  ],
+  "scriptedFaults": [],
+  "notes": "Background transient tool faults only."
+}

@@ -1,0 +1,2655 @@
+{
+ "meta": {
+  "worldId": "w_e0b978f0",
+  "dataFrom": "2026-09-13T22:15:00.000Z",
+  "dataTo": "2026-09-14T05:15:00.000Z",
+  "highResFrom": "2026-09-14T02:15:00.000Z",
+  "generator": "rootline-fixtures/v1"
+ },
+ "incident": {
+  "incidentId": "INC-4849",
+  "window": {
+   "from": "2026-09-14T03:15:00.000Z",
+   "to": "2026-09-14T05:15:00.000Z"
+  },
+  "title": "Orders erroring at the open",
+  "reportedAt": "2026-09-14T04:10:00.000Z",
+  "reportedBy": "Trading desk lead",
+  "severity": "SEV1",
+  "summary": "Many stock orders failed at the 09:15 IST open (about one in five). The database dashboard shows a CPU spike at the same time.",
+  "symptoms": [
+   "order failures at the open",
+   "database CPU spike"
+  ],
+  "userImpact": "Orders rejected at the open.",
+  "affectedSurface": "Stock orders",
+  "suspectedServices": [
+   "database",
+   "order-service"
+  ],
+  "approxStart": "2026-09-14T03:45:00.000Z"
+ },
+ "services": [
+  {
+   "id": "api-gateway",
+   "name": "API Gateway",
+   "kind": "internal",
+   "team": "platform",
+   "tier": 1,
+   "description": "Front door for the mobile and web apps; routes requests to backend services.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": [
+      "route"
+     ]
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": [
+      "route"
+     ]
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "auth-service",
+   "name": "Auth Service",
+   "kind": "internal",
+   "team": "identity",
+   "tier": 1,
+   "description": "OTP login and session management. Sends OTPs through notification-service and the SMS provider.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "otp_success_rate",
+     "unit": "%",
+     "description": "OTP logins that completed successfully",
+     "labels": []
+    },
+    {
+     "name": "otp_sent_per_min",
+     "unit": "count/min",
+     "description": "OTPs requested per minute",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "order-service",
+   "name": "Order Service",
+   "kind": "internal",
+   "team": "trading",
+   "tier": 1,
+   "description": "Accepts stock orders, runs risk checks and hands orders to broker-connector.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "order_success_rate",
+     "unit": "%",
+     "description": "Orders accepted by the broker",
+     "labels": []
+    },
+    {
+     "name": "orders_per_min",
+     "unit": "count/min",
+     "description": "Orders submitted per minute",
+     "labels": []
+    },
+    {
+     "name": "cpu_utilization",
+     "unit": "%",
+     "description": "Average CPU across order-service pods",
+     "labels": []
+    },
+    {
+     "name": "db_pool_in_use",
+     "unit": "connections",
+     "description": "Database connections checked out from the pool",
+     "labels": []
+    },
+    {
+     "name": "db_pool_wait_ms",
+     "unit": "ms",
+     "description": "Time requests wait for a pooled DB connection (p95)",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "broker-connector",
+   "name": "Broker Connector",
+   "kind": "internal",
+   "team": "trading",
+   "tier": 1,
+   "description": "Adapter to the external broker/exchange API (orders, quotes, holdings).",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "upstream_latency_p95_ms",
+     "unit": "ms",
+     "description": "p95 latency of calls to broker-api",
+     "labels": [
+      "endpoint"
+     ]
+    },
+    {
+     "name": "rate_limited_count",
+     "unit": "count/min",
+     "description": "HTTP 429 responses received from broker-api",
+     "labels": [
+      "endpoint"
+     ]
+    },
+    {
+     "name": "retry_count",
+     "unit": "count/min",
+     "description": "Retried calls to broker-api",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "mf-order-service",
+   "name": "Mutual Fund Order Service",
+   "kind": "internal",
+   "team": "mutual-funds",
+   "tier": 1,
+   "description": "Mutual fund purchases, redemptions requests and SIP instalment orders (to the RTA).",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "mf_orders_per_min",
+     "unit": "count/min",
+     "description": "Fund orders created per minute",
+     "labels": []
+    },
+    {
+     "name": "order_success_rate",
+     "unit": "%",
+     "description": "Fund orders accepted by the RTA",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "mandate-service",
+   "name": "Mandate Service",
+   "kind": "internal",
+   "team": "payments",
+   "tier": 1,
+   "description": "UPI autopay and e-mandate registration through NPCI and the banks.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "mandate_success_rate",
+     "unit": "%",
+     "description": "Mandate registrations approved",
+     "labels": [
+      "bank"
+     ]
+    },
+    {
+     "name": "mandate_requests_per_min",
+     "unit": "count/min",
+     "description": "Mandate registrations started per minute",
+     "labels": [
+      "bank"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "payment-service",
+   "name": "Payment Service",
+   "kind": "internal",
+   "team": "payments",
+   "tier": 1,
+   "description": "UPI collect and payment capture for lumpsum purchases.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "payment_success_rate",
+     "unit": "%",
+     "description": "Payments captured successfully",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "debit-worker",
+   "name": "Debit Worker",
+   "kind": "internal",
+   "team": "payments",
+   "tier": 1,
+   "description": "Collects SIP instalments by presenting debits against mandates through bank-connector. Runs in early-morning batches.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "debit_count",
+     "unit": "count/min",
+     "description": "Debit requests presented to banks per minute",
+     "labels": [
+      "bank"
+     ]
+    },
+    {
+     "name": "debit_success_rate",
+     "unit": "%",
+     "description": "Debits confirmed by the bank",
+     "labels": [
+      "bank"
+     ]
+    },
+    {
+     "name": "retry_count",
+     "unit": "count/min",
+     "description": "Debit submissions retried after no confirmation",
+     "labels": [
+      "bank"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bank-connector",
+   "name": "Bank Connector",
+   "kind": "internal",
+   "team": "payments",
+   "tier": 1,
+   "description": "Adapter to partner bank APIs for debits, mandate checks and payouts.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "bank_latency_p95_ms",
+     "unit": "ms",
+     "description": "p95 latency of bank API calls",
+     "labels": [
+      "bank"
+     ]
+    },
+    {
+     "name": "bank_error_rate",
+     "unit": "%",
+     "description": "Bank API calls returning errors",
+     "labels": [
+      "bank"
+     ]
+    },
+    {
+     "name": "timeout_count",
+     "unit": "count/min",
+     "description": "Bank API calls abandoned at the client timeout",
+     "labels": [
+      "bank"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "portfolio-service",
+   "name": "Portfolio Service",
+   "kind": "internal",
+   "team": "portfolio",
+   "tier": 1,
+   "description": "Holdings, current values and P&L. Prices come from market-data-service (stock prices and fund NAVs).",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "valuation_errors",
+     "unit": "count/min",
+     "description": "Valuations that failed and fell back to last snapshot",
+     "labels": []
+    },
+    {
+     "name": "displayed_value_total_cr",
+     "unit": "INR crore",
+     "description": "Sum of portfolio values shown to users (sampled)",
+     "labels": []
+    },
+    {
+     "name": "price_age_s",
+     "unit": "s",
+     "description": "Age of the stock prices used in valuations",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "market-data-service",
+   "name": "Market Data Service",
+   "kind": "internal",
+   "team": "market-data",
+   "tier": 1,
+   "description": "Live stock prices from the broker feed and daily fund NAVs imported from the AMFI feed by a nightly job.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "nav_age_s",
+     "unit": "s",
+     "description": "Age of the newest fund NAV set being served",
+     "labels": []
+    },
+    {
+     "name": "price_feed_lag_ms",
+     "unit": "ms",
+     "description": "Delay between exchange tick and our price update",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "payout-service",
+   "name": "Payout Service",
+   "kind": "internal",
+   "team": "payments",
+   "tier": 1,
+   "description": "Sends redemption proceeds to users' bank accounts in scheduled batches (10:00 and 14:00 IST).",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "payouts_pending",
+     "unit": "count",
+     "description": "Redemptions waiting for payout",
+     "labels": []
+    },
+    {
+     "name": "payouts_completed_per_min",
+     "unit": "count/min",
+     "description": "Payouts sent per minute",
+     "labels": []
+    },
+    {
+     "name": "batch_duration_s",
+     "unit": "s",
+     "description": "Duration of the most recent payout batch",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "kyc-service",
+   "name": "KYC Service",
+   "kind": "internal",
+   "team": "identity",
+   "tier": 2,
+   "description": "Submits KYC to the KYC registration agency and receives status updates via webhook.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "kyc_pending_count",
+     "unit": "count",
+     "description": "KYC applications waiting for an agency decision",
+     "labels": []
+    },
+    {
+     "name": "webhook_received_per_min",
+     "unit": "count/min",
+     "description": "Status webhooks received from the KYC agency",
+     "labels": []
+    },
+    {
+     "name": "webhook_errors",
+     "unit": "count/min",
+     "description": "Webhook deliveries we failed to process",
+     "labels": []
+    },
+    {
+     "name": "agency_latency_p95_ms",
+     "unit": "ms",
+     "description": "p95 latency of KYC agency API calls",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "notification-service",
+   "name": "Notification Service",
+   "kind": "internal",
+   "team": "platform",
+   "tier": 2,
+   "description": "Sends SMS (through the SMS provider), push notifications and email.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "sms_send_failures",
+     "unit": "count/min",
+     "description": "SMS sends rejected or failed at the provider",
+     "labels": []
+    },
+    {
+     "name": "push_send_failures",
+     "unit": "count/min",
+     "description": "Push notifications that failed",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "assistant-orchestrator",
+   "name": "Assistant Orchestrator",
+   "kind": "internal",
+   "team": "assistant",
+   "tier": 1,
+   "description": "Runs each assistant conversation: gathers user context, retrieves documents, calls the LLM provider and passes answers through the compliance filter.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "llm_latency_p95_ms",
+     "unit": "ms",
+     "description": "p95 latency of LLM provider calls",
+     "labels": []
+    },
+    {
+     "name": "llm_tokens_per_min",
+     "unit": "tokens/min",
+     "description": "LLM tokens consumed per minute",
+     "labels": []
+    },
+    {
+     "name": "rate_limited_count",
+     "unit": "count/min",
+     "description": "HTTP 429 responses from the LLM provider",
+     "labels": []
+    },
+    {
+     "name": "retry_count",
+     "unit": "count/min",
+     "description": "Retried LLM calls",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "knowledge-index",
+   "name": "Knowledge Index",
+   "kind": "internal",
+   "team": "assistant",
+   "tier": 2,
+   "description": "Search index over fund factsheets and help articles used by the assistant.",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "index_version",
+     "unit": "build",
+     "description": "Build number of the index currently serving",
+     "labels": []
+    },
+    {
+     "name": "docs_count",
+     "unit": "count",
+     "description": "Documents in the serving index",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "indexing-pipeline",
+   "name": "Indexing Pipeline",
+   "kind": "internal",
+   "team": "assistant",
+   "tier": 3,
+   "description": "Ingests fund factsheets and help articles into the knowledge index.",
+   "metrics": [
+    {
+     "name": "docs_ingested_per_min",
+     "unit": "count/min",
+     "description": "Documents ingested into index builds",
+     "labels": []
+    },
+    {
+     "name": "ingest_errors",
+     "unit": "count/min",
+     "description": "Documents that failed ingestion",
+     "labels": []
+    },
+    {
+     "name": "queue_lag_s",
+     "unit": "s",
+     "description": "Age of the oldest document waiting to be ingested",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "user-context-service",
+   "name": "User Context Service",
+   "kind": "internal",
+   "team": "assistant",
+   "tier": 2,
+   "description": "Builds the user's holdings/SIP context for personal assistant answers (reads portfolio-service, cached).",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "missing_context_rate",
+     "unit": "%",
+     "description": "Assistant turns answered without user context",
+     "labels": []
+    },
+    {
+     "name": "timeout_count",
+     "unit": "count/min",
+     "description": "Context builds that hit the timeout",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "compliance-filter",
+   "name": "Compliance Filter",
+   "kind": "internal",
+   "team": "assistant",
+   "tier": 1,
+   "description": "Checks assistant answers and blocks direct buy/sell advice (not allowed without an investment-advisory licence).",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "req/s",
+     "description": "Requests handled per second",
+     "labels": []
+    },
+    {
+     "name": "error_rate",
+     "unit": "%",
+     "description": "Share of requests that failed (5xx or internal error)",
+     "labels": []
+    },
+    {
+     "name": "latency_p50_ms",
+     "unit": "ms",
+     "description": "Median request latency",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "95th percentile request latency",
+     "labels": []
+    },
+    {
+     "name": "block_rate",
+     "unit": "%",
+     "description": "Assistant answers blocked or rewritten as advice",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "cache",
+   "name": "Cache Cluster",
+   "kind": "internal",
+   "team": "platform",
+   "tier": 1,
+   "description": "Shared in-memory cache (sessions, user context, NAVs, prices, factsheets).",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "ops/s",
+     "description": "Cache operations per second",
+     "labels": []
+    },
+    {
+     "name": "latency_p95_ms",
+     "unit": "ms",
+     "description": "p95 command latency",
+     "labels": []
+    },
+    {
+     "name": "cache_hit_rate",
+     "unit": "%",
+     "description": "Reads served from cache",
+     "labels": [
+      "keyspace"
+     ]
+    },
+    {
+     "name": "evictions_per_min",
+     "unit": "count/min",
+     "description": "Keys evicted under memory pressure",
+     "labels": []
+    },
+    {
+     "name": "memory_used_pct",
+     "unit": "%",
+     "description": "Memory used",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "database",
+   "name": "Primary Database",
+   "kind": "internal",
+   "team": "platform",
+   "tier": 1,
+   "description": "Primary relational database (orders, folios, payouts, mandates).",
+   "metrics": [
+    {
+     "name": "request_rate",
+     "unit": "queries/s",
+     "description": "Queries per second",
+     "labels": []
+    },
+    {
+     "name": "db_lock_wait_ms",
+     "unit": "ms",
+     "description": "p95 time queries wait for locks",
+     "labels": []
+    },
+    {
+     "name": "active_connections",
+     "unit": "connections",
+     "description": "Open client connections",
+     "labels": []
+    },
+    {
+     "name": "cpu_utilization",
+     "unit": "%",
+     "description": "Database CPU",
+     "labels": []
+    },
+    {
+     "name": "slow_queries_per_min",
+     "unit": "count/min",
+     "description": "Queries slower than 1 s",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "job-scheduler",
+   "name": "Job Scheduler",
+   "kind": "internal",
+   "team": "platform",
+   "tier": 2,
+   "description": "Runs scheduled jobs (NAV import, SIP debit batch, payout batches, reconciliation, factsheet sync).",
+   "metrics": [
+    {
+     "name": "jobs_running",
+     "unit": "count",
+     "description": "Jobs currently running",
+     "labels": []
+    },
+    {
+     "name": "jobs_failed",
+     "unit": "count/min",
+     "description": "Job runs that ended in failure",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "message-queue",
+   "name": "Message Queue",
+   "kind": "internal",
+   "team": "platform",
+   "tier": 1,
+   "description": "Async messaging between services (orders, notifications, debits, KYC webhooks, indexing).",
+   "metrics": [
+    {
+     "name": "queue_depth",
+     "unit": "messages",
+     "description": "Messages waiting",
+     "labels": [
+      "queue"
+     ]
+    },
+    {
+     "name": "consumer_lag_s",
+     "unit": "s",
+     "description": "Age of the oldest unconsumed message",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "id": "llm-provider",
+   "name": "LLM Provider",
+   "kind": "external",
+   "team": "external",
+   "tier": 1,
+   "description": "Hosted large-language-model API used by the assistant. External: observed only through our connectors' metrics and logs.",
+   "metrics": []
+  },
+  {
+   "id": "bank-apis",
+   "name": "Partner Bank APIs",
+   "kind": "external",
+   "team": "external",
+   "tier": 1,
+   "description": "Partner banks' debit, mandate and payout APIs. External: observed only through our connectors' metrics and logs.",
+   "metrics": []
+  },
+  {
+   "id": "npci",
+   "name": "NPCI",
+   "kind": "external",
+   "team": "external",
+   "tier": 1,
+   "description": "UPI and e-mandate network. External: observed only through our connectors' metrics and logs.",
+   "metrics": []
+  },
+  {
+   "id": "broker-api",
+   "name": "Broker / Exchange API",
+   "kind": "external",
+   "team": "external",
+   "tier": 1,
+   "description": "Broker and exchange order, quote and holdings API. External: observed only through our connectors' metrics and logs.",
+   "metrics": []
+  },
+  {
+   "id": "amfi-nav-feed",
+   "name": "AMFI NAV Feed",
+   "kind": "external",
+   "team": "external",
+   "tier": 1,
+   "description": "Daily mutual fund NAV publication. External: observed only through our connectors' metrics and logs.",
+   "metrics": []
+  },
+  {
+   "id": "kyc-agency",
+   "name": "KYC Registration Agency",
+   "kind": "external",
+   "team": "external",
+   "tier": 1,
+   "description": "Verifies KYC applications and sends status webhooks. External: observed only through our connectors' metrics and logs.",
+   "metrics": []
+  },
+  {
+   "id": "sms-provider",
+   "name": "SMS Provider",
+   "kind": "external",
+   "team": "external",
+   "tier": 1,
+   "description": "Delivers OTP and transactional SMS. External: observed only through our connectors' metrics and logs.",
+   "metrics": []
+  }
+ ],
+ "dependencies": [
+  {
+   "from": "api-gateway",
+   "to": "assistant-orchestrator",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 30000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "api-gateway",
+   "to": "auth-service",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 2000,
+   "retries": 1,
+   "notes": null
+  },
+  {
+   "from": "api-gateway",
+   "to": "kyc-service",
+   "kind": "sync",
+   "critical": false,
+   "timeoutMs": 3000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "api-gateway",
+   "to": "mandate-service",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 5000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "api-gateway",
+   "to": "mf-order-service",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 3000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "api-gateway",
+   "to": "order-service",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 3000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "api-gateway",
+   "to": "payout-service",
+   "kind": "sync",
+   "critical": false,
+   "timeoutMs": 3000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "api-gateway",
+   "to": "portfolio-service",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 2000,
+   "retries": 1,
+   "notes": null
+  },
+  {
+   "from": "assistant-orchestrator",
+   "to": "compliance-filter",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "assistant-orchestrator",
+   "to": "knowledge-index",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 800,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "assistant-orchestrator",
+   "to": "llm-provider",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 25000,
+   "retries": 2,
+   "notes": null
+  },
+  {
+   "from": "assistant-orchestrator",
+   "to": "user-context-service",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 1200,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "auth-service",
+   "to": "cache",
+   "kind": "cache",
+   "critical": true,
+   "timeoutMs": 50,
+   "retries": 1,
+   "notes": null
+  },
+  {
+   "from": "auth-service",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "auth-service",
+   "to": "notification-service",
+   "kind": "async",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": null
+  },
+  {
+   "from": "bank-connector",
+   "to": "bank-apis",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 8000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "broker-connector",
+   "to": "broker-api",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 1500,
+   "retries": 1,
+   "notes": "broker enforces a per-second order rate limit"
+  },
+  {
+   "from": "debit-worker",
+   "to": "bank-connector",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 8000,
+   "retries": 2,
+   "notes": "resubmits a debit if no confirmation within the timeout"
+  },
+  {
+   "from": "debit-worker",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "debit-worker",
+   "to": "message-queue",
+   "kind": "async",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": null
+  },
+  {
+   "from": "indexing-pipeline",
+   "to": "knowledge-index",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 10000,
+   "retries": 2,
+   "notes": null
+  },
+  {
+   "from": "indexing-pipeline",
+   "to": "message-queue",
+   "kind": "async",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": null
+  },
+  {
+   "from": "job-scheduler",
+   "to": "debit-worker",
+   "kind": "async",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": null
+  },
+  {
+   "from": "job-scheduler",
+   "to": "indexing-pipeline",
+   "kind": "async",
+   "critical": false,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": "triggers factsheet-sync and index builds"
+  },
+  {
+   "from": "job-scheduler",
+   "to": "market-data-service",
+   "kind": "async",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": "triggers nav-import nightly"
+  },
+  {
+   "from": "job-scheduler",
+   "to": "payout-service",
+   "kind": "async",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": "triggers payout batches"
+  },
+  {
+   "from": "kyc-agency",
+   "to": "kyc-service",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": "status webhooks to /hooks/kyc"
+  },
+  {
+   "from": "kyc-service",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "kyc-service",
+   "to": "kyc-agency",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 5000,
+   "retries": 1,
+   "notes": null
+  },
+  {
+   "from": "kyc-service",
+   "to": "message-queue",
+   "kind": "async",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": null
+  },
+  {
+   "from": "mandate-service",
+   "to": "bank-connector",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 8000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "mandate-service",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "mandate-service",
+   "to": "npci",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 8000,
+   "retries": 1,
+   "notes": null
+  },
+  {
+   "from": "market-data-service",
+   "to": "amfi-nav-feed",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 30000,
+   "retries": 3,
+   "notes": "nightly NAV import (job-scheduler: nav-import)"
+  },
+  {
+   "from": "market-data-service",
+   "to": "broker-api",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 2,
+   "notes": "live price feed"
+  },
+  {
+   "from": "market-data-service",
+   "to": "cache",
+   "kind": "cache",
+   "critical": true,
+   "timeoutMs": 50,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "mf-order-service",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "mf-order-service",
+   "to": "mandate-service",
+   "kind": "sync",
+   "critical": false,
+   "timeoutMs": 3000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "notification-service",
+   "to": "message-queue",
+   "kind": "async",
+   "critical": true,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": null
+  },
+  {
+   "from": "notification-service",
+   "to": "sms-provider",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 4000,
+   "retries": 2,
+   "notes": null
+  },
+  {
+   "from": "order-service",
+   "to": "broker-connector",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 2000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "order-service",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": "connection pool: max 100"
+  },
+  {
+   "from": "order-service",
+   "to": "message-queue",
+   "kind": "async",
+   "critical": false,
+   "timeoutMs": null,
+   "retries": null,
+   "notes": null
+  },
+  {
+   "from": "payment-service",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "payment-service",
+   "to": "npci",
+   "kind": "external_api",
+   "critical": true,
+   "timeoutMs": 10000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "payout-service",
+   "to": "bank-connector",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 8000,
+   "retries": 1,
+   "notes": null
+  },
+  {
+   "from": "payout-service",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "portfolio-service",
+   "to": "cache",
+   "kind": "cache",
+   "critical": true,
+   "timeoutMs": 50,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "portfolio-service",
+   "to": "database",
+   "kind": "datastore",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "portfolio-service",
+   "to": "market-data-service",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 500,
+   "retries": 1,
+   "notes": null
+  },
+  {
+   "from": "user-context-service",
+   "to": "cache",
+   "kind": "cache",
+   "critical": true,
+   "timeoutMs": 50,
+   "retries": 0,
+   "notes": null
+  },
+  {
+   "from": "user-context-service",
+   "to": "portfolio-service",
+   "kind": "sync",
+   "critical": true,
+   "timeoutMs": 1000,
+   "retries": 0,
+   "notes": null
+  }
+ ],
+ "changes": [
+  {
+   "id": "CHG-48223",
+   "ts": "2026-09-04T06:14:53.424Z",
+   "sourceTimestamp": "2026-09-04T06:14:53.424Z",
+   "sourceTz": "+00:00",
+   "service": "api-gateway",
+   "type": "feature_flag",
+   "summary": "flag portfolio_insights_v2 rollout 5% -> 15%",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "p.nair",
+   "status": "completed",
+   "details": {
+    "flag": "portfolio_insights_v2",
+    "from_pct": 5,
+    "to_pct": 15
+   }
+  },
+  {
+   "id": "CHG-48226",
+   "ts": "2026-09-04T06:43:24.039Z",
+   "sourceTimestamp": "2026-09-04T06:43:24.039Z",
+   "sourceTz": "+00:00",
+   "service": "compliance-filter",
+   "type": "feature_flag",
+   "summary": "flag faster_kyc_flow rollout 5% -> 15%",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "a.menon",
+   "status": "completed",
+   "details": {
+    "flag": "faster_kyc_flow",
+    "from_pct": 5,
+    "to_pct": 15
+   }
+  },
+  {
+   "id": "CHG-48236",
+   "ts": "2026-09-04T06:45:18.498Z",
+   "sourceTimestamp": "2026-09-04T06:45:18.498Z",
+   "sourceTz": "+00:00",
+   "service": "auth-service",
+   "type": "deploy",
+   "summary": "release: add tracing spans to outbound calls",
+   "versionFrom": "2.9.4",
+   "versionTo": "2.9.5",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-83481",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48240",
+   "ts": "2026-09-04T08:38:22.330Z",
+   "sourceTimestamp": "2026-09-04T08:38:22.330Z",
+   "sourceTz": "+00:00",
+   "service": "assistant-orchestrator",
+   "type": "deploy",
+   "summary": "release: fix pagination edge case",
+   "versionFrom": "0.42.0",
+   "versionTo": "0.42.1",
+   "author": "k.reddy",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-52400",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48249",
+   "ts": "2026-09-04T09:20:09.400Z",
+   "sourceTimestamp": "2026-09-04T09:20:09.400Z",
+   "sourceTz": "+00:00",
+   "service": "auth-service",
+   "type": "deploy",
+   "summary": "release: minor UI copy endpoints and metrics labels",
+   "versionFrom": "2.9.5",
+   "versionTo": "2.9.6",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-47936",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48256",
+   "ts": "2026-09-04T16:48:48.564Z",
+   "sourceTimestamp": "2026-09-04T16:48:48.564Z",
+   "sourceTz": "+00:00",
+   "service": "user-context-service",
+   "type": "deploy",
+   "summary": "release: add tracing spans to outbound calls",
+   "versionFrom": "1.4.2",
+   "versionTo": "1.4.3",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-68010",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48263",
+   "ts": "2026-09-04T17:53:35.180Z",
+   "sourceTimestamp": "2026-09-04T17:53:35.180Z",
+   "sourceTz": "+00:00",
+   "service": "debit-worker",
+   "type": "deploy",
+   "summary": "release: performance improvements to serialization",
+   "versionFrom": "3.7.2",
+   "versionTo": "3.8.0",
+   "author": "a.menon",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-63171",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48267",
+   "ts": "2026-09-07T06:12:51.791Z",
+   "sourceTimestamp": "2026-09-07T06:12:51.791Z",
+   "sourceTz": "+00:00",
+   "service": "compliance-filter",
+   "type": "feature_flag",
+   "summary": "flag faster_kyc_flow rollout 0% -> 5%",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "flag": "faster_kyc_flow",
+    "from_pct": 0,
+    "to_pct": 5
+   }
+  },
+  {
+   "id": "CHG-48276",
+   "ts": "2026-09-07T06:17:41.774Z",
+   "sourceTimestamp": "2026-09-07T06:17:41.774Z",
+   "sourceTz": "+00:00",
+   "service": "debit-worker",
+   "type": "deploy",
+   "summary": "release: upgrade HTTP client library",
+   "versionFrom": "3.8.0",
+   "versionTo": "3.8.1",
+   "author": "t.das",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-38548",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48282",
+   "ts": "2026-09-07T07:01:52.127Z",
+   "sourceTimestamp": "2026-09-07T07:01:52.127Z",
+   "sourceTz": "+00:00",
+   "service": "user-context-service",
+   "type": "feature_flag",
+   "summary": "flag portfolio_insights_v2 rollout 5% -> 15%",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "n.shah",
+   "status": "completed",
+   "details": {
+    "flag": "portfolio_insights_v2",
+    "from_pct": 5,
+    "to_pct": 15
+   }
+  },
+  {
+   "id": "CHG-48291",
+   "ts": "2026-09-07T07:02:57.748Z",
+   "sourceTimestamp": "2026-09-07T07:02:57.748Z",
+   "sourceTz": "+00:00",
+   "service": "user-context-service",
+   "type": "infra",
+   "summary": "service mesh sidecar upgraded",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {}
+  },
+  {
+   "id": "CHG-48300",
+   "ts": "2026-09-07T09:26:35.172Z",
+   "sourceTimestamp": "2026-09-07T09:26:35.172Z",
+   "sourceTz": "+00:00",
+   "service": "indexing-pipeline",
+   "type": "infra",
+   "summary": "log shipper agent upgraded",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "r.iyer",
+   "status": "completed",
+   "details": {}
+  },
+  {
+   "id": "CHG-48303",
+   "ts": "2026-09-07T12:05:42.336Z",
+   "sourceTimestamp": "2026-09-07T12:05:42.336Z",
+   "sourceTz": "+00:00",
+   "service": "payout-service",
+   "type": "config",
+   "summary": "alert threshold tuned",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "m.bose",
+   "status": "completed",
+   "details": {
+    "key": "alerts.error_rate_pct",
+    "from": 2,
+    "to": 4
+   }
+  },
+  {
+   "id": "CHG-48312",
+   "ts": "2026-09-07T12:07:39.734Z",
+   "sourceTimestamp": "2026-09-07T12:07:39.734Z",
+   "sourceTz": "+00:00",
+   "service": "broker-connector",
+   "type": "deploy",
+   "summary": "release: add tracing spans to outbound calls",
+   "versionFrom": "1.22.0",
+   "versionTo": "1.22.1",
+   "author": "n.shah",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-98340",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48318",
+   "ts": "2026-09-08T08:05:14.532Z",
+   "sourceTimestamp": "2026-09-08T08:05:14.532Z",
+   "sourceTz": "+00:00",
+   "service": "mf-order-service",
+   "type": "config",
+   "summary": "autoscaling: max replicas raised",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "v.rao",
+   "status": "completed",
+   "details": {
+    "key": "autoscaling.max_replicas",
+    "from": 12,
+    "to": 15
+   }
+  },
+  {
+   "id": "CHG-48326",
+   "ts": "2026-09-08T08:42:07.705Z",
+   "sourceTimestamp": "2026-09-08T08:42:07.705Z",
+   "sourceTz": "+00:00",
+   "service": "user-context-service",
+   "type": "deploy",
+   "summary": "release: upgrade HTTP client library",
+   "versionFrom": "1.4.3",
+   "versionTo": "1.5.0",
+   "author": "a.menon",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-24172",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48335",
+   "ts": "2026-09-08T09:30:35.333Z",
+   "sourceTimestamp": "2026-09-08T09:30:35.333Z",
+   "sourceTz": "+00:00",
+   "service": "mf-order-service",
+   "type": "config",
+   "summary": "cache TTL for static content raised",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "v.rao",
+   "status": "completed",
+   "details": {
+    "key": "cache.static_ttl_s",
+    "from": 300,
+    "to": 600
+   }
+  },
+  {
+   "id": "CHG-48338",
+   "ts": "2026-09-08T12:02:02.330Z",
+   "sourceTimestamp": "2026-09-08T12:02:02.330Z",
+   "sourceTz": "+00:00",
+   "service": "bank-connector",
+   "type": "deploy",
+   "summary": "release: upgrade HTTP client library",
+   "versionFrom": "2.12.5",
+   "versionTo": "2.12.6",
+   "author": "r.iyer",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-20510",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48343",
+   "ts": "2026-09-08T12:57:11.941Z",
+   "sourceTimestamp": "2026-09-08T12:57:11.941Z",
+   "sourceTz": "+00:00",
+   "service": "market-data-service",
+   "type": "feature_flag",
+   "summary": "flag assistant_followup_suggestions rollout 10% -> 25%",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "m.bose",
+   "status": "completed",
+   "details": {
+    "flag": "assistant_followup_suggestions",
+    "from_pct": 10,
+    "to_pct": 25
+   }
+  },
+  {
+   "id": "CHG-48356",
+   "ts": "2026-09-08T15:41:07.958Z",
+   "sourceTimestamp": "2026-09-08T15:41:07.958Z",
+   "sourceTz": "+00:00",
+   "service": "bank-connector",
+   "type": "deploy",
+   "summary": "release: fix pagination edge case",
+   "versionFrom": "2.12.6",
+   "versionTo": "2.13.0",
+   "author": "k.reddy",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-75911",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48360",
+   "ts": "2026-09-09T07:52:13.419Z",
+   "sourceTimestamp": "2026-09-09T07:52:13.419Z",
+   "sourceTz": "+00:00",
+   "service": "knowledge-index",
+   "type": "deploy",
+   "summary": "release: add tracing spans to outbound calls",
+   "versionFrom": "1.8.0",
+   "versionTo": "1.9.0",
+   "author": "p.nair",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-17701",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48366",
+   "ts": "2026-09-09T07:56:58.616Z",
+   "sourceTimestamp": "2026-09-09T07:56:58.616Z",
+   "sourceTz": "+00:00",
+   "service": "payout-service",
+   "type": "deploy",
+   "summary": "release: fix pagination edge case",
+   "versionFrom": "2.6.1",
+   "versionTo": "2.7.0",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-74129",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48371",
+   "ts": "2026-09-09T08:45:08.298Z",
+   "sourceTimestamp": "2026-09-09T08:45:08.298Z",
+   "sourceTz": "+00:00",
+   "service": "user-context-service",
+   "type": "deploy",
+   "summary": "routine release: dependency bumps and logging tweaks",
+   "versionFrom": "1.5.0",
+   "versionTo": "1.6.0",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-34831",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48379",
+   "ts": "2026-09-09T15:43:31.626Z",
+   "sourceTimestamp": "2026-09-09T15:43:31.626Z",
+   "sourceTz": "+00:00",
+   "service": "indexing-pipeline",
+   "type": "feature_flag",
+   "summary": "flag faster_kyc_flow rollout 5% -> 15%",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "m.bose",
+   "status": "completed",
+   "details": {
+    "flag": "faster_kyc_flow",
+    "from_pct": 5,
+    "to_pct": 15
+   }
+  },
+  {
+   "id": "CHG-48388",
+   "ts": "2026-09-09T15:47:15.142Z",
+   "sourceTimestamp": "2026-09-09T15:47:15.142Z",
+   "sourceTz": "+00:00",
+   "service": "kyc-service",
+   "type": "config",
+   "summary": "log level for module http.client: INFO -> DEBUG -> INFO",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "r.iyer",
+   "status": "completed",
+   "details": {
+    "key": "logging.http_client",
+    "value": "INFO"
+   }
+  },
+  {
+   "id": "CHG-48395",
+   "ts": "2026-09-10T06:09:24.522Z",
+   "sourceTimestamp": "2026-09-10T06:09:24.522Z",
+   "sourceTz": "+00:00",
+   "service": "assistant-orchestrator",
+   "type": "deploy",
+   "summary": "release: refactor request validation",
+   "versionFrom": "0.42.1",
+   "versionTo": "0.42.2",
+   "author": "p.nair",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-56022",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48404",
+   "ts": "2026-09-10T06:41:19.881Z",
+   "sourceTimestamp": "2026-09-10T06:41:19.881Z",
+   "sourceTz": "+00:00",
+   "service": "mf-order-service",
+   "type": "deploy",
+   "summary": "release: fix pagination edge case",
+   "versionFrom": "4.0.7",
+   "versionTo": "4.1.0",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-40783",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48408",
+   "ts": "2026-09-10T07:19:10.717Z",
+   "sourceTimestamp": "2026-09-10T07:19:10.717Z",
+   "sourceTz": "+00:00",
+   "service": "market-data-service",
+   "type": "deploy",
+   "summary": "release: feature work behind a disabled flag",
+   "versionFrom": "3.3.9",
+   "versionTo": "3.3.10",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-41749",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48417",
+   "ts": "2026-09-10T08:06:51.657Z",
+   "sourceTimestamp": "2026-09-10T08:06:51.657Z",
+   "sourceTz": "+00:00",
+   "service": "portfolio-service",
+   "type": "config",
+   "summary": "autoscaling: max replicas raised",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "r.iyer",
+   "status": "completed",
+   "details": {
+    "key": "autoscaling.max_replicas",
+    "from": 12,
+    "to": 14
+   }
+  },
+  {
+   "id": "CHG-48425",
+   "ts": "2026-09-10T12:44:58.634Z",
+   "sourceTimestamp": "2026-09-10T12:44:58.634Z",
+   "sourceTz": "+00:00",
+   "service": "order-service",
+   "type": "config",
+   "summary": "cache TTL for static content raised",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "r.iyer",
+   "status": "completed",
+   "details": {
+    "key": "cache.static_ttl_s",
+    "from": 300,
+    "to": 600
+   }
+  },
+  {
+   "id": "CHG-48428",
+   "ts": "2026-09-10T12:54:15.188Z",
+   "sourceTimestamp": "2026-09-10T12:54:15.188Z",
+   "sourceTz": "+00:00",
+   "service": "compliance-filter",
+   "type": "deploy",
+   "summary": "release: minor UI copy endpoints and metrics labels",
+   "versionFrom": "2.1.0",
+   "versionTo": "2.2.0",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-90459",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48434",
+   "ts": "2026-09-10T16:09:50.657Z",
+   "sourceTimestamp": "2026-09-10T16:09:50.657Z",
+   "sourceTz": "+00:00",
+   "service": "mf-order-service",
+   "type": "deploy",
+   "summary": "release: add tracing spans to outbound calls",
+   "versionFrom": "4.1.0",
+   "versionTo": "4.1.1",
+   "author": "a.menon",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-70557",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48447",
+   "ts": "2026-09-11T06:03:22.383Z",
+   "sourceTimestamp": "2026-09-11T06:03:22.383Z",
+   "sourceTz": "+00:00",
+   "service": "api-gateway",
+   "type": "feature_flag",
+   "summary": "flag order_ticket_redesign rollout 25% -> 55%",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "p.nair",
+   "status": "completed",
+   "details": {
+    "flag": "order_ticket_redesign",
+    "from_pct": 25,
+    "to_pct": 55
+   }
+  },
+  {
+   "id": "CHG-48450",
+   "ts": "2026-09-11T06:14:18.959Z",
+   "sourceTimestamp": "2026-09-11T06:14:18.959Z",
+   "sourceTz": "+00:00",
+   "service": "notification-service",
+   "type": "deploy",
+   "summary": "release: minor UI copy endpoints and metrics labels",
+   "versionFrom": "4.4.0",
+   "versionTo": "4.4.1",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-65628",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48457",
+   "ts": "2026-09-11T07:02:54.618Z",
+   "sourceTimestamp": "2026-09-11T07:02:54.618Z",
+   "sourceTz": "+00:00",
+   "service": "broker-connector",
+   "type": "deploy",
+   "summary": "release: feature work behind a disabled flag",
+   "versionFrom": "1.22.1",
+   "versionTo": "1.23.0",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-87404",
+    "canary": "none"
+   }
+  },
+  {
+   "id": "CHG-48467",
+   "ts": "2026-09-11T09:56:12.162Z",
+   "sourceTimestamp": "2026-09-11T09:56:12.162Z",
+   "sourceTz": "+00:00",
+   "service": "knowledge-index",
+   "type": "deploy",
+   "summary": "release: upgrade HTTP client library",
+   "versionFrom": "1.9.0",
+   "versionTo": "1.10.0",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-85832",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48475",
+   "ts": "2026-09-11T11:11:08.298Z",
+   "sourceTimestamp": "2026-09-11T11:11:08.298Z",
+   "sourceTz": "+00:00",
+   "service": "market-data-service",
+   "type": "deploy",
+   "summary": "release: refactor request validation",
+   "versionFrom": "3.3.10",
+   "versionTo": "3.3.11",
+   "author": "s.kulkarni",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-59151",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48476",
+   "ts": "2026-09-11T11:52:34.039Z",
+   "sourceTimestamp": "2026-09-11T11:52:34.039Z",
+   "sourceTz": "+00:00",
+   "service": "bank-connector",
+   "type": "deploy",
+   "summary": "release: upgrade HTTP client library",
+   "versionFrom": "2.13.0",
+   "versionTo": "2.13.1",
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-73771",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48483",
+   "ts": "2026-09-11T13:12:39.043Z",
+   "sourceTimestamp": "2026-09-11T13:12:39.043Z",
+   "sourceTz": "+00:00",
+   "service": "debit-worker",
+   "type": "feature_flag",
+   "summary": "flag new_watchlist_ui rollout 10% -> 25%",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "deploy-bot",
+   "status": "completed",
+   "details": {
+    "flag": "new_watchlist_ui",
+    "from_pct": 10,
+    "to_pct": 25
+   }
+  },
+  {
+   "id": "CHG-48492",
+   "ts": "2026-09-11T16:53:15.962Z",
+   "sourceTimestamp": "2026-09-11T16:53:15.962Z",
+   "sourceTz": "+00:00",
+   "service": "payout-service",
+   "type": "deploy",
+   "summary": "release: performance improvements to serialization",
+   "versionFrom": "2.7.0",
+   "versionTo": "2.7.1",
+   "author": "s.kulkarni",
+   "status": "completed",
+   "details": {
+    "pipeline": "build-85436",
+    "canary": "10% for 15m, promoted"
+   }
+  },
+  {
+   "id": "CHG-48498",
+   "ts": "2026-09-14T03:28:02.417Z",
+   "sourceTimestamp": "2026-09-14T03:28:02.417Z",
+   "sourceTz": "+00:00",
+   "service": "payment-service",
+   "type": "config",
+   "summary": "cache TTL for static content raised",
+   "versionFrom": null,
+   "versionTo": null,
+   "author": "k.reddy",
+   "status": "completed",
+   "details": {
+    "key": "cache.static_ttl_s",
+    "from": 300,
+    "to": 600
+   }
+  }
+ ],
+ "history": [
+  {
+   "id": "PIR-1792",
+   "openedAt": "2026-07-18T21:00:00.000Z",
+   "resolvedAt": "2026-07-19T00:20:00.000Z",
+   "title": "Compliance filter blocking harmless answers",
+   "severity": "SEV3",
+   "services": [
+    "compliance-filter",
+    "assistant-orchestrator"
+   ],
+   "symptoms": "Assistant refused basic questions about what an index fund is.",
+   "rootCause": "New rule matched the word \"buy\" in any context.",
+   "resolution": "Rule refined to require a recommendation pattern.",
+   "tags": [
+    "assistant",
+    "compliance",
+    "false-positive"
+   ]
+  },
+  {
+   "id": "PIR-1028",
+   "openedAt": "2026-07-22T02:00:00.000Z",
+   "resolvedAt": "2026-07-22T02:50:00.000Z",
+   "title": "Order confirmation notifications delayed",
+   "severity": "SEV3",
+   "services": [
+    "message-queue",
+    "notification-service"
+   ],
+   "symptoms": "Order-filled pushes delayed up to 10 minutes.",
+   "rootCause": "A notification consumer pod stuck in a crash loop after a node drain.",
+   "resolution": "Restarted consumer; fixed the readiness probe.",
+   "tags": [
+    "queue",
+    "notifications",
+    "consumer-lag"
+   ]
+  },
+  {
+   "id": "PIR-1147",
+   "openedAt": "2026-07-22T07:00:00.000Z",
+   "resolvedAt": "2026-07-22T11:00:00.000Z",
+   "title": "Assistant quoted a wrong exit load for one fund",
+   "severity": "SEV3",
+   "services": [
+    "assistant-orchestrator",
+    "knowledge-index"
+   ],
+   "symptoms": "Support tickets: assistant said exit load is nil for a fund that charges 1% within a year.",
+   "rootCause": "Help article for that fund had a typo; the index served it correctly.",
+   "resolution": "Fixed the article; added factsheet-vs-article consistency check.",
+   "tags": [
+    "assistant",
+    "content",
+    "knowledge-index"
+   ]
+  },
+  {
+   "id": "PIR-1695",
+   "openedAt": "2026-07-22T18:00:00.000Z",
+   "resolvedAt": "2026-07-22T18:30:00.000Z",
+   "title": "Payout batch paused by duplicate-check alarm",
+   "severity": "SEV3",
+   "services": [
+    "payout-service"
+   ],
+   "symptoms": "Afternoon payout batch paused for 30 minutes.",
+   "rootCause": "Duplicate-payout guard tripped on a legitimate split redemption.",
+   "resolution": "Guard now groups by redemption id.",
+   "tags": [
+    "payout",
+    "batch",
+    "duplicate-check"
+   ]
+  },
+  {
+   "id": "PIR-1829",
+   "openedAt": "2026-07-22T22:00:00.000Z",
+   "resolvedAt": "2026-07-22T22:40:00.000Z",
+   "title": "Gateway TLS certificate nearly expired (no user impact)",
+   "severity": "SEV3",
+   "services": [
+    "api-gateway"
+   ],
+   "symptoms": "Certificate expiry alert fired with 3 days remaining.",
+   "rootCause": "Auto-renewal job had a stale DNS challenge record.",
+   "resolution": "Renewed manually and fixed the renewal job.",
+   "tags": [
+    "tls",
+    "certificate"
+   ]
+  },
+  {
+   "id": "PIR-1737",
+   "openedAt": "2026-07-26T12:00:00.000Z",
+   "resolvedAt": "2026-07-26T12:25:00.000Z",
+   "title": "Stock prices frozen for 6 minutes during market hours",
+   "severity": "SEV2",
+   "services": [
+    "market-data-service",
+    "broker-api"
+   ],
+   "symptoms": "Prices on watchlists stopped updating mid-session.",
+   "rootCause": "Broker price-feed websocket dropped and our reconnect backoff was too long.",
+   "resolution": "Reduced reconnect backoff; added a staleness alarm on price_feed_lag_ms.",
+   "tags": [
+    "prices",
+    "feed",
+    "market-data"
+   ]
+  },
+  {
+   "id": "PIR-1215",
+   "openedAt": "2026-07-30T02:00:00.000Z",
+   "resolvedAt": "2026-07-30T07:00:00.000Z",
+   "title": "KYC applications on hold after agency maintenance",
+   "severity": "SEV3",
+   "services": [
+    "kyc-service",
+    "kyc-agency"
+   ],
+   "symptoms": "Pending KYC count rose by 900 over a morning.",
+   "rootCause": "KYC agency scheduled maintenance; decisions resumed in the afternoon.",
+   "resolution": "No action needed; added the agency status page to the runbook.",
+   "tags": [
+    "kyc",
+    "external",
+    "maintenance"
+   ]
+  },
+  {
+   "id": "PIR-1735",
+   "openedAt": "2026-08-02T11:00:00.000Z",
+   "resolvedAt": "2026-08-02T11:15:00.000Z",
+   "title": "Brief login failures during cache failover",
+   "severity": "SEV2",
+   "services": [
+    "cache",
+    "auth-service"
+   ],
+   "symptoms": "Login errors for 3 minutes; sessions invalidated for some users.",
+   "rootCause": "Cache primary failed over; session keys on the old primary were not replicated in time.",
+   "resolution": "Enabled synchronous replication for the sessions keyspace.",
+   "tags": [
+    "cache",
+    "failover",
+    "sessions"
+   ]
+  },
+  {
+   "id": "PIR-1405",
+   "openedAt": "2026-08-04T19:00:00.000Z",
+   "resolvedAt": "2026-08-04T21:00:00.000Z",
+   "title": "SIP debits delayed for one partner bank",
+   "severity": "SEV3",
+   "services": [
+    "debit-worker",
+    "bank-connector",
+    "bank-apis"
+   ],
+   "symptoms": "Debit confirmations from one bank took 10+ minutes.",
+   "rootCause": "Partner bank batch processing slowdown at their end.",
+   "resolution": "Bank recovered; debits confirmed later the same day.",
+   "tags": [
+    "sip",
+    "debit",
+    "bank",
+    "external"
+   ]
+  },
+  {
+   "id": "PIR-1196",
+   "openedAt": "2026-08-09T05:00:00.000Z",
+   "resolvedAt": "2026-08-09T13:00:00.000Z",
+   "title": "Redemptions not credited on a bank holiday",
+   "severity": "SEV3",
+   "services": [
+    "payout-service",
+    "bank-apis"
+   ],
+   "symptoms": "Users complained redemptions were not credited same day.",
+   "rootCause": "Bank holiday; payout rails closed. Expected behaviour, unclear messaging.",
+   "resolution": "App now shows expected credit date on holidays.",
+   "tags": [
+    "payout",
+    "holiday",
+    "messaging"
+   ]
+  },
+  {
+   "id": "PIR-1753",
+   "openedAt": "2026-08-14T16:00:00.000Z",
+   "resolvedAt": "2026-08-15T16:00:00.000Z",
+   "title": "XIRR shown as N/A for some folios",
+   "severity": "SEV3",
+   "services": [
+    "portfolio-service"
+   ],
+   "symptoms": "Returns showed N/A for folios with switch transactions.",
+   "rootCause": "XIRR calculation did not handle switch-in transactions.",
+   "resolution": "Fixed calculation and backfilled.",
+   "tags": [
+    "portfolio",
+    "returns",
+    "calculation"
+   ]
+  },
+  {
+   "id": "PIR-1143",
+   "openedAt": "2026-08-15T01:00:00.000Z",
+   "resolvedAt": "2026-08-15T01:35:00.000Z",
+   "title": "Slow portfolio pages during database maintenance",
+   "severity": "SEV3",
+   "services": [
+    "portfolio-service",
+    "database"
+   ],
+   "symptoms": "Portfolio p95 latency rose to 900 ms for 20 minutes.",
+   "rootCause": "A manual VACUUM on the holdings table ran during business hours.",
+   "resolution": "Maintenance moved to the night window; added a guard to the runbook.",
+   "tags": [
+    "database",
+    "latency",
+    "maintenance"
+   ]
+  },
+  {
+   "id": "PIR-1459",
+   "openedAt": "2026-08-16T20:00:00.000Z",
+   "resolvedAt": "2026-08-16T23:00:00.000Z",
+   "title": "Fund orders placed after cut-off got the wrong NAV date",
+   "severity": "SEV2",
+   "services": [
+    "mf-order-service"
+   ],
+   "symptoms": "Users who bought liquid funds at 13:58 IST were given next-day NAV.",
+   "rootCause": "Cut-off comparison used server time without network delay allowance.",
+   "resolution": "Cut-off check moved to the RTA acknowledgement time; affected orders corrected.",
+   "tags": [
+    "mutual-funds",
+    "cutoff",
+    "nav"
+   ]
+  },
+  {
+   "id": "PIR-1806",
+   "openedAt": "2026-08-20T23:00:00.000Z",
+   "resolvedAt": "2026-08-21T09:00:00.000Z",
+   "title": "Knowledge index build ran out of memory",
+   "severity": "SEV3",
+   "services": [
+    "indexing-pipeline",
+    "knowledge-index"
+   ],
+   "symptoms": "Nightly index build failed; serving index stayed on the previous build.",
+   "rootCause": "Build worker memory limit too low after help-centre growth.",
+   "resolution": "Raised memory limit; build reran successfully next night.",
+   "tags": [
+    "index",
+    "build",
+    "oom"
+   ]
+  },
+  {
+   "id": "PIR-2002",
+   "openedAt": "2026-08-24T03:46:00.000Z",
+   "resolvedAt": "2026-08-24T04:32:00.000Z",
+   "title": "Database CPU spike at market open from unindexed query",
+   "severity": "SEV2",
+   "services": [
+    "database",
+    "portfolio-service",
+    "order-service"
+   ],
+   "symptoms": "Portfolio and order pages slow at the open; database CPU 95%.",
+   "rootCause": "New holdings query without an index ran on every app open.",
+   "resolution": "Added index.",
+   "tags": [
+    "database",
+    "market-open",
+    "cpu",
+    "slow-query"
+   ]
+  },
+  {
+   "id": "PIR-1020",
+   "openedAt": "2026-08-29T12:00:00.000Z",
+   "resolvedAt": "2026-08-29T12:30:00.000Z",
+   "title": "Traffic spike from a scraping bot",
+   "severity": "SEV3",
+   "services": [
+    "api-gateway"
+   ],
+   "symptoms": "Request rate 3x on /v1/portfolio with high 401 share.",
+   "rootCause": "Credential-stuffing bot; WAF rule caught it after 20 minutes.",
+   "resolution": "Tightened WAF rate rules for unauthenticated routes.",
+   "tags": [
+    "security",
+    "traffic",
+    "waf"
+   ]
+  },
+  {
+   "id": "PIR-1620",
+   "openedAt": "2026-08-30T23:00:00.000Z",
+   "resolvedAt": "2026-08-31T00:35:00.000Z",
+   "title": "OTP SMS delivery delays for one telecom circle",
+   "severity": "SEV2",
+   "services": [
+    "auth-service",
+    "notification-service",
+    "sms-provider"
+   ],
+   "symptoms": "OTP SMS arriving 2-5 minutes late for users on one telecom circle; login completion dropped about 8%.",
+   "rootCause": "SMS provider routing degradation for one operator; our sends were accepted but delivery receipts lagged.",
+   "resolution": "Provider rerouted traffic; we added delivery-receipt latency alerting.",
+   "tags": [
+    "otp",
+    "sms",
+    "login",
+    "external"
+   ]
+  }
+ ]
+}

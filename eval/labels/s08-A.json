@@ -1,0 +1,50 @@
+{
+  "scenario": "s08",
+  "variant": "A",
+  "key": "s08-A",
+  "worldId": "w_c28d89f1",
+  "split": "heldout",
+  "title": "Portfolio values about 100x too high",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "portfolio-service"
+      ],
+      "causeTypes": [
+        "config_change"
+      ],
+      "mechanism": "portfolio-service switched to the v2 price endpoint (config change, 11:02 IST), which returns paise, but kept treating values as rupees: stock values x100."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "the portfolio-service change",
+      "match": {
+        "tool": "get_changes",
+        "service": "portfolio-service"
+      }
+    },
+    {
+      "description": "displayed value jump",
+      "match": {
+        "tool": "query_metrics",
+        "service": "portfolio-service",
+        "metric": "displayed_value_total_cr"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "market-data-service metrics are normal and it serves the same values; the v2 endpoint documents unit=paise.",
+    "The market-data deploy at 10:40 IST is 22 minutes before the value jump at 11:02 IST."
+  ],
+  "redHerrings": [
+    "market-data-service deploy at 10:40 IST"
+  ],
+  "scriptedFaults": [],
+  "notes": "Unit mismatch, not data corruption upstream."
+}

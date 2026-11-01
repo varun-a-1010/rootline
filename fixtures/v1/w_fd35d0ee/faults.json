@@ -1,0 +1,66 @@
+{
+ "seed": "a1588e4c59fc63ec",
+ "latency": {
+  "minMs": 50,
+  "maxMs": 400
+ },
+ "transient": [
+  {
+   "p": 0.05,
+   "maxAttempt": 1,
+   "effect": {
+    "kind": "timeout"
+   }
+  },
+  {
+   "p": 0.04,
+   "maxAttempt": 2,
+   "effect": {
+    "kind": "error",
+    "code": "unavailable"
+   }
+  },
+  {
+   "p": 0.04,
+   "tools": [
+    "query_logs",
+    "query_metrics"
+   ],
+   "maxAttempt": 3,
+   "effect": {
+    "kind": "partial",
+    "dropFraction": 0.15
+   }
+  }
+ ],
+ "rules": [
+  {
+   "id": "metrics-timeout",
+   "tool": "query_metrics",
+   "match": {
+    "servicesAny": [
+     "database"
+    ]
+   },
+   "attempts": "all",
+   "effect": {
+    "kind": "timeout"
+   },
+   "note": "metrics backend overloaded for these series"
+  },
+  {
+   "id": "payout-metrics-partial",
+   "tool": "query_metrics",
+   "match": {
+    "servicesAny": [
+     "payout-service"
+    ]
+   },
+   "attempts": "all",
+   "effect": {
+    "kind": "partial",
+    "truncateWindowFraction": 0.3
+   }
+  }
+ ]
+}

@@ -112,8 +112,8 @@ export const SERVICES: ServiceDef[] = [
       ...std(220, 0.4, 80, 350),
       { name: 'order_success_rate', unit: '%', description: 'Orders accepted by the broker', kind: 'pct_success', base: 99.2 },
       { name: 'orders_per_min', unit: 'count/min', description: 'Orders submitted per minute', kind: 'count', base: 9000 },
-      { name: 'cpu_utilization', unit: '%', description: 'Average CPU across order-service pods', kind: 'gauge', base: 34, load: 0.9 },
-      { name: 'db_pool_in_use', unit: 'connections', description: 'Database connections checked out from the pool', kind: 'gauge', base: 28, load: 0.8 },
+      { name: 'cpu_utilization', unit: '%', description: 'Average CPU across order-service pods', kind: 'gauge', base: 34, load: 0.45 },
+      { name: 'db_pool_in_use', unit: 'connections', description: 'Database connections checked out from the pool', kind: 'gauge', base: 18, load: 0.6 },
       { name: 'db_pool_wait_ms', unit: 'ms', description: 'Time requests wait for a pooled DB connection (p95)', kind: 'latency', base: 3, load: 0.3 },
     ],
     logs: [

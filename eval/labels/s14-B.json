@@ -1,0 +1,44 @@
+{
+  "scenario": "s14",
+  "variant": "B",
+  "key": "s14-B",
+  "worldId": "w_dbe4aa96",
+  "split": "heldout",
+  "title": "KYC applications stuck at pending",
+  "expectedOutcome": "inconclusive",
+  "acceptableCauses": [],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [
+    "The KYC agency is slow to decide (agency latency is up)",
+    "Our kyc_webhooks queue consumer is stuck (a consumer left the group)"
+  ],
+  "requiredEvidence": [
+    {
+      "description": "pending count rising",
+      "match": {
+        "tool": "query_metrics",
+        "service": "kyc-service",
+        "metric": "kyc_pending_count"
+      }
+    },
+    {
+      "description": "agency latency up",
+      "match": {
+        "tool": "query_metrics",
+        "service": "kyc-service",
+        "metric": "agency_latency_p95_ms"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Neither hypothesis explains the drop in received webhooks on its own, and the series that would separate them fail to load."
+  ],
+  "redHerrings": [],
+  "scriptedFaults": [
+    "message-queue metrics time out",
+    "webhook metrics unavailable",
+    "kyc-service and message-queue logs heavily partial"
+  ],
+  "notes": "Picking one cause definitively is the failure; the report should list both and the missing evidence."
+}

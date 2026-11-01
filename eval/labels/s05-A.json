@@ -1,0 +1,70 @@
+{
+  "scenario": "s05",
+  "variant": "A",
+  "key": "s05-A",
+  "worldId": "w_13a472cd",
+  "split": "heldout",
+  "title": "Assistant says users don't hold any funds",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "user-context-service"
+      ],
+      "causeTypes": [
+        "capacity_saturation"
+      ],
+      "mechanism": "user-context-service timed out building contexts when a push campaign more than doubled assistant traffic (worker pool saturated)."
+    },
+    {
+      "id": "c2",
+      "components": [
+        "user-context-service",
+        "cache"
+      ],
+      "causeTypes": [
+        "cache_or_staleness"
+      ],
+      "mechanism": "On timeout it cached an empty context (holdings=0) with a 6 h TTL, so users keep getting \"no holdings\" after the timeouts stopped."
+    }
+  ],
+  "scoring": "top2_all",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "context build timeouts",
+      "match": {
+        "tool": "query_logs",
+        "service": "user-context-service",
+        "contains": "timed out"
+      }
+    },
+    {
+      "description": "empty context cached with long TTL",
+      "match": {
+        "tool": "query_logs",
+        "service": "user-context-service",
+        "contains": "holdings=0"
+      }
+    },
+    {
+      "description": "missing-context rate stays high after timeouts stop",
+      "match": {
+        "tool": "query_metrics",
+        "service": "user-context-service",
+        "metric": "missing_context_rate"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Timeouts stopped around 10:45 IST but missing_context_rate stayed elevated: the timeout alone does not explain the ongoing failures.",
+    "portfolio-service latency and errors stayed normal after its 09:58 IST deploy."
+  ],
+  "redHerrings": [
+    "portfolio-service deploy 7.2.1 at 09:58 IST"
+  ],
+  "scriptedFaults": [],
+  "notes": "Two-cause scenario: full credit needs both causes in the top two hypotheses; half credit if the top hypothesis is one of them."
+}

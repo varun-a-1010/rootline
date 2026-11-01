@@ -1,0 +1,88 @@
+{
+ "seed": "e1589683611a7816",
+ "latency": {
+  "minMs": 50,
+  "maxMs": 400
+ },
+ "transient": [
+  {
+   "p": 0.05,
+   "maxAttempt": 1,
+   "effect": {
+    "kind": "timeout"
+   }
+  },
+  {
+   "p": 0.04,
+   "maxAttempt": 2,
+   "effect": {
+    "kind": "error",
+    "code": "unavailable"
+   }
+  },
+  {
+   "p": 0.04,
+   "tools": [
+    "query_logs",
+    "query_metrics"
+   ],
+   "maxAttempt": 3,
+   "effect": {
+    "kind": "partial",
+    "dropFraction": 0.15
+   }
+  }
+ ],
+ "rules": [
+  {
+   "id": "webhook-metrics",
+   "tool": "query_metrics",
+   "match": {
+    "servicesAny": [
+     "kyc-service"
+    ],
+    "metricsAny": [
+     "webhook_received_per_min",
+     "webhook_errors"
+    ]
+   },
+   "attempts": "all",
+   "effect": {
+    "kind": "timeout"
+   }
+  },
+  {
+   "id": "webhook-logs",
+   "tool": "query_logs",
+   "match": {
+    "servicesAny": [
+     "kyc-service"
+    ],
+    "textAny": [
+     "hook",
+     "webhook",
+     "signature",
+     "status"
+    ]
+   },
+   "attempts": "all",
+   "effect": {
+    "kind": "timeout"
+   }
+  },
+  {
+   "id": "webhook-queue",
+   "tool": "query_metrics",
+   "match": {
+    "servicesAny": [
+     "message-queue"
+    ]
+   },
+   "attempts": "all",
+   "effect": {
+    "kind": "error",
+    "code": "unavailable"
+   }
+  }
+ ]
+}

@@ -1,0 +1,53 @@
+{
+  "scenario": "s04",
+  "variant": "A",
+  "key": "s04-A",
+  "worldId": "w_9424d74f",
+  "split": "dev",
+  "title": "Stock orders failing at market open",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "broker-api",
+        "broker-connector",
+        "order-service"
+      ],
+      "causeTypes": [
+        "rate_limiting_or_quota"
+      ],
+      "mechanism": "Our opening order burst exceeded the broker API's rate limit (400 req/s); the broker returned 429 on /orders and orders failed after retries."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "429 responses on /orders",
+      "match": {
+        "tool": "query_metrics",
+        "service": "broker-connector",
+        "metric": "rate_limited_count"
+      }
+    },
+    {
+      "description": "429 errors in broker-connector logs",
+      "match": {
+        "tool": "query_logs",
+        "service": "broker-connector",
+        "contains": "429"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Failures are broker 429 rejections, not timeouts or 5xx; order-service latency rose only ~35% and quotes/holdings endpoints were not limited."
+  ],
+  "redHerrings": [
+    "order-service CPU ~90% at the open",
+    "past incident: CPU saturation at open"
+  ],
+  "scriptedFaults": [],
+  "notes": "Background transient tool faults only."
+}

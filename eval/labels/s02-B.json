@@ -1,0 +1,63 @@
+{
+  "scenario": "s02",
+  "variant": "B",
+  "key": "s02-B",
+  "worldId": "w_47e89b86",
+  "split": "heldout",
+  "title": "Assistant very slow this evening",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "llm-provider",
+        "assistant-orchestrator"
+      ],
+      "causeTypes": [
+        "rate_limiting_or_quota"
+      ],
+      "mechanism": "The LLM provider started rejecting our calls with 429 (quota exceeded: requests per minute, limit=1500); the orchestrator retries with backoff, so answers take 20 s+ and some fail."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "llm-provider"
+      ],
+      "causeTypes": [
+        "upstream_dependency_degradation"
+      ],
+      "credit": 0.5,
+      "reason": "Right dependency, but misses that it is quota throttling."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "429 quota errors from the LLM provider",
+      "match": {
+        "tool": "query_logs",
+        "service": "assistant-orchestrator",
+        "contains": "429"
+      }
+    },
+    {
+      "description": "rate-limited call count",
+      "match": {
+        "tool": "query_metrics",
+        "service": "assistant-orchestrator",
+        "metric": "rate_limited_count"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "The 429s began at ~20:05 IST, before the 20:12 IST prompt deploy; tokens per turn rose only ~12% after it."
+  ],
+  "redHerrings": [
+    "assistant-orchestrator deploy 0.43.0 at 20:12 IST",
+    "past incident: prompt template latency regression"
+  ],
+  "scriptedFaults": [],
+  "notes": "Background transient tool faults only."
+}

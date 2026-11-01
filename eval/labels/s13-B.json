@@ -1,0 +1,68 @@
+{
+  "scenario": "s13",
+  "variant": "B",
+  "key": "s13-B",
+  "worldId": "w_fd35d0ee",
+  "split": "heldout",
+  "title": "Redemption payouts delayed",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "database",
+        "payout-service"
+      ],
+      "causeTypes": [
+        "infrastructure_failure",
+        "capacity_saturation"
+      ],
+      "mechanism": "The payout batch PB-0909-PM is blocked waiting for a lock on payout_instructions held by the aum-export job (SELECT ... FOR UPDATE); 0 payouts sent."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "job-scheduler"
+      ],
+      "causeTypes": [
+        "infrastructure_failure",
+        "capacity_saturation",
+        "config_change"
+      ],
+      "credit": 0.5,
+      "reason": "Names the export job but not the lock it holds."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "lock-wait logs from the batch",
+      "match": {
+        "tool": "query_logs",
+        "service": "payout-service",
+        "contains": "lock"
+      }
+    },
+    {
+      "description": "blocking process in database logs",
+      "match": {
+        "tool": "query_logs",
+        "service": "database",
+        "contains": "blocked by"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "bank-connector shows slow payout API warnings, but no payouts were even sent: the batch never reached the bank."
+  ],
+  "redHerrings": [
+    "slow bank payout API warnings",
+    "payout dashboards (metrics) not loading"
+  ],
+  "scriptedFaults": [
+    "query_metrics times out for database and returns 30% of the window for payout-service"
+  ],
+  "notes": "Conclusive only through logs or retries; the report must disclose the metrics gap."
+}

@@ -1,0 +1,53 @@
+{
+  "scenario": "s09",
+  "variant": "A",
+  "key": "s09-A",
+  "worldId": "w_ec5a3706",
+  "split": "heldout",
+  "title": "Autopay setup failing for some users",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "bank-apis",
+        "bank-connector"
+      ],
+      "causeTypes": [
+        "upstream_dependency_degradation"
+      ],
+      "mechanism": "Bank sahyadri's mandate API started timing out (504 after 8 s) at 10:10 IST; only its users fail, which overall success (~94%) hides."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "mandate success split by bank",
+      "match": {
+        "tool": "query_metrics",
+        "service": "mandate-service",
+        "metric": "mandate_success_rate"
+      }
+    },
+    {
+      "description": "bank-specific errors",
+      "match": {
+        "tool": "query_logs",
+        "service": "bank-connector",
+        "contains": "mandates"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Only bank sahyadri fails; the other banks' success is unchanged after the deploy.",
+    "NPCI-wide problems hit every bank; this hits one."
+  ],
+  "redHerrings": [
+    "mandate-service deploy 2.4.0 at 09:52 IST",
+    "past NPCI incident"
+  ],
+  "scriptedFaults": [],
+  "notes": "Requires grouping mandate_success_rate (or errors) by bank."
+}

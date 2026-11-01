@@ -95,6 +95,7 @@ export class WorldBuilder {
   private readonly protectedRanges: Array<{ services: string[]; from: number; to: number }> = [];
   readonly jobs: ScheduledJob[];
   private readonly jobOutcomes = new Map<string, 'ok' | 'failed' | 'skipped'>();
+  private readonly suppressions: Array<{ service: string; from: number; to: number; contains?: string; fraction: number }> = [];
   private readonly opts: Required<Pick<WorldOptions, 'preHours' | 'logScale' | 'historyCount' | 'routineChangesPerWeekday'>>;
   private changeSeq = 0;
 
@@ -234,6 +235,15 @@ export class WorldBuilder {
   /** Override one run of a scheduled job (keyed by its IST start instant). */
   jobOutcome(name: string, start: Date, outcome: 'ok' | 'failed' | 'skipped'): this {
     this.jobOutcomes.set(`${name}@${start.getTime()}`, outcome);
+    return this;
+  }
+
+  /**
+   * Remove background (non-scripted) log lines: logs that never arrived, or chatter a scenario
+   * replaces with its own lines. fraction < 1 removes that share, chosen deterministically.
+   */
+  suppressLogs(x: { service: string; from: Date; to: Date; contains?: string; fraction?: number }): this {
+    this.suppressions.push({ service: x.service, from: x.from.getTime(), to: x.to.getTime(), contains: x.contains, fraction: x.fraction ?? 1 });
     return this;
   }
 
@@ -428,7 +438,7 @@ export class WorldBuilder {
                 break;
             }
           }
-          if (def.kind === 'pct_success' || def.kind === 'pct_error') x = Math.min(100, Math.max(0, x));
+          if (def.kind === 'pct_success' || def.kind === 'pct_error' || def.unit === '%') x = Math.min(100, Math.max(0, x));
           if (def.kind === 'count' || def.kind === 'rate' || def.kind === 'latency' || def.kind === 'gauge') x = Math.max(0, x);
           return x;
         };
@@ -547,6 +557,20 @@ export class WorldBuilder {
         if (has('job-scheduler')) push(run.end, 'job-scheduler', 'ERROR', `job ${run.job.name} failed (${runId}); exit code 1`, { job: run.job.name });
       }
     }
+
+    // Suppressions apply to background and job lines only.
+    const sr = r.fork('suppress');
+    const kept = logs.filter((l) => {
+      const at = Date.parse(l.ts);
+      for (const x of this.suppressions) {
+        if (l.service !== x.service || at < x.from || at >= x.to) continue;
+        if (x.contains && !l.message.includes(x.contains)) continue;
+        if (x.fraction >= 1 || sr.next() < x.fraction) return false;
+      }
+      return true;
+    });
+    logs.length = 0;
+    logs.push(...kept);
 
     // Scenario lines.
     for (const s of this.scripted) push(s.at, s.service, s.sev, s.msg, s.fields ?? {}, s.tz);

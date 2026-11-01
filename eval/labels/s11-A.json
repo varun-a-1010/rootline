@@ -1,0 +1,62 @@
+{
+  "scenario": "s11",
+  "variant": "A",
+  "key": "s11-A",
+  "worldId": "w_452c4cd8",
+  "split": "heldout",
+  "title": "Fund order errors since morning",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "mf-order-service"
+      ],
+      "causeTypes": [
+        "deployment_regression"
+      ],
+      "mechanism": "The mf-order-service 4.1.0 release at 09:20 IST introduced the errors that began two minutes later. Its deploy record was written in IST without an offset and indexed as UTC, so it appears at 14:50 IST, after the errors."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "mf-order-service"
+      ],
+      "causeTypes": [
+        "clock_or_timestamp_skew"
+      ],
+      "credit": 0.5,
+      "reason": "Finds the timestamp skew but names it as the cause instead of the release."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "the release record (offset-less timestamp)",
+      "match": {
+        "tool": "get_changes",
+        "service": "mf-order-service"
+      }
+    },
+    {
+      "description": "error logs carrying the new version",
+      "match": {
+        "tool": "query_logs",
+        "service": "mf-order-service",
+        "contains": "NullPointerException"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Error logs from 09:22 IST carry version 4.1.0, so the new build was already running before the \"14:50 IST\" deploy time.",
+    "The deploy record has no UTC offset (tz: none); read as IST it is 5.5 h earlier."
+  ],
+  "redHerrings": [
+    "slow RTA acknowledgements",
+    "reporter ruled the release out from the deploy log"
+  ],
+  "scriptedFaults": [],
+  "notes": "The timeline itself is misleading."
+}

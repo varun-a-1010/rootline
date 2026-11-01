@@ -1,0 +1,44 @@
+{
+  "scenario": "s14",
+  "variant": "A",
+  "key": "s14-A",
+  "worldId": "w_7f15fa24",
+  "split": "heldout",
+  "title": "KYC applications stuck at pending",
+  "expectedOutcome": "inconclusive",
+  "acceptableCauses": [],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [
+    "The KYC agency is slow to decide (agency latency is up)",
+    "Our webhook endpoint fails to accept status updates (500s on /hooks/kyc)"
+  ],
+  "requiredEvidence": [
+    {
+      "description": "pending count rising",
+      "match": {
+        "tool": "query_metrics",
+        "service": "kyc-service",
+        "metric": "kyc_pending_count"
+      }
+    },
+    {
+      "description": "agency latency up",
+      "match": {
+        "tool": "query_metrics",
+        "service": "kyc-service",
+        "metric": "agency_latency_p95_ms"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Neither hypothesis explains the drop in received webhooks on its own, and the series that would separate them fail to load."
+  ],
+  "redHerrings": [],
+  "scriptedFaults": [
+    "webhook metrics time out",
+    "kyc-service log searches mentioning hooks/webhooks/signature/status time out",
+    "message-queue metrics unavailable"
+  ],
+  "notes": "Picking one cause definitively is the failure; the report should list both and the missing evidence."
+}

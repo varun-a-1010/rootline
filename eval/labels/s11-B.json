@@ -1,0 +1,62 @@
+{
+  "scenario": "s11",
+  "variant": "B",
+  "key": "s11-B",
+  "worldId": "w_7c82b93f",
+  "split": "heldout",
+  "title": "KYC submissions failing",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "kyc-service"
+      ],
+      "causeTypes": [
+        "deployment_regression"
+      ],
+      "mechanism": "The kyc-service 1.16.0 release at 11:05 IST introduced the errors that began two minutes later. Its deploy record was written in IST without an offset and indexed as UTC, so it appears at 16:35 IST, after the errors."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [
+    {
+      "components": [
+        "kyc-service"
+      ],
+      "causeTypes": [
+        "clock_or_timestamp_skew"
+      ],
+      "credit": 0.5,
+      "reason": "Finds the timestamp skew but names it as the cause instead of the release."
+    }
+  ],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "the release record (offset-less timestamp)",
+      "match": {
+        "tool": "get_changes",
+        "service": "kyc-service"
+      }
+    },
+    {
+      "description": "error logs carrying the new version",
+      "match": {
+        "tool": "query_logs",
+        "service": "kyc-service",
+        "contains": "serialization error"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Error logs from 11:07 IST carry version 1.16.0, so the new build was already running before the \"16:35 IST\" deploy time.",
+    "The deploy record has no UTC offset (tz: none); read as IST it is 5.5 h earlier."
+  ],
+  "redHerrings": [
+    "slow KYC agency",
+    "reporter ruled the release out from the deploy log"
+  ],
+  "scriptedFaults": [],
+  "notes": "The timeline itself is misleading."
+}

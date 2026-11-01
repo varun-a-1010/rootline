@@ -1,0 +1,201 @@
+{
+  "version": "v1",
+  "worlds": [
+    {
+      "worldId": "w_ad6a47c4",
+      "incidentId": "INC-2249",
+      "title": "Portfolio shows yesterday's values",
+      "key": "s01-A",
+      "split": "dev"
+    },
+    {
+      "worldId": "w_415adb6a",
+      "incidentId": "INC-5648",
+      "title": "Mutual fund values not updating",
+      "key": "s01-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_ac29e755",
+      "incidentId": "INC-5200",
+      "title": "Assistant replies taking 20+ seconds",
+      "key": "s02-A",
+      "split": "dev"
+    },
+    {
+      "worldId": "w_47e89b86",
+      "incidentId": "INC-9062",
+      "title": "Assistant very slow this evening",
+      "key": "s02-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_1de7cf28",
+      "incidentId": "INC-7676",
+      "title": "Assistant giving direct buy recommendations",
+      "key": "s03-A",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_9f00cd52",
+      "incidentId": "INC-4753",
+      "title": "Assistant recommending specific funds to buy",
+      "key": "s03-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_9424d74f",
+      "incidentId": "INC-5946",
+      "title": "Stock orders failing at market open",
+      "key": "s04-A",
+      "split": "dev"
+    },
+    {
+      "worldId": "w_e0b978f0",
+      "incidentId": "INC-4849",
+      "title": "Orders erroring at the open",
+      "key": "s04-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_13a472cd",
+      "incidentId": "INC-6376",
+      "title": "Assistant says users don't hold any funds",
+      "key": "s05-A",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_363a0fd5",
+      "incidentId": "INC-3320",
+      "title": "Assistant cannot see user holdings",
+      "key": "s05-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_9e48f020",
+      "incidentId": "INC-2321",
+      "title": "SIP instalments debited twice",
+      "key": "s06-A",
+      "split": "dev"
+    },
+    {
+      "worldId": "w_680a1e03",
+      "incidentId": "INC-1834",
+      "title": "SIP instalments debited twice",
+      "key": "s06-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_e8f8ee29",
+      "incidentId": "INC-5638",
+      "title": "Assistant quoting outdated expense ratios",
+      "key": "s07-A",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_ac20dbf4",
+      "incidentId": "INC-1130",
+      "title": "Assistant quoting outdated expense ratios",
+      "key": "s07-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_c28d89f1",
+      "incidentId": "INC-4503",
+      "title": "Portfolio values about 100x too high",
+      "key": "s08-A",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_789ba27b",
+      "incidentId": "INC-3094",
+      "title": "Fund values shown 100x too high",
+      "key": "s08-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_ec5a3706",
+      "incidentId": "INC-2727",
+      "title": "Autopay setup failing for some users",
+      "key": "s09-A",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_b31b9c3d",
+      "incidentId": "INC-4557",
+      "title": "Autopay setup failing for some users",
+      "key": "s09-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_c776a045",
+      "incidentId": "INC-2910",
+      "title": "Orders failing at market open again",
+      "key": "s10-A",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_8b0a470f",
+      "incidentId": "INC-9701",
+      "title": "Orders failing at market open again",
+      "key": "s10-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_452c4cd8",
+      "incidentId": "INC-9077",
+      "title": "Fund order errors since morning",
+      "key": "s11-A",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_7c82b93f",
+      "incidentId": "INC-5216",
+      "title": "KYC submissions failing",
+      "key": "s11-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_03129b9e",
+      "incidentId": "INC-6097",
+      "title": "OTP logins failing",
+      "key": "s12-A",
+      "split": "dev"
+    },
+    {
+      "worldId": "w_2a8a12f6",
+      "incidentId": "INC-2813",
+      "title": "OTP logins failing",
+      "key": "s12-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_db077c7a",
+      "incidentId": "INC-9012",
+      "title": "Redemption payouts delayed",
+      "key": "s13-A",
+      "split": "dev"
+    },
+    {
+      "worldId": "w_fd35d0ee",
+      "incidentId": "INC-2903",
+      "title": "Redemption payouts delayed",
+      "key": "s13-B",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_7f15fa24",
+      "incidentId": "INC-9711",
+      "title": "KYC applications stuck at pending",
+      "key": "s14-A",
+      "split": "heldout"
+    },
+    {
+      "worldId": "w_dbe4aa96",
+      "incidentId": "INC-9956",
+      "title": "KYC applications stuck at pending",
+      "key": "s14-B",
+      "split": "heldout"
+    }
+  ]
+}

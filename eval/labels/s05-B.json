@@ -1,0 +1,71 @@
+{
+  "scenario": "s05",
+  "variant": "B",
+  "key": "s05-B",
+  "worldId": "w_363a0fd5",
+  "split": "heldout",
+  "title": "Assistant cannot see user holdings",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "user-context-service"
+      ],
+      "causeTypes": [
+        "capacity_saturation",
+        "infrastructure_failure"
+      ],
+      "mechanism": "user-context-service timed out building contexts while its pods were OOM-restarting."
+    },
+    {
+      "id": "c2",
+      "components": [
+        "user-context-service",
+        "cache"
+      ],
+      "causeTypes": [
+        "cache_or_staleness"
+      ],
+      "mechanism": "On timeout it cached an empty context (holdings=0) with a 6 h TTL, so users keep getting \"no holdings\" after the timeouts stopped."
+    }
+  ],
+  "scoring": "top2_all",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "context build timeouts",
+      "match": {
+        "tool": "query_logs",
+        "service": "user-context-service",
+        "contains": "timed out"
+      }
+    },
+    {
+      "description": "empty context cached with long TTL",
+      "match": {
+        "tool": "query_logs",
+        "service": "user-context-service",
+        "contains": "holdings=0"
+      }
+    },
+    {
+      "description": "missing-context rate stays high after timeouts stop",
+      "match": {
+        "tool": "query_metrics",
+        "service": "user-context-service",
+        "metric": "missing_context_rate"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "Timeouts stopped around 14:52 IST but missing_context_rate stayed elevated: the timeout alone does not explain the ongoing failures.",
+    "knowledge-index is not on the user-context path."
+  ],
+  "redHerrings": [
+    "knowledge-index deploy 1.9.0 at 14:15 IST"
+  ],
+  "scriptedFaults": [],
+  "notes": "Two-cause scenario: full credit needs both causes in the top two hypotheses; half credit if the top hypothesis is one of them."
+}

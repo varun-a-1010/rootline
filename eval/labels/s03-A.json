@@ -1,0 +1,51 @@
+{
+  "scenario": "s03",
+  "variant": "A",
+  "key": "s03-A",
+  "worldId": "w_1de7cf28",
+  "split": "heldout",
+  "title": "Assistant giving direct buy recommendations",
+  "expectedOutcome": "conclusive",
+  "acceptableCauses": [
+    {
+      "id": "c1",
+      "components": [
+        "compliance-filter"
+      ],
+      "causeTypes": [
+        "config_change",
+        "deployment_regression"
+      ],
+      "mechanism": "A compliance-filter config change at 13:52 IST (advice-detection prompt rules-v32) weakened advice detection; the block rate fell from ~2% to ~0.15% and direct advice passed through."
+    }
+  ],
+  "scoring": "top1_any",
+  "partialCredit": [],
+  "candidateCauses": [],
+  "requiredEvidence": [
+    {
+      "description": "compliance-filter config change",
+      "match": {
+        "tool": "get_changes",
+        "service": "compliance-filter"
+      }
+    },
+    {
+      "description": "block rate drop",
+      "match": {
+        "tool": "query_metrics",
+        "service": "compliance-filter",
+        "metric": "block_rate"
+      }
+    }
+  ],
+  "keyCounterevidence": [
+    "The model alias moved at 10:31 IST but the block rate stayed ~2% until the 13:52 IST compliance change."
+  ],
+  "redHerrings": [
+    "LLM model alias moved to lumen-large-2026-10 at 10:31 IST",
+    "past incident: answers too direct after model update"
+  ],
+  "scriptedFaults": [],
+  "notes": "The filter, not the generator, is the control that failed."
+}
