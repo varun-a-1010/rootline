@@ -9,18 +9,24 @@
   },
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p web/tsconfig.json",
     "fixtures:generate": "tsx scenarios/generate.ts",
     "fixtures:check": "tsx scenarios/generate.ts --check",
     "fixtures:load": "tsx src/cli/fixtures.ts load",
     "tool": "tsx src/cli/tool.ts",
     "investigate": "tsx src/cli/investigate.ts",
-    "llm:check": "tsx src/cli/llm-check.ts"
+    "llm:check": "tsx src/cli/llm-check.ts",
+    "eval": "tsx eval/runner.ts",
+    "eval:summarize": "tsx eval/summarize.ts",
+    "build": "tsc -p tsconfig.build.json && vite build --config web/vite.config.ts",
+    "start": "node dist/src/server/main.js",
+    "dev": "node scripts/dev.mjs"
   },
   "license": "MIT",
   "dependencies": {
     "@electric-sql/pglite": "0.5.14",
     "@hono/node-server": "2.1.5",
+    "fflate": "0.8.3",
     "google-auth-library": "11.3.2",
     "hono": "4.13.16",
     "pg": "8.23.1",
@@ -31,6 +37,7 @@
     "@types/pg": "8.23.1",
     "tsx": "4.23.15",
     "typescript": "7.0.2",
+    "vite": "8.3.5",
     "vitest": "5.0.5"
   }
 }
