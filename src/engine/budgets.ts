@@ -67,6 +67,11 @@ export class Budget {
     this.used.toolCalls += 1;
   }
 
+  /** The run-level deadline timer fired (its event is emitted by the caller). */
+  noteDeadline(): void {
+    if (!this.firstExhausted) this.firstExhausted = 'deadline';
+  }
+
   /** Record that a tool call was refused because the run budget (or deadline) is spent. */
   refuseToolCall(): void {
     if (this.deadlinePassed()) this.exhaust('deadline', 'deadline', this.now() - this.startedAt, this.limits.deadlineMs);

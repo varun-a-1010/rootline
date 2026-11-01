@@ -164,6 +164,7 @@ export async function runInvestigation(o: RunOptions): Promise<RunResult> {
   o.signal?.addEventListener('abort', onCancel, { once: true });
   const deadlineTimer = setTimeout(() => {
     deadlineHit = true;
+    budget.noteDeadline();
     if (!exhaustedOnce.has('deadline')) {
       exhaustedOnce.add('deadline');
       log.emit('budget.exhausted', { budget: 'deadline', used: s.deadlineMs, limit: s.deadlineMs });
@@ -197,6 +198,10 @@ export async function runInvestigation(o: RunOptions): Promise<RunResult> {
     const reasoningFailed = Object.values(ctx.state().tasks).some((t) => t.role === 'reasoning' && t.status === 'failed');
     if (stopReason === 'cancelled') {
       report = buildFallbackReport(ctx.state(), stopReason, 'the run was cancelled');
+      log.emit('report.ready', { report, markdown: renderMarkdown(report, ctx.state()) });
+    } else if (orch.writesOwnReport) {
+      // The baseline writes its own report; it never borrows the multi-agent reporting agent.
+      report = buildFallbackReport(ctx.state(), stopReason, `the baseline agent did not submit a report${crashed ? ` (${crashed.slice(0, 200)})` : ''}`);
       log.emit('report.ready', { report, markdown: renderMarkdown(report, ctx.state()) });
     } else if (stopReason === 'unrecoverable_error' && reasoningFailed) {
       // Brief §6: reasoning failed twice -> outcome failed, partial report built from the ledger by code.

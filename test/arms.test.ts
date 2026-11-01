@@ -85,6 +85,13 @@ describe('arm E (single-agent baseline)', () => {
     expect(fold(await loadRunEvents(r.db, r.runId), r.runId)).toEqual(r.state);
   });
 
+  it('at the deadline it gets one final submit_report turn (never the multi-agent reporting agent)', async () => {
+    const r = await run('E', brain({ baselineToolTurns: 50, modelDelayMs: 120 }), { settings: { deadlineMs: 400 } });
+    expect(r.state.stopReason).toBe('deadline');
+    expect(r.report.generatedBy).toBe('baseline_agent');
+    expect(Object.values(r.state.tasks).some((t) => t.role === 'reporting')).toBe(false);
+  });
+
   it('is forced to submit when its tool budget runs out, and the stop reason says so', async () => {
     const r = await run('E', brain({ baselineToolTurns: 10 }), { settings: { maxToolCalls: 2 } });
     expect(r.state.toolResults.length).toBeLessThanOrEqual(2);

@@ -55,6 +55,11 @@ export interface RunFile {
   events: RunEvent[];
 }
 
+function runsDirFromArgs(): string {
+  const i = process.argv.indexOf('--runs-dir');
+  return i >= 0 ? process.argv[i + 1]! : RUNS_DIR;
+}
+
 export function runFileName(j: Job): string {
   return `${j.key}-${j.arm}-r${j.rep}.json`;
 }
@@ -104,10 +109,11 @@ async function main() {
   if (!llm) throw new Error(problems.join('; '));
   if (jobs.some((j) => j.arm === 'D') && !jev) throw new Error('arm D needs OPENROUTER_API_KEY');
 
-  mkdirSync(RUNS_DIR, { recursive: true });
+  const runsDir = runsDirFromArgs();
+  mkdirSync(runsDir, { recursive: true });
   const index = readIndex();
   const manifest = readManifest();
-  const pending = jobs.filter((j) => !existsSync(join(RUNS_DIR, runFileName(j))));
+  const pending = jobs.filter((j) => !existsSync(join(runsDir, runFileName(j))));
   console.error(`${jobs.length} jobs, ${jobs.length - pending.length} already recorded, ${pending.length} to run; budget $${maxUsd}, concurrency ${concurrency}`);
   const db = await openDb({ dataDir: env.ROOTLINE_DATA_DIR });
   const worldIds = [...new Set(pending.map((j) => index.worlds.find((w) => w.key === j.key)?.worldId))].filter((x): x is string => !!x);
@@ -115,7 +121,7 @@ async function main() {
   const settings = settingsFromEnv(env);
   const machine = `${platform()} ${release()} ${cpus()[0]?.model ?? ''} x${cpus().length}`;
 
-  let spent = spentUsd(readRunFiles());
+  let spent = spentUsd(readRunFiles()) + (runsDir === RUNS_DIR ? 0 : spentUsd(readRunFiles(runsDir)));
   let inflight = 0;
   let stopped = false;
   const queue = [...pending];
@@ -166,7 +172,7 @@ async function main() {
         };
       }
       inflight--;
-      writeFileSync(join(RUNS_DIR, runFileName(job)), JSON.stringify(file) + '\n');
+      writeFileSync(join(runsDir, runFileName(job)), JSON.stringify(file) + '\n');
       spent += file.metrics?.costUsd.total ?? 0;
       const m = file.metrics;
       console.error(

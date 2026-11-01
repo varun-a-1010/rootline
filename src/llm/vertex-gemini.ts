@@ -81,8 +81,10 @@ export class VertexGeminiProvider implements LlmProvider {
     };
     const started = Date.now();
     let last: LlmError | null = null;
+    let retryAfterMs: number | null = null;
     for (let attempt = 1; attempt <= this.maxAttempts; attempt++) {
       if (req.signal.aborted) throw new AbortedError();
+      retryAfterMs = null;
       const t0 = Date.now();
       const record = (a: Omit<LlmAttempt, 'provider' | 'model' | 'role' | 'attempt' | 'latencyMs'>) =>
         req.onAttempt?.({ provider: this.name, model: this.model, role: req.role, attempt, latencyMs: Date.now() - t0, ...a });
@@ -108,6 +110,8 @@ export class VertexGeminiProvider implements LlmProvider {
         if (!res.ok) {
           const text = await res.text().catch(() => '');
           const kind: LlmErrorKind = res.status === 429 ? 'rate_limited' : res.status >= 500 ? 'server' : res.status === 401 || res.status === 403 ? 'auth' : 'bad_request';
+          const ra = Number(res.headers.get('retry-after'));
+          retryAfterMs = Number.isFinite(ra) && ra > 0 ? Math.min(30_000, ra * 1000) : null;
           last = new LlmError(kind, `Vertex ${res.status}: ${summarizeError(text)}`, res.status, attempt);
           record({ status: 'error', httpStatus: res.status, errorKind: kind, usage: null, modelVersion: null });
           if (!last.retryable) throw last;
@@ -128,7 +132,12 @@ export class VertexGeminiProvider implements LlmProvider {
           record({ status: 'error', httpStatus: null, errorKind: 'network', usage: null, modelVersion: null });
         }
       }
-      if (attempt < this.maxAttempts) await sleep(this.backoffBaseMs * 2 ** (attempt - 1) + Math.floor(Math.random() * 250), req.signal);
+      if (attempt < this.maxAttempts) {
+        // Quota exhaustion (429) needs a longer wait than a transient 5xx: honor Retry-After,
+        // else back off 4x the base. Still at most maxAttempts attempts.
+        const base = last?.kind === 'rate_limited' ? this.backoffBaseMs * 4 : this.backoffBaseMs;
+        await sleep(retryAfterMs ?? base * 2 ** (attempt - 1) + Math.floor(Math.random() * 500), req.signal);
+      }
     }
     throw new LlmError(last?.kind ?? 'server', `${last?.message ?? 'failed'} (after ${this.maxAttempts} attempts)`, last?.httpStatus ?? null, this.maxAttempts);
   }

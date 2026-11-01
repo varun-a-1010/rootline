@@ -20,6 +20,11 @@ export interface LoopSpec<T> {
   finalKind: LlmKind;
   /** Message sent when the loop switches to the forced final turn. */
   finalNotice?: string;
+  /**
+   * If the run deadline aborts the loop, make one final terminal-only call with this much
+   * grace (the baseline's equivalent of the multi-agent arms' final report call).
+   */
+  deadlineGraceMs?: number;
 }
 
 export interface LoopResult<T> {
@@ -59,8 +64,27 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
   let finalNoticeSent = false;
   const maxTurns = spec.maxToolCalls + 6;
 
+  let grace: AbortSignal | null = null;
+  const deadlineFinal = (): boolean => {
+    if (grace || !spec.deadlineGraceMs || !ctx.signal.aborted || !ctx.budget.deadlinePassed()) return false;
+    grace = AbortSignal.timeout(spec.deadlineGraceMs);
+    const notice = { text: spec.finalNotice ?? `Time is up. Call ${spec.terminal.name} now with what you have.` };
+    const last = contents[contents.length - 1];
+    if (last?.role === 'user') last.parts.push(notice);
+    else contents.push({ role: 'user', parts: [notice] });
+    finalNoticeSent = true;
+    return true;
+  };
   while (turns < maxTurns) {
-    if (ctx.signal.aborted) throw new LlmError('aborted', 'run aborted');
+    if (ctx.signal.aborted && !grace && !deadlineFinal()) throw new LlmError('aborted', 'run aborted');
+    if (grace) {
+      turns += 1;
+      const res = await ctx.generate(spec.task.id, 'report', { role: spec.agent, system: spec.system, contents, tools: [terminalDecl], toolMode: 'ANY' }, grace);
+      const call = res.functionCalls.find((c) => c.name === spec.terminal.name);
+      const parsed = call ? spec.terminal.schema.safeParse(call.args) : null;
+      if (parsed?.success) return { output: parsed.data, toolCalls, turns, failure: null, outOfBudget: false };
+      return { output: null, toolCalls, turns, failure: 'deadline reached and the final submission was invalid', outOfBudget: true };
+    }
     const runToolsLeft = ctx.budget.canToolCall();
     if (!runToolsLeft) ctx.budget.refuseToolCall();
     const toolsLeft = toolCalls < spec.maxToolCalls && runToolsLeft;
@@ -83,6 +107,7 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
         toolMode: 'ANY',
       });
     } catch (e) {
+      if (ctx.signal.aborted && deadlineFinal()) continue;
       if (e instanceof BudgetExhaustedError) {
         if (!final && ctx.budget.canLlmCall(spec.finalKind)) {
           final = true;
@@ -112,6 +137,7 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
       responses[terminalIdx] = fnResponse(calls[terminalIdx]!, { error: `arguments failed validation: ${msg}. Call ${spec.terminal.name} again with corrected arguments.` });
     }
 
+    try {
     await Promise.all(
       calls.map(async (c, i) => {
         if (i === terminalIdx) return;
@@ -138,6 +164,15 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
         }
       }),
     );
+    } catch (e) {
+      // Deadline during tool calls: answer the pending calls so the conversation stays valid.
+      if (ctx.signal.aborted && spec.deadlineGraceMs && ctx.budget.deadlinePassed()) {
+        calls.forEach((c, i) => (responses[i] ??= fnResponse(c, { error: 'not run: the run deadline was reached' })));
+        contents.push({ role: 'user', parts: responses });
+        if (deadlineFinal()) continue;
+      }
+      throw e;
+    }
     contents.push({ role: 'user', parts: responses });
   }
   return { output: null, toolCalls, turns, failure: 'turn limit reached without findings', outOfBudget: false };

@@ -59,7 +59,8 @@ export const singleAgent: Orchestration = {
         kind: 'synthesis',
         finalKind: 'report',
         finalNotice:
-          'Your budget is used up. Call submit_report now with what you have. List what you could not check as gaps. If you still report conclusive, explain in justification why the evidence suffices.',
+          'Your budget or time is used up. Call submit_report now with what you have. List what you could not check as gaps. If you still report conclusive, explain in justification why the evidence suffices.',
+        deadlineGraceMs: 120_000,
       });
     } catch (e) {
       ctx.log.emit('task.failed', { role: 'baseline', error: e instanceof Error ? e.message : String(e), gap: 'baseline agent failed' }, task.id);
