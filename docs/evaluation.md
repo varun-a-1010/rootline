@@ -65,7 +65,10 @@ missing data; random transient faults everywhere), and two scenarios whose corre
    - During step 4 and 5 live checks two processes opened the same PGlite directory, which
      PGlite does not support. `eval/verify-worlds.ts` found all 28 worlds in that directory
      identical to the fixtures, so no run read damaged data.
-6. Runs execute at concurrency 2 through `npm run eval`. Each run file in `eval/runs/` holds the
+6. Runs execute through `npm run eval`, at concurrency 2 for arms A and E and the first part of
+   B, C and D, then 4 for the rest: quota errors had hit only 2 of 2,044 model calls, and
+   concurrency does not change what a run does. Arms B, C and D's latencies are compared with
+   that in mind. Each run file in `eval/runs/` holds the
    full event log, the report, the metrics and the environment (model, versions reported by the
    API, thinking level, budgets, prompt hash, fixture hash, git SHA, machine). Crashed runs are
    recorded as failed and never silently rerun.
