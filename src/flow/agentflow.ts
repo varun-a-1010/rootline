@@ -45,16 +45,20 @@ const PHASE: Record<string, string> = {
   baseline: 'investigate',
 };
 
-function shorten(s: string, n = 48): string {
-  return s.length > n ? `${s.slice(0, n - 1)}…` : s;
-}
+/**
+ * Node labels are short names. The viewer gives every label a fixed 176 px box but spaces columns
+ * at min(208, (width - 300) / depth), so in a deep run a long label runs into the next column on the
+ * same row. A task's question stays in the run view (Tasks tab); the incident title is the graph's
+ * own heading, so the root is just "Incident".
+ */
+const ROOT_LABEL = 'Incident';
 
 function label(t: TaskState, s: RunState): string {
   switch (t.role) {
     case 'orchestrator':
       return 'Plan';
     case 'candidates':
-      return 'Candidate causes';
+      return 'Candidates';
     case 'reasoning':
       return `Reasoning v${s.taskOrder.filter((id) => s.tasks[id]!.role === 'reasoning').indexOf(t.id) + 1}`;
     case 'critic':
@@ -64,7 +68,7 @@ function label(t: TaskState, s: RunState): string {
     case 'baseline':
       return 'Single agent';
     default:
-      return `${t.role === 'observability' ? 'Logs & metrics' : 'Changes & deps'}: ${shorten(t.question)}`;
+      return t.role === 'observability' ? 'Logs & metrics' : 'Changes & deps';
   }
 }
 
@@ -100,7 +104,7 @@ function structure(s: RunState): Map<string, { parentId: string; alsoFedBy?: str
 }
 
 export function flowNodes(events: RunEvent[], s: RunState = fold(events)): FlowNode[] {
-  const nodes: FlowNode[] = [{ id: 'run', parentId: null, label: s.incident ? shorten(s.incident.title, 60) : 'Investigation', phase: 'run', status: s.status === 'running' ? 'active' : s.status === 'completed' ? 'ok' : 'failed' }];
+  const nodes: FlowNode[] = [{ id: 'run', parentId: null, label: ROOT_LABEL, phase: 'run', status: s.status === 'running' ? 'active' : s.status === 'completed' ? 'ok' : 'failed' }];
   const st = structure(s);
   for (const id of s.taskOrder) {
     const t = s.tasks[id]!;
@@ -140,7 +144,7 @@ export function flowReplay(events: RunEvent[], s: RunState = fold(events)): Repl
   const compression = real > 90 ? real / 60 : 1;
   const sec = (ts: number) => Math.round(((ts - t0) / 1000 / compression) * 100) / 100;
   const st = structure(s);
-  const nodes: TimedFlowNode[] = [{ id: 'run', parentId: null, label: s.incident ? shorten(s.incident.title, 60) : 'Investigation', phase: 'run', spawn: 0, done: sec(end), tone: s.status === 'completed' ? 'ok' : 'failed' }];
+  const nodes: TimedFlowNode[] = [{ id: 'run', parentId: null, label: ROOT_LABEL, phase: 'run', spawn: 0, done: sec(end), tone: s.status === 'completed' ? 'ok' : 'failed' }];
   for (const id of s.taskOrder) {
     const t = s.tasks[id]!;
     const p = st.get(id)!;

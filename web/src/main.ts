@@ -115,7 +115,7 @@ async function incidentsPage(): Promise<void> {
       verdict.innerHTML = '';
       return;
     }
-    stage.innerHTML = '<iframe id="flow" class="flow big" title="Agentflow"></iframe><div id="flowNote" class="small muted" style="margin:4px 0 12px"></div>';
+    stage.innerHTML = '<div class="flow-wrap big"><iframe id="flow" class="flow" title="Agentflow"></iframe></div><div id="flowNote" class="small muted" style="margin:4px 0 12px"></div>';
     const handle = mountFlow(document.getElementById('flow') as HTMLIFrameElement, config.flowViewerUrl, (n) => {
       const el = document.getElementById('flowNote');
       if (el) el.textContent = n;
@@ -165,7 +165,7 @@ let tab = 'report';
 async function runPage(src: Source): Promise<void> {
   const base = src.kind === 'live' ? `/api/runs/${encodeURIComponent(src.id)}` : `/api/eval/runs/${encodeURIComponent(src.id)}`;
   h(`<div id="hdr" class="panel">Loading…</div>
-     <iframe id="flow" class="flow big" title="Agentflow"></iframe><div id="flowNote" class="small muted" style="margin:4px 0 12px"></div>
+     <div class="flow-wrap big"><iframe id="flow" class="flow" title="Agentflow"></iframe></div><div id="flowNote" class="small muted" style="margin:4px 0 12px"></div>
      <div class="panel"><div class="tabs" id="tabs"></div><div id="body"></div></div>`);
   const flow = mountFlow(document.getElementById('flow') as HTMLIFrameElement, config.flowViewerUrl, (note) => (document.getElementById('flowNote')!.textContent = note));
   cleanup.push(flow.destroy);

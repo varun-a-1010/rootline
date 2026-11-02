@@ -211,3 +211,9 @@ event log to viewer nodes (live `flow:sync` snapshots; `flow:replay` built from 
 timestamps, compressed to about 60 s when a run took longer than 90 s, with the factor shown).
 Rounds become new nodes because the viewer has no cycles. The viewer is a visualization, not a
 source of truth.
+
+Node labels are short names (`Logs & metrics`, `Critic round 2`). The viewer gives every label a
+fixed 176 px box but narrows its columns as a run gets deeper, so long labels on the same row
+overlapped. Each task's question is in the run view's Tasks tab. For deep runs, `web/src/fit.ts`
+lays the viewer out wide enough for its widest label and scales it to the panel; the note under
+the graph says when it does.

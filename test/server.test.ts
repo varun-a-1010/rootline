@@ -8,6 +8,7 @@ import { createApp } from '../src/server/app.js';
 import { RunLimiter } from '../src/server/limits.js';
 import { RunManager } from '../src/server/runs.js';
 import { projectRoot } from '../src/util/paths.js';
+import { fitScale, requiredWidth, treeDepth } from '../web/src/fit.js';
 import { brain } from './helpers/brain.js';
 import { run, SETTINGS, testDb } from './helpers/engine.js';
 
@@ -50,6 +51,29 @@ describe('Agentflow mapping (derived only from events)', () => {
     const s = flowReplay(slow as typeof r.events);
     expect(s.compression).toBeGreaterThan(1);
     expect(s.duration).toBeCloseTo(60, 0);
+  });
+
+  it('node labels are short names (the viewer gives each a fixed 176 px box in narrowing columns)', async () => {
+    for (const arm of ['A', 'B', 'C', 'E'] as const) {
+      const nodes = flowReplay((await run(arm, brain())).events).nodes;
+      expect(nodes[0]!.label).toBe('Incident');
+      for (const n of nodes) expect(n.label.length, `arm ${arm}: ${n.label}`).toBeLessThanOrEqual(16);
+    }
+  });
+
+  it('a deep replay is laid out wide enough for its widest label, then scaled to the panel', () => {
+    const chain = (n: number, label = 'Critic round 2') => Array.from({ length: n }, (_, i) => ({ id: `n${i}`, parentId: i ? `n${i - 1}` : null, label }));
+    expect(treeDepth(chain(9))).toBe(8);
+    expect(treeDepth([{ id: 'r', parentId: null, label: 'Incident' }])).toBe(0);
+    // Shallow runs fit as they are.
+    expect(fitScale(requiredWidth(chain(5)), 1240)).toBe(1);
+    // The deepest recorded run has depth 12: it is scaled, and at the required width the viewer's
+    // own column rule, min(208, (width - 300) / depth), leaves room for the label and its clearance.
+    const required = requiredWidth(chain(13));
+    const s = fitScale(required, 1240);
+    expect(s).toBeLessThan(1);
+    expect(s).toBeGreaterThan(0.6);
+    expect(Math.min(208, (required - 300) / 12)).toBeGreaterThanOrEqual('Critic round 2'.length * 6.4 + 30);
   });
 
   it('baseline maps to root -> agent -> report; arm C has no critic nodes', async () => {
