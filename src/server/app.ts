@@ -74,7 +74,7 @@ export function createApp(d: AppDeps): Hono {
     let worldId = body.data.worldId;
     if (!worldId) worldId = (await listIncidents(d.db)).find((i) => i.incident.incidentId === body.data.incidentId)?.worldId;
     if (!worldId) return c.json({ error: 'unknown incident' }, 404);
-    const runId = d.runs.start(worldId, body.data.arm);
+    const runId = await d.runs.start(worldId, body.data.arm);
     return c.json({ runId }, 202);
   });
 

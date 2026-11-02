@@ -126,6 +126,17 @@ describe('HTTP API (scripted models, no browser)', () => {
     expect((await post({ arm: 'A', accessCode: 'letmein' })).status).toBe(400);
   });
 
+  it('a run is readable the moment its start request returns (the browser fetches it at once)', async () => {
+    const { app } = await makeApp();
+    const inc: any = await (await app.request('/api/incidents')).json();
+    const res = await app.request('/api/runs', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ incidentId: inc[0].incident.incidentId, arm: 'A' }) });
+    const { runId } = (await res.json()) as any;
+    const first = await app.request(`/api/runs/${runId}`);
+    expect(first.status).toBe(200);
+    expect(((await first.json()) as any).state.runId).toBe(runId);
+    await (await app.request(`/api/runs/${runId}/events?after=0`)).text(); // let the run finish
+  });
+
   it('starts a run (by incident id), streams its events over SSE until the end, then serves state and flow', async () => {
     const { app } = await makeApp();
     const inc: any = await (await app.request('/api/incidents')).json();

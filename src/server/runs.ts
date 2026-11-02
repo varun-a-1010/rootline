@@ -30,12 +30,19 @@ export class RunManager {
     return null;
   }
 
-  start(worldId: string, arm: ArmId, armBase: 'A' | 'B' = ARM_D_BASE): string {
+  /**
+   * Starts a run and resolves once it has recorded its first event (or ended, or after 15 s).
+   * The run's first event comes only after a few database reads, and the browser fetches the run
+   * as soon as it has the id; returning earlier made that first fetch a 404.
+   */
+  async start(worldId: string, arm: ArmId, armBase: 'A' | 'B' = ARM_D_BASE): Promise<string> {
     const runId = newRunId();
     const run: LiveRun = { runId, events: [], subscribers: new Set(), ac: new AbortController(), done: false };
     this.live.set(runId, run);
+    let started!: () => void;
+    const firstEvent = new Promise<void>((resolve) => (started = resolve));
     const store = new DbRunStore(this.db);
-    runInvestigation({
+    const finished = runInvestigation({
       db: this.db,
       worldId,
       arm,
@@ -48,6 +55,7 @@ export class RunManager {
       signal: run.ac.signal,
       onEvent: (e) => {
         run.events.push(e);
+        started();
         for (const s of run.subscribers) s(e);
       },
     })
@@ -58,6 +66,9 @@ export class RunManager {
         // Keep finished runs in memory briefly for late subscribers; the database has them too.
         setTimeout(() => this.live.delete(runId), 10 * 60_000).unref();
       });
+    let timer: NodeJS.Timeout | undefined;
+    await Promise.race([firstEvent, finished, new Promise<void>((resolve) => (timer = setTimeout(resolve, 15_000)))]);
+    clearTimeout(timer);
     return runId;
   }
 
