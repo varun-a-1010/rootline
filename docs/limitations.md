@@ -39,6 +39,9 @@ on. The evaluation-specific items at the end are filled in from `eval/results/`.
 - The judge was validated on 40 items labeled by the coding agent, not by a human. Its agreement
   on that set is reported in `eval/results/`; it is a check, not a guarantee.
 - No human reviewed claim support or grounding.
+- Judging stopped after 26 of 140 runs on an OpenRouter billing error, so claim support and
+  mechanism agreement are unmeasured. Only the deterministic metrics stand. The judge resumes from
+  `eval/results/judge.json` once the account has credit.
 
 ## Design choices that limit the comparison
 
@@ -82,7 +85,13 @@ on. The evaluation-specific items at the end are filled in from `eval/results/`.
   score. Labels were not changed, even where one looks too strict (s01-B).
 - The evaluation ran on PGlite, not the hosted database.
 - The numbers describe commits `129a467` to `b2f6623`. Later commits change tool output sizes, the
-  forced final turn and recovery behaviour (`docs/evaluation.md`, **After the evaluation**).
+  forced final turn and recovery behaviour (`docs/evaluation.md`, **After the evaluation**). The
+  final code was checked live on four dev scenarios, one run each. It was not re-evaluated.
+- Those later commits did not measurably cut cost per run.
+- Reasoning, critic and reporting use different output schemas, so they get almost no implicit
+  caching.
+- Vertex requests sometimes hang. A hung plan call can use three 90 s timeouts of the 6-minute
+  deadline before the default plan starts, which leaves little time to investigate.
 
 ## External dependencies
 

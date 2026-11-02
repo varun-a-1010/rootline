@@ -1,0 +1,193 @@
+{
+  "model": "gemini-3.8-flash",
+  "measuredAt": "2026-11-02T03:16:40.649Z",
+  "reps": 4,
+  "gapMs": 6000,
+  "results": [
+    {
+      "case": "plain text, repeated",
+      "pairs": [
+        {
+          "rep": 1,
+          "input": 19776,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16352,
+          "error": null
+        },
+        {
+          "rep": 2,
+          "input": 19776,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16352,
+          "error": null
+        },
+        {
+          "rep": 3,
+          "input": 19776,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16352,
+          "error": null
+        },
+        {
+          "rep": 4,
+          "input": 19776,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16352,
+          "error": null
+        }
+      ],
+      "measured": 4,
+      "hits": 4,
+      "coldFirstCalls": 4,
+      "meanCachedPct": 83
+    },
+    {
+      "case": "same responseSchema, repeated",
+      "pairs": [
+        {
+          "rep": 1,
+          "input": 19821,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16266,
+          "error": null
+        },
+        {
+          "rep": 2,
+          "input": 19821,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16266,
+          "error": null
+        },
+        {
+          "rep": 3,
+          "input": 19821,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16266,
+          "error": null
+        },
+        {
+          "rep": 4,
+          "input": 19821,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16266,
+          "error": null
+        }
+      ],
+      "measured": 4,
+      "hits": 4,
+      "coldFirstCalls": 4,
+      "meanCachedPct": 82
+    },
+    {
+      "case": "different responseSchema on the repeat",
+      "pairs": [
+        {
+          "rep": 1,
+          "input": 19862,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        },
+        {
+          "rep": 2,
+          "input": 19862,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        },
+        {
+          "rep": 3,
+          "input": 19862,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        },
+        {
+          "rep": 4,
+          "input": 19862,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        }
+      ],
+      "measured": 4,
+      "hits": 0,
+      "coldFirstCalls": 4,
+      "meanCachedPct": 0
+    },
+    {
+      "case": "same tools, repeated",
+      "pairs": [
+        {
+          "rep": 1,
+          "input": 19812,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16313,
+          "error": null
+        },
+        {
+          "rep": 2,
+          "input": 19812,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16313,
+          "error": null
+        },
+        {
+          "rep": 3,
+          "input": 19812,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        },
+        {
+          "rep": 4,
+          "input": 19812,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 16313,
+          "error": null
+        }
+      ],
+      "measured": 4,
+      "hits": 3,
+      "coldFirstCalls": 4,
+      "meanCachedPct": 62
+    },
+    {
+      "case": "tools, then restricted to one function",
+      "pairs": [
+        {
+          "rep": 1,
+          "input": 19793,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        },
+        {
+          "rep": 2,
+          "input": 19793,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        },
+        {
+          "rep": 3,
+          "input": 19793,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        },
+        {
+          "rep": 4,
+          "input": 19793,
+          "cachedOnFirst": 0,
+          "cachedOnRepeat": 0,
+          "error": null
+        }
+      ],
+      "measured": 4,
+      "hits": 0,
+      "coldFirstCalls": 4,
+      "meanCachedPct": 0
+    }
+  ]
+}

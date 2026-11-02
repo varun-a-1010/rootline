@@ -256,3 +256,75 @@ mechanism agreement are unmeasured, and only the deterministic metrics above sta
 
 14 scenarios, two variants, one run each, labeled by the agent that wrote them. Treat every
 difference above as a lead, not a measurement. See `docs/limitations.md`.
+
+## After the evaluation
+
+Everything here came after scoring and changes none of the numbers above. The comparison is one run
+per configuration on four dev scenarios, so it can show a failure or a large effect, not a small
+improvement. All 16 runs are in `eval/runs-post/` and listed in
+`eval/results/post-evaluation.md`; they cost $4.24 at list rates.
+
+**The goal was cheaper live runs before sharing the demo, and that did not happen.** On the three
+conclusive scenarios, which no hung plan call cut short, cost per run did not move beyond noise:
+
+| Arm A configuration | Root cause | Est. cost per run | Input tokens | Cached | Specialist cached | Synthesis cached tokens |
+| --- | --- | --- | --- | --- | --- | --- |
+| Evaluated | 3 of 3 | $0.481 | 242,327 | 23.9% | 31.9% | 0 |
+| Reordered prompts (reverted) | 3 of 3 | $0.475 | 218,895 | 19.5% | 29% | 0 |
+| Final code | 3 of 3 | $0.493 | 255,363 | 33.9% | 45.8% | 0 |
+
+- **Smaller tool output (kept).** `query_logs` now returns 25 rows by default and `query_metrics` 60
+  points. There is no measurable saving: input was 255,363 tokens per run against
+  242,327, because how much a run investigates matters more. `scenarios/review.ts`
+  confirms all required evidence is still reachable at these limits.
+- **Reordered prompts (reverted).** Putting shared context first was meant to let the synthesis
+  agents hit the cache. They got no cached tokens either way, so the change was undone.
+- **Forced final turn (kept).** It stays an ordinary request the first time. Specialist cached share
+  rose to 45.8% from 31.9%, the only visible caching gain, but
+  it did not show up as lower cost in these runs.
+- **Recovery (kept).** A failed plan call now falls back to the default plan, and the report call
+  gets a longer grace period. A real failure tested the first: on s12-A the plan call hung three
+  times. In the evaluation that failure ended `s06-A-C` and `s12-A-C` with no investigation. This
+  run made 11 tool calls instead, then reached the deadline inconclusive with
+  0 of 2 required evidence. That is lost time, not a correct abstention.
+
+### What implicit caching needs
+
+Each condition sends a fresh prompt twice, 6 s apart, four times over
+(`eval/results/cache-experiment.md`):
+
+| Condition | Repeats with a hit | Mean cached on repeat | Cached tokens per pair | Cold first calls |
+| --- | --- | --- | --- | --- |
+| plain text, repeated | 4 of 4 | 83% | 16352, 16352, 16352, 16352 | 4 of 4 |
+| same responseSchema, repeated | 4 of 4 | 82% | 16266, 16266, 16266, 16266 | 4 of 4 |
+| different responseSchema on the repeat | 0 of 4 | 0% | 0, 0, 0, 0 | 4 of 4 |
+| same tools, repeated | 3 of 4 | 62% | 16313, 16313, 0, 16313 | 4 of 4 |
+| tools, then restricted to one function | 0 of 4 | 0% | 0, 0, 0, 0 | 4 of 4 |
+
+A repeat hits when the whole request matches, not just its text. Reasoning, critic and reporting
+each have their own output schema, so a shared text prefix cannot hit. That is why reordering did
+nothing, and why those agents, 38.7% of arm A's cost, ran effectively uncached. Restricted
+functions also missed, which is why the forced turn changed. Caching stays best-effort: identical
+tools missed once in four.
+
+An earlier single-pair test showed no hit for a repeated schema, and commit `c192ef1` blames
+structured output on that basis. **That explanation was wrong.** A rerun contradicted it and these
+repeats settle it. Reverting the reordering still stands, because that was measured on real runs.
+
+Untested: giving the synthesis agents one shared tool list, with their outputs as functions, could
+make those calls cacheable.
+
+### Flash-Lite
+
+Gemini 3.5 Flash-Lite cost about a tenth as much ($0.065 on arm A and
+$0.025 on arm E, against $0.481 and $0.489) but found the root cause
+in 1 of 3 and 2 of 3, against 3 of 3 for both 3.8 Flash arms. On s04, both Flash-Lite arms blamed
+`order-service` capacity, the scenario's planted trap. It is not a safe demo model on this
+evidence, so 3.8 Flash stays the default.
+
+### What actually limits the demo's cost
+
+Not per-run savings: the access code and the limit of 10 live runs a day do. If a lower per-run
+cost is needed, arm C is the evaluated option: $0.347 per completed run against arm A's
+$0.513, with similar root-cause accuracy (21 and 21.5 of 24) but less required evidence
+found (82.1% and 94.6%) and no critic. The default has not been changed.

@@ -151,7 +151,7 @@ Spot checks recorded during the review (faults off, via `npm run tool`):
 | s11-B | error logs carrying the new version | `query_logs(kyc-service "serialization error")` | ok, 100 records, match | ok, 100 records |
 | s12-A | auth-service logs for the window (missing/incomplete) | `query_logs(auth-service)` | ok, 54 records | ok, 54 records |
 | s12-A | OTP success drop | `query_metrics(auth-service/otp_success_rate)` | ok, 1 records | ok, 1 records |
-| s12-B | scripted fault "auth-logs-partial" | `query_logs(auth-service)` | - | partial, 10 records |
+| s12-B | scripted fault "auth-logs-partial" | `query_logs(auth-service)` | - | partial, 12 records |
 | s12-B | auth-service logs for the window (missing/incomplete) | `query_logs(auth-service)` | ok, 54 records | partial, 16 records |
 | s12-B | OTP success drop | `query_metrics(auth-service/otp_success_rate)` | ok, 1 records | ok, 1 records |
 | s13-A | scripted fault "metrics-timeout" | `query_metrics(payout-service/request_rate)` | - | **timeout** after 3 attempt(s) |
@@ -168,6 +168,6 @@ Spot checks recorded during the review (faults off, via `npm run tool`):
 | s14-A | agency latency up | `query_metrics(kyc-service/agency_latency_p95_ms)` | ok, 1 records | ok, 1 records |
 | s14-B | scripted fault "queue-metrics" | `query_metrics(message-queue/queue_depth)` | - | **timeout** after 3 attempt(s) |
 | s14-B | scripted fault "webhook-metrics" | `query_metrics(kyc-service/webhook_received_per_min)` | - | **unavailable** after 3 attempt(s) |
-| s14-B | scripted fault "kyc-logs" | `query_logs(kyc-service)` | - | partial, 4 records |
+| s14-B | scripted fault "kyc-logs" | `query_logs(kyc-service)` | - | partial, 5 records |
 | s14-B | pending count rising | `query_metrics(kyc-service/kyc_pending_count)` | ok, 1 records | ok, 1 records |
 | s14-B | agency latency up | `query_metrics(kyc-service/agency_latency_p95_ms)` | ok, 1 records | ok, 1 records (2 attempts) |

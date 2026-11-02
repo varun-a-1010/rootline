@@ -98,8 +98,8 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
     }
     turns += 1;
     if (final) finalTurns += 1;
-    // Restricting functions disables implicit caching, and this is the loop's largest call. So the
-    // first forced turn is an ordinary request, unless the budget allows no second try.
+    // Restricted requests missed the implicit cache in testing, and this is the loop's largest
+    // call. So the first forced turn is an ordinary request, unless the budget allows no second try.
     const mustFinish = final && (finalTurns > 1 || !ctx.budget.canLlmCall(spec.finalKind, 1));
     let res;
     try {
