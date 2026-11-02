@@ -109,11 +109,12 @@ export class Budget {
     this.used.llmCalls += 1;
   }
 
-  canLlmCall(kind: LlmKind): boolean {
+  /** Would a call of this kind be allowed, after `after` more calls have been made? */
+  canLlmCall(kind: LlmKind, after = 0): boolean {
     if (kind === 'report') return true;
     if (this.deadlinePassed() || this.used.tokens >= this.limits.maxTokens) return false;
     const ceiling = kind === 'specialist' ? this.limits.maxLlmCalls - this.limits.synthesisReserve : this.limits.maxLlmCalls;
-    return this.used.llmCalls < ceiling;
+    return this.used.llmCalls + after < ceiling;
   }
 
   addUsage(u: TokenUsage | null): void {

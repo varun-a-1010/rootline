@@ -50,7 +50,8 @@ export function toolDeclaration(name: ToolName): FunctionDeclaration {
 /**
  * A bounded tool loop. The model must call a function every turn (toolMode ANY): either one of
  * its role's tools or the terminal function, whose parameters are the output schema. When the
- * task's tool budget is used up, the next turn offers only the terminal function.
+ * task's tool budget is used up, a notice tells the model to finish; if it does not, or if the
+ * budget allows only one more call, the turn permits only the terminal function.
  */
 export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promise<LoopResult<T>> {
   const allowed = new Set<string>(spec.tools);
@@ -62,6 +63,7 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
   let nudges = 0;
   let badTerminal = 0;
   let finalNoticeSent = false;
+  let finalTurns = 0;
   const maxTurns = spec.maxToolCalls + 6;
 
   let grace: AbortSignal | null = null;
@@ -95,6 +97,10 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
       contents.push({ role: 'user', parts: [{ text: spec.finalNotice ?? `Your tool budget for this task is used up. Call ${spec.terminal.name} now with what you have, and list what you could not check as gaps.` }] });
     }
     turns += 1;
+    if (final) finalTurns += 1;
+    // Restricting functions disables implicit caching, and this is the loop's largest call. So the
+    // first forced turn is an ordinary request, unless the budget allows no second try.
+    const mustFinish = final && (finalTurns > 1 || !ctx.budget.canLlmCall(spec.finalKind, 1));
     let res;
     try {
       res = await ctx.generate(spec.task.id, final ? spec.finalKind : spec.kind, {
@@ -103,8 +109,7 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
         contents,
         tools: decls,
         toolMode: 'ANY',
-        // Same declarations every turn: changing them would miss the cache on the largest call.
-        ...(final ? { allowedFunctions: [spec.terminal.name] } : {}),
+        ...(mustFinish ? { allowedFunctions: [spec.terminal.name] } : {}),
       });
     } catch (e) {
       if (ctx.signal.aborted && deadlineFinal()) continue;
