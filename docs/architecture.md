@@ -233,6 +233,6 @@ Node labels are short names (`Logs & metrics`, `Critic round 2`). The viewer giv
 fixed 176 px box but narrows its columns as a run gets deeper, so long labels on the same row
 overlapped. Each task's question is in the run view's Tasks tab. For deep runs, `web/src/fit.ts`
 lays the viewer out wide enough for its widest label and scales it to the panel; the note under
-the graph says when it does. That fitting is a workaround for the currently deployed viewer: the
-Agentflow project has an unlanded change that fits labels inside the viewer, and once it ships,
-`fit.ts` should be removed so deep runs are not shrunk twice.
+the graph says when it does. That fitting works around the hosted viewer's current layout. If the
+viewer starts fitting labels to its columns itself, `fit.ts` should be removed, or deep runs are
+shrunk twice.
