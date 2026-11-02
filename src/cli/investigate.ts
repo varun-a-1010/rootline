@@ -17,6 +17,7 @@ import { createLiveProviders } from '../llm/factory.js';
 import { costUsd } from '../llm/pricing.js';
 import { addUsage, ZERO_USAGE } from '../llm/types.js';
 import '../orchestrations/all.js';
+import { ARM_D_BASE } from '../orchestrations/jev-assisted.js';
 import { projectRoot } from '../util/paths.js';
 import { resolveWorld } from './tool.js';
 
@@ -97,7 +98,7 @@ async function main() {
     db,
     worldId,
     arm,
-    armBase: (arg('base') as 'A' | 'B' | undefined) ?? 'A',
+    armBase: (arg('base') as 'A' | 'B' | undefined) ?? ARM_D_BASE,
     llm,
     jev,
     settings: settingsFromEnv(env),

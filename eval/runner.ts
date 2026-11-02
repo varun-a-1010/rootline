@@ -19,6 +19,7 @@ import { promptHash } from '../src/agents/prompts.js';
 import { runInvestigation, settingsFromEnv } from '../src/engine/run.js';
 import { createLiveProviders } from '../src/llm/factory.js';
 import '../src/orchestrations/all.js';
+import { ARM_D_BASE } from '../src/orchestrations/jev-assisted.js';
 import { projectRoot } from '../src/util/paths.js';
 import { computeMetrics, type RunMetrics } from './metrics.js';
 
@@ -88,7 +89,7 @@ export function expandJobs(scenarios: string[], variants: string[], arms: ArmId[
   for (let rep = 1; rep <= reps; rep++)
     for (const s of scenarios)
       for (const v of variants)
-        for (const arm of arms) jobs.push({ key: `${s}-${v}`, arm, rep, ...(arm === 'D' ? { armBase: armBase ?? 'A' } : {}) });
+        for (const arm of arms) jobs.push({ key: `${s}-${v}`, arm, rep, ...(arm === 'D' ? { armBase: armBase ?? ARM_D_BASE } : {}) });
   return jobs;
 }
 

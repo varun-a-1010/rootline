@@ -2,6 +2,7 @@ import type { ArmId, RunEvent } from '../contracts/events.js';
 import type { Db } from '../db/client.js';
 import { DbRunStore, loadRunEvents } from '../engine/persistence.js';
 import { newRunId, runInvestigation, type EngineSettings } from '../engine/run.js';
+import { ARM_D_BASE } from '../orchestrations/jev-assisted.js';
 import type { JevClient } from '../llm/jev.js';
 import type { LlmProvider } from '../llm/types.js';
 
@@ -29,7 +30,7 @@ export class RunManager {
     return null;
   }
 
-  start(worldId: string, arm: ArmId, armBase: 'A' | 'B' = 'A'): string {
+  start(worldId: string, arm: ArmId, armBase: 'A' | 'B' = ARM_D_BASE): string {
     const runId = newRunId();
     const run: LiveRun = { runId, events: [], subscribers: new Set(), ac: new AbortController(), done: false };
     this.live.set(runId, run);

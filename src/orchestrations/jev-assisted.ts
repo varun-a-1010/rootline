@@ -152,7 +152,14 @@ export async function gradeEvidence(ctx: RunContext, task: TaskSpec, store: Grid
     .join('\n');
 }
 
-export function jevAssisted(base: 'A' | 'B'): Orchestration {
+/**
+ * Arm D's base, picked on the dev scenarios before the prompt freeze (recorded in
+ * eval/results/freeze.json). Every run that does not name a base uses it: the registered arm,
+ * live runs from the server, the CLI and the evaluation runner.
+ */
+export const ARM_D_BASE: 'A' | 'B' = 'B';
+
+export function jevAssisted(base: 'A' | 'B' = ARM_D_BASE): Orchestration {
   return {
     id: 'D',
     title: `Jev-assisted (${base === 'A' ? 'split by source' : 'causes first'})`,

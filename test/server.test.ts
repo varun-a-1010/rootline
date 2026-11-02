@@ -108,6 +108,9 @@ describe('HTTP API (scripted models, no browser)', () => {
     expect((await app.request('/healthz')).status).toBe(200);
     const cfg: any = await (await app.request('/api/config')).json();
     expect(cfg.arms.map((a: { id: string }) => a.id)).toEqual(['A', 'B', 'C', 'D', 'E']);
+    // Arm D runs on the base frozen for the evaluation (eval/results/freeze.json: B).
+    expect(JSON.parse(readFileSync(join(projectRoot(), 'eval', 'results', 'freeze.json'), 'utf8')).armDBase).toBe('B');
+    expect(cfg.arms.find((a: { id: string }) => a.id === 'D').title).toBe('Jev-assisted (causes first)');
     const inc: any = await (await app.request('/api/incidents')).json();
     expect(inc.length).toBeGreaterThan(0);
   });
