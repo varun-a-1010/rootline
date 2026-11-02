@@ -1,0 +1,417 @@
+{
+  "perRun": {
+    "s01-A-A-r1.json": {
+      "key": "s01-A",
+      "arm": "A",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 7,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 1
+    },
+    "s01-A-B-r1.json": {
+      "key": "s01-A",
+      "arm": "B",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 1
+    },
+    "s01-A-C-r1.json": {
+      "key": "s01-A",
+      "arm": "C",
+      "mechanism": {
+        "p": 0.96
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 8
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 1
+    },
+    "s01-A-D-r1.json": {
+      "key": "s01-A",
+      "arm": "D",
+      "mechanism": {
+        "p": 0.96
+      },
+      "claims": {
+        "assessed": 6,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 1
+    },
+    "s01-A-E-r1.json": {
+      "key": "s01-A",
+      "arm": "E",
+      "mechanism": {
+        "p": 0.94
+      },
+      "claims": {
+        "assessed": 10,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 1
+    },
+    "s01-B-A-r1.json": {
+      "key": "s01-B",
+      "arm": "A",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 5
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 0
+    },
+    "s01-B-B-r1.json": {
+      "key": "s01-B",
+      "arm": "B",
+      "mechanism": {
+        "p": 0.96
+      },
+      "claims": {
+        "assessed": 7,
+        "supported": 5
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 1
+      },
+      "deterministic": 0
+    },
+    "s01-B-C-r1.json": {
+      "key": "s01-B",
+      "arm": "C",
+      "mechanism": {
+        "p": 0.26
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 0.5
+    },
+    "s01-B-D-r1.json": {
+      "key": "s01-B",
+      "arm": "D",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 9,
+        "supported": 7
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 0
+    },
+    "s01-B-E-r1.json": {
+      "key": "s01-B",
+      "arm": "E",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 9,
+        "supported": 4
+      },
+      "counter": {
+        "assessed": 2,
+        "addressed": 2
+      },
+      "deterministic": 0
+    },
+    "s02-A-A-r1.json": {
+      "key": "s02-A",
+      "arm": "A",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 13,
+        "supported": 12
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s02-A-B-r1.json": {
+      "key": "s02-A",
+      "arm": "B",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 9,
+        "supported": 7
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s02-A-C-r1.json": {
+      "key": "s02-A",
+      "arm": "C",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 7
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s02-A-D-r1.json": {
+      "key": "s02-A",
+      "arm": "D",
+      "mechanism": {
+        "p": 0.93
+      },
+      "claims": null,
+      "counter": {
+        "assessed": 1,
+        "addressed": 0
+      },
+      "deterministic": 0
+    },
+    "s02-A-E-r1.json": {
+      "key": "s02-A",
+      "arm": "E",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 10,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s02-B-A-r1.json": {
+      "key": "s02-B",
+      "arm": "A",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 10,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s02-B-B-r1.json": {
+      "key": "s02-B",
+      "arm": "B",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 7,
+        "supported": 7
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s02-B-C-r1.json": {
+      "key": "s02-B",
+      "arm": "C",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 9,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s02-B-D-r1.json": {
+      "key": "s02-B",
+      "arm": "D",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 10,
+        "supported": 7
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s02-B-E-r1.json": {
+      "key": "s02-B",
+      "arm": "E",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 3
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    },
+    "s03-A-A-r1.json": {
+      "key": "s03-A",
+      "arm": "A",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 6
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 0
+      },
+      "deterministic": 1
+    },
+    "s03-A-B-r1.json": {
+      "key": "s03-A",
+      "arm": "B",
+      "mechanism": {
+        "p": 0.95
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 5
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 0
+      },
+      "deterministic": 1
+    },
+    "s03-A-C-r1.json": {
+      "key": "s03-A",
+      "arm": "C",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 8,
+        "supported": 5
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 0
+      },
+      "deterministic": 1
+    },
+    "s03-A-D-r1.json": {
+      "key": "s03-A",
+      "arm": "D",
+      "mechanism": {
+        "p": 0.98
+      },
+      "claims": {
+        "assessed": 6,
+        "supported": 5
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 0
+      },
+      "deterministic": 1
+    },
+    "s03-A-E-r1.json": {
+      "key": "s03-A",
+      "arm": "E",
+      "mechanism": {
+        "p": 0.97
+      },
+      "claims": {
+        "assessed": 7,
+        "supported": 4
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 0
+      },
+      "deterministic": 1
+    },
+    "s03-B-A-r1.json": {
+      "key": "s03-B",
+      "arm": "A",
+      "mechanism": {
+        "p": 0.95
+      },
+      "claims": {
+        "assessed": 7,
+        "supported": 4
+      },
+      "counter": {
+        "assessed": 1,
+        "addressed": 1
+      },
+      "deterministic": 1
+    }
+  }
+}

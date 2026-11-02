@@ -65,10 +65,9 @@ missing data; random transient faults everywhere), and two scenarios whose corre
    - During step 4 and 5 live checks two processes opened the same PGlite directory, which
      PGlite does not support. `eval/verify-worlds.ts` found all 28 worlds in that directory
      identical to the fixtures, so no run read damaged data.
-6. Runs execute through `npm run eval`, at concurrency 2 for arms A and E and the first part of
-   B, C and D, then 4 for the rest: quota errors had hit only 2 of 2,044 model calls, and
-   concurrency does not change what a run does. Arms B, C and D's latencies are compared with
-   that in mind. Each run file in `eval/runs/` holds the
+6. Runs execute through `npm run eval`. Arms A and E, and the first 26 runs of arms B, C and D,
+   ran at concurrency 2. To finish sooner, the last 58 runs (all arms B, C and D) ran at
+   concurrency 4. That was a mistake for reliability: see **Run failures** below. Each run file in `eval/runs/` holds the
    full event log, the report, the metrics and the environment (model, versions reported by the
    API, thinking level, budgets, prompt hash, fixture hash, git SHA, machine). Crashed runs are
    recorded as failed and never silently rerun.
@@ -92,4 +91,162 @@ missing data; random transient faults everywhere), and two scenarios whose corre
 
 ## Results
 
-(Added from `eval/results/` when the runs are complete.)
+Five arms on 28 worlds: 140 scored runs, one each. No repetitions were run, so no result here
+measures run-to-run variance. Model versions, budgets, prompt hash and fixture hash are in each
+run file. The code that produced these runs is commit `b2f6623`; later commits (see **After the
+evaluation**) are not covered by these numbers.
+
+**Spend:** $74.62 estimated at list rates across all recorded runs (scored $64.17, dev $9.86,
+superseded $0.58), which is about $37 at the half pricing in force, plus the two estimated
+allowances for unrecorded runs. Inside the $50 budget.
+
+### What the numbers show
+
+- **Multi-agent did not clearly beat the single agent.** Arm A earned 21.5 of 24 on root cause
+  and the baseline 20 of 24 (held out: 16.5 and 15 of 19). A gap of 1.5 cases on 24 is within
+  noise, and no arm separates from the others: the range is 20 to 21.5.
+- **Every arm is poor at saying "we don't know", and this is the main finding.** On the two
+  scenarios that should end inconclusive, 15 of 20 runs gave a definite diagnosis. Arms A, B, C
+  and D earned 0 of 4 correct abstentions; the baseline earned 2 of 4. One of those two was the
+  model's own decision. The other was the code's honesty rule downgrading a conclusive report
+  after the budget ran out.
+- **The critic did not stop a single unsupported diagnosis.** All 10 in the critic arms (A, B, D)
+  were accepted by the critic, typically by elimination: internal services look healthy, so it
+  must be the partner. In 84 runs the critic declared the evidence insufficient once, and that
+  was on a scenario with a definite answer (s07-B, a false abstention).
+- **What the critic did buy is evidence, at a price.** Against arm C (no critic), arm A found
+  more of the required evidence (94.6% vs 82.1%) but cost 57% more ($0.51 vs $0.32) and took 47%
+  longer (225 s vs 153 s), with no measurable accuracy gain (21.5 vs 21).
+- **The baseline is cheaper, and no slower.** It sends over three times the input (874,019 vs
+  254,343 tokens per run) but 84% of it is cached, against 24% for arm A, so it costs $0.42 to arm
+  A's $0.51. Latency is about equal (220 s vs 225 s) despite arm A's parallelism.
+- **Causes first (B) made no difference.** It matched arm A on accuracy, though it won the dev
+  pick that made it arm D's base.
+- **Jev did not save money.** Arm D cost $0.53 per run against its base arm's $0.51, with about
+  the same input tokens. The brief asked Jev to take work away from Flash; in these runs it did
+  not.
+- **Citations are real.** 3 of 17,099 cited ids did not exist. That says the ids are real, not
+  that the evidence supports the claim; claim support needs the judge.
+- **One label looks too strict, and was left alone.** On s01-B, four of five arms named the right
+  component and the real mechanism (the import was OOM-killed) as `capacity_saturation`. The
+  frozen label accepts only `data_pipeline_failure`, so they scored 0. The fifth got partial
+  credit. Fixing the label after seeing results would be tuning the answer key.
+
+### Run failures
+
+Six of 140 runs ended `failed`, all from Vertex problems and none from an agent's reasoning.
+Failed runs score as failed and were not rerun.
+
+| Run | What happened |
+| --- | --- |
+| `s06-A-C`, `s12-A-C` | The plan call hit two 429s and then a 90 s hang, so the run did no investigation at all |
+| `s02-A-D`, `s13-B-D`, `s14-A-A`, `s14-B-B` | The report call hung; the retry ran out of the fixed 120 s allowance, so a code-built report was used |
+
+| Period | Runs | Failed | 429 errors | Hung requests |
+| --- | --- | --- | --- | --- |
+| Concurrency 2 | 82 | 1 (1.2%) | 2 | 12 |
+| Concurrency 4 | 58 | 5 (8.6%) | 14 | 28 |
+
+Raising concurrency to finish sooner cost reliability, and five of the six failures fell on arms
+B, C and D. Arms A and E ran entirely at concurrency 2, so the headline comparison is unaffected,
+but arms B, C and D are somewhat understated. The row "Top hypothesis matches (any outcome)" shows
+what those runs had found where a report exists: A 22, B 23, C 22, D 23, E 21 of 24.
+
+### Tables (generated)
+
+<!-- results:start -->
+### By arm (all included runs)
+
+| Metric | Arm A | Arm B | Arm C | Arm D | Arm E |
+| --- | --- | --- | --- | --- | --- |
+| Runs | 28 | 28 | 28 | 28 | 28 |
+| Root-cause accuracy (credit / conclusive cases) | 21.5 / 24 (89.6%) | 21.5 / 24 (89.6%) | 21 / 24 (87.5%) | 20.5 / 24 (85.4%) | 20 / 24 (83.3%) |
+| Top hypothesis matches (any outcome) | 22 / 24 | 23 / 24 | 22 / 24 | 23 / 24 | 21 / 24 |
+| Top-2 hit | 22 / 24 | 23 / 24 | 22 / 24 | 23 / 24 | 21 / 24 |
+| False abstentions (conclusive cases) | 0 | 1 | 1 | 2 | 0 |
+| Correct abstentions (inconclusive cases) | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 | 2 / 4 |
+| Unsupported definitive diagnoses | 3 | 3 | 3 | 4 | 2 |
+| Fabricated-citation rate | 0.0% (1/4353) | 0.0% (2/4100) | 0.0% (0/2950) | 0.0% (0/4090) | 0.0% (0/1606) |
+| Facts stated without evidence | 0 | 1 | 0 | 0 | 0 |
+| Required-evidence recall (mean) | 94.6% | 96.4% | 82.1% | 96.4% | 96.4% |
+| Tool calls per run (mean, min-max) | 24.357 (17-40) | 24.607 (12-40) | 17.214 (0-24) | 25.929 (14-40) | 29.5 (8-40) |
+| Tool attempts / retries / failures / partials per run | 27.357 / 3 / 0.893 / 1.571 | 28.5 / 3.893 / 1.143 / 1.857 | 19.857 / 2.643 / 0.643 / 0.893 | 29.643 / 3.714 / 1 / 1.786 | 34.607 / 5.107 / 1.821 / 2.286 |
+| Model calls per run | 28.429 | 29.857 | 18.714 | 29.5 | 25.964 |
+| Latency s (mean, median, min-max) | 224.793, 193.258 (98.872-448.973) | 266.675, 229.452 (128.417-480.005) | 153.088, 134.728 (90.674-361.735) | 259.084, 261.193 (123.81-480.017) | 220.326, 191.391 (111.538-404.005) |
+| Input tokens per run (mean) | 254342.536 | 255833.964 | 168792.929 | 254477.5 | 874019.143 |
+| Output tokens per run (mean) | 12783.75 | 12968.893 | 8861.357 | 13322.857 | 5519.714 |
+| Thinking tokens per run (mean) | 15473.893 | 16110.214 | 9407.679 | 17666.357 | 8084.643 |
+| Cached input tokens per run (mean) | 61564.071 | 64915.071 | 49040.25 | 66130.857 | 738349.964 |
+| Calls with unknown usage | 0 | 0 | 0 | 0 | 0 |
+| Jev calls / questions per run | 0 / 0 | 0 / 0 | 0 / 0 | 5.179 / 131.929 | 0 / 0 |
+| Est. cost per run (USD, standard rates) | $0.51 | $0.514 | $0.324 | $0.527 | $0.416 |
+| Critic rounds / follow-ups per run | 1.5 / 1.929 | 1.143 / 1.357 | 0 / 0 | 1.286 / 1.571 | 0 / 0 |
+| Stop reasons | critic_accepted: 26, deadline: 2 | critic_accepted: 19, deadline: 8, critic_insufficient_evidence: 1 | completed: 26, unrecoverable_error: 2 | critic_accepted: 22, deadline: 6 | completed: 20, budget_tool_calls: 6, deadline: 2 |
+
+### Paired comparison on the 28 cases every arm ran
+
+| Metric | Arm A | Arm B | Arm C | Arm D | Arm E |
+| --- | --- | --- | --- | --- | --- |
+| Root-cause accuracy | 21.5 / 24 (89.6%) | 21.5 / 24 (89.6%) | 21 / 24 (87.5%) | 20.5 / 24 (85.4%) | 20 / 24 (83.3%) |
+| Correct abstentions | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 | 2 / 4 |
+| Tool calls (mean) | 24.357 | 24.607 | 17.214 | 25.929 | 29.5 |
+| Latency s (mean) | 224.793 | 266.675 | 153.088 | 259.084 | 220.326 |
+| Input / output+thinking tokens (mean) | 254342.536 / 28257.643 | 255833.964 / 29079.107 | 168792.929 / 18269.036 | 254477.5 / 30989.214 | 874019.143 / 13604.357 |
+| Est. cost per run | $0.51 | $0.514 | $0.324 | $0.527 | $0.416 |
+
+### By split
+
+- Arm A: dev 5/5 root cause, 0/1 abstentions; held-out 16.5/19 root cause, 0/3 abstentions.
+- Arm B: dev 5/5 root cause, 0/1 abstentions; held-out 16.5/19 root cause, 0/3 abstentions.
+- Arm C: dev 4/5 root cause, 0/1 abstentions; held-out 17/19 root cause, 0/3 abstentions.
+- Arm D: dev 4/5 root cause, 0/1 abstentions; held-out 16.5/19 root cause, 0/3 abstentions.
+- Arm E: dev 5/5 root cause, 1/1 abstentions; held-out 15/19 root cause, 1/3 abstentions.
+
+### Per case
+
+| Case | Split | Expected | Arm A | Arm B | Arm C | Arm D | Arm E |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| s01-A | dev | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s01-B | heldout | conclusive | ✗ | ✗ | ½(0.5) | ✗ | ✗ |
+| s02-A | dev | conclusive | ✓ | ✓ | ✓ | ✗ inconclusive | ✓ |
+| s02-B | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s03-A | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s03-B | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s04-A | dev | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s04-B | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s05-A | heldout | conclusive | ½(0.5) | ✓ | ½(0.5) | ✓ | ½(0.5) |
+| s05-B | heldout | conclusive | ½(0.5) | ½(0.5) | ✓ | ½(0.5) | ½(0.5) |
+| s06-A | dev | conclusive | ✓ | ✓ | ✗ inconclusive | ✓ | ✓ |
+| s06-B | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✗ |
+| s07-A | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s07-B | heldout | conclusive | ✓ | ✗ inconclusive | ✓ | ✓ | ✓ |
+| s08-A | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s08-B | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s09-A | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s09-B | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s10-A | heldout | conclusive | ½(0.5) | ✓ | ✓ | ✓ | ✓ |
+| s10-B | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s11-A | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s11-B | heldout | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s12-A | dev | inconclusive | ✗ diagnosed | ✗ diagnosed | ✗ inconclusive | ✗ diagnosed | ✓ abstain |
+| s12-B | heldout | inconclusive | ✗ diagnosed | ✗ diagnosed | ✗ diagnosed | ✗ diagnosed | ✗ diagnosed |
+| s13-A | dev | conclusive | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s13-B | heldout | conclusive | ✓ | ✓ | ✗ | ✗ inconclusive | ✗ |
+| s14-A | heldout | inconclusive | ✗ inconclusive | ✗ diagnosed | ✗ diagnosed | ✗ diagnosed | ✓ abstain |
+| s14-B | heldout | inconclusive | ✗ diagnosed | ✗ inconclusive | ✗ diagnosed | ✗ diagnosed | ✗ diagnosed |
+
+Legend: ✓ full root-cause credit; ½(x) partial credit; ✗ wrong top cause; "inconclusive"/"failed" after a mark = the run did not commit to a cause (no credit); for inconclusive cases ✓ abstain / ✗ diagnosed. Repetitions are separated by "/".
+<!-- results:end -->
+
+### Judged metrics
+
+The model judge (mechanism agreement, claim support, counterevidence addressed) was validated at
+37 of 40 on the agent-labeled set: mechanism 20 of 20, claims 17 of 20. All three disagreements
+were the judge rejecting a supported claim, two of them needing a UTC-to-IST conversion, so claim
+support is likely conservative. Judging the runs is pending: the OpenRouter account ran out of
+credit after 1 of 140 runs.
+
+### What this evaluation cannot show
+
+14 scenarios, two variants, one run each, labeled by the agent that wrote them. Treat every
+difference above as a lead, not a measurement. See `docs/limitations.md`.

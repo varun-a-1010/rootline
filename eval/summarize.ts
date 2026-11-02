@@ -150,7 +150,7 @@ function main() {
   const devSpend = spentUsd(readRunFiles(join(projectRoot(), 'eval', 'runs-dev')));
   const superseded = readRunFiles(SUPERSEDED_DIR);
   const spend = spentUsd(files) + devSpend + spentUsd(superseded);
-  const env = files.find((f) => f.environment.promptHash === freeze?.promptHash)?.environment ?? files[0]?.environment ?? null;
+  const env = files.find((f) => f.environment.jevModel)?.environment ?? files.find((f) => f.environment.promptHash === freeze?.promptHash)?.environment ?? files[0]?.environment ?? null;
   const plan = existsSync(join(RESULTS_DIR, 'plan.json')) ? JSON.parse(readFileSync(join(RESULTS_DIR, 'plan.json'), 'utf8')) : null;
   const judge = existsSync(join(RESULTS_DIR, 'judge.json')) ? JSON.parse(readFileSync(join(RESULTS_DIR, 'judge.json'), 'utf8')) : null;
   const summary = {
@@ -171,7 +171,16 @@ function main() {
   };
   mkdirSync(RESULTS_DIR, { recursive: true });
   writeFileSync(join(RESULTS_DIR, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
-  writeFileSync(join(RESULTS_DIR, 'summary.md'), renderMd(summary, rows, arms, common));
+  const md = renderMd(summary, rows, arms, common);
+  writeFileSync(join(RESULTS_DIR, 'summary.md'), md);
+  // Embed the generated tables in docs/evaluation.md so no number there is typed by hand.
+  const docPath = join(projectRoot(), 'docs', 'evaluation.md');
+  if (existsSync(docPath)) {
+    const doc = readFileSync(docPath, 'utf8');
+    const tables = md.slice(md.indexOf('## By arm'), md.indexOf('## Excluded runs') >= 0 ? md.indexOf('## Excluded runs') : undefined).replace(/^## /gm, '### ').trimEnd();
+    const next = doc.replace(/<!-- results:start -->[\s\S]*<!-- results:end -->/, `<!-- results:start -->\n${tables}\n<!-- results:end -->`);
+    if (next !== doc) writeFileSync(docPath, next);
+  }
   console.error(`summary: ${rows.length} runs included, ${excluded.length} excluded; arms ${arms.join(', ')}; est. spend $${spend.toFixed(2)}`);
 }
 

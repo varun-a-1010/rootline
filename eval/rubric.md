@@ -32,10 +32,11 @@ as excluded.
 
 - Correct abstention: outcome `inconclusive`.
 - Unsupported definitive diagnosis: outcome `conclusive` (any cause).
-- `failed` outcomes are neither and are listed as other. So is a report built by code after an
-  agent failed, whatever outcome it states: it is not an agent's judgment. (Amendment, 2026-11-02,
-  after the freeze: this can only lower a score. It affected `s14-A-A-r1`, where a code-built
-  report said inconclusive on a scenario expected to be inconclusive.)
+- `failed` outcomes are neither and are listed as other. So is any failed run, whatever outcome
+  its report states: a code-built report is not an agent's judgment, and a report written after
+  the investigation itself failed reflects no evidence. (Amendments, 2026-11-02, after the
+  freeze: these can only lower a score. They affect `s14-A-A-r1`, `s14-B-B-r1` and `s12-A-C-r1`;
+  the last did no investigation at all because its plan step failed.)
 - False abstentions on conclusive scenarios are reported under root cause (above).
 
 ## Evidence grounding

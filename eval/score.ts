@@ -140,8 +140,9 @@ export function scoreRun(file: RunFile, fileName: string): CaseScore {
     rootCauseCredit: rootCause,
     topMatches,
     top2Hit,
-    // A code-built fallback report is not an agent's judgment, so it earns no abstention credit.
-    correctAbstention: conclusiveLabel ? null : outcome === 'inconclusive' && report?.generatedBy !== 'code_fallback',
+    // A failed run earns no abstention credit: it did not reach a judgment (a code-built report,
+    // or a report written after the investigation itself failed).
+    correctAbstention: conclusiveLabel ? null : outcome === 'inconclusive' && file.status === 'completed' && report?.generatedBy !== 'code_fallback',
     unsupportedDiagnosis: conclusiveLabel ? null : outcome === 'conclusive',
     falseAbstention: conclusiveLabel ? outcome !== 'conclusive' : null,
     citations: { valid, invalid, factsWithoutEvidence, fabricatedRate: valid + invalid > 0 ? invalid / (valid + invalid) : null },
