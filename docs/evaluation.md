@@ -92,8 +92,10 @@ missing data; random transient faults everywhere), and two scenarios whose corre
 ## Results
 
 Five arms on 28 worlds: 140 scored runs, one each. No repetitions were run, so no result here
-measures run-to-run variance. Model versions, budgets, prompt hash and fixture hash are in each
-run file. The code that produced these runs is commit `b2f6623`; later commits (see **After the
+measures run-to-run variance. Model versions, budgets, prompt hash, fixture hash and the commit
+are in each run file. The runs span commits `129a467` to `b2f6623`. Across that span the only
+change to agent code is the baseline's deadline-turn fix (`eval/runs-superseded/README.md`); the
+others touched pricing metadata, a test helper and a web route. Later commits (see **After the
 evaluation**) are not covered by these numbers.
 
 **Spend:** $74.62 estimated at list rates across all recorded runs (scored $64.17, dev $9.86,
@@ -135,7 +137,8 @@ allowances for unrecorded runs. Inside the $50 budget.
 ### Run failures
 
 Six of 140 runs ended `failed`, all from Vertex problems and none from an agent's reasoning.
-Failed runs score as failed and were not rerun.
+Failed runs score as failed and were not rerun. The figures here come from
+`eval/results/run-health.md`, generated from the run files by `eval/run-health.ts`.
 
 | Run | What happened |
 | --- | --- |
@@ -243,8 +246,11 @@ Legend: ✓ full root-cause credit; ½(x) partial credit; ✗ wrong top cause; "
 The model judge (mechanism agreement, claim support, counterevidence addressed) was validated at
 37 of 40 on the agent-labeled set: mechanism 20 of 20, claims 17 of 20. All three disagreements
 were the judge rejecting a supported claim, two of them needing a UTC-to-IST conversion, so claim
-support is likely conservative. Judging the runs is pending: the OpenRouter account ran out of
-credit after 1 of 140 runs.
+support is likely conservative. **The judged metrics were not produced.** OpenRouter refused
+further calls with a 402 billing error after 26 of 140 runs (s01, s02 and part of s03), and those
+26 are not a fair sample, so they are not reported. The partial results are in
+`eval/results/judge.json`, and the judge resumes from there. Until it finishes, claim support and
+mechanism agreement are unmeasured, and only the deterministic metrics above stand.
 
 ### What this evaluation cannot show
 

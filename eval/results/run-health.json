@@ -1,0 +1,624 @@
+{
+  "runs": 140,
+  "model": "gemini-3.8-flash",
+  "costRatesFrom": "src/llm/pricing.ts (list rates)",
+  "concurrency": [
+    {
+      "concurrency": 2,
+      "runs": 82,
+      "arms": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "failed": 1,
+      "failedPct": 1.2,
+      "rateLimitErrors": 2,
+      "hungRequests": 12,
+      "otherErrors": 0
+    },
+    {
+      "concurrency": 4,
+      "runs": 58,
+      "arms": [
+        "B",
+        "C",
+        "D"
+      ],
+      "failed": 5,
+      "failedPct": 8.6,
+      "rateLimitErrors": 14,
+      "hungRequests": 28,
+      "otherErrors": 0
+    }
+  ],
+  "failures": [
+    {
+      "run": "s02-A-D",
+      "arm": "D",
+      "concurrency": 4,
+      "stopReason": "deadline",
+      "reportBuiltBy": "code_fallback",
+      "failedTasks": [
+        "observability",
+        "reporting"
+      ],
+      "errors": [
+        "observability: network",
+        "reporting: network"
+      ],
+      "toolCalls": 31
+    },
+    {
+      "run": "s06-A-C",
+      "arm": "C",
+      "concurrency": 4,
+      "stopReason": "unrecoverable_error",
+      "reportBuiltBy": "reporting_agent",
+      "failedTasks": [
+        "orchestrator"
+      ],
+      "errors": [
+        "orchestrator: rate_limited",
+        "orchestrator: rate_limited",
+        "orchestrator: network"
+      ],
+      "toolCalls": 0
+    },
+    {
+      "run": "s12-A-C",
+      "arm": "C",
+      "concurrency": 4,
+      "stopReason": "unrecoverable_error",
+      "reportBuiltBy": "reporting_agent",
+      "failedTasks": [
+        "orchestrator"
+      ],
+      "errors": [
+        "orchestrator: rate_limited",
+        "orchestrator: rate_limited",
+        "orchestrator: network",
+        "reporting: rate_limited"
+      ],
+      "toolCalls": 0
+    },
+    {
+      "run": "s13-B-D",
+      "arm": "D",
+      "concurrency": 4,
+      "stopReason": "critic_accepted",
+      "reportBuiltBy": "code_fallback",
+      "failedTasks": [
+        "reporting"
+      ],
+      "errors": [
+        "reporting: network"
+      ],
+      "toolCalls": 23
+    },
+    {
+      "run": "s14-A-A",
+      "arm": "A",
+      "concurrency": 2,
+      "stopReason": "critic_accepted",
+      "reportBuiltBy": "code_fallback",
+      "failedTasks": [
+        "reporting"
+      ],
+      "errors": [
+        "reporting: network"
+      ],
+      "toolCalls": 24
+    },
+    {
+      "run": "s14-B-B",
+      "arm": "B",
+      "concurrency": 4,
+      "stopReason": "deadline",
+      "reportBuiltBy": "code_fallback",
+      "failedTasks": [
+        "reasoning",
+        "reporting"
+      ],
+      "errors": [
+        "reporting: network"
+      ],
+      "toolCalls": 37
+    }
+  ],
+  "cost": {
+    "A": {
+      "usdPerRun": 0.51,
+      "usdPerCompletedRun": 0.513,
+      "completedRuns": 27,
+      "parts": {
+        "freshInput": {
+          "usd": 0.289,
+          "pct": 56.7
+        },
+        "cachedInput": {
+          "usd": 0.009,
+          "pct": 1.8
+        },
+        "answer": {
+          "usd": 0.096,
+          "pct": 18.8
+        },
+        "thinking": {
+          "usd": 0.116,
+          "pct": 22.7
+        },
+        "jev": {
+          "usd": 0,
+          "pct": 0
+        }
+      },
+      "rolePct": {
+        "observability": 42.3,
+        "reasoning": 15.3,
+        "dependency": 15.1,
+        "critic": 12.7,
+        "reporting": 10.7,
+        "orchestrator": 3.9
+      }
+    },
+    "B": {
+      "usdPerRun": 0.514,
+      "usdPerCompletedRun": 0.509,
+      "completedRuns": 27,
+      "parts": {
+        "freshInput": {
+          "usd": 0.286,
+          "pct": 55.7
+        },
+        "cachedInput": {
+          "usd": 0.01,
+          "pct": 1.9
+        },
+        "answer": {
+          "usd": 0.097,
+          "pct": 18.9
+        },
+        "thinking": {
+          "usd": 0.121,
+          "pct": 23.5
+        },
+        "jev": {
+          "usd": 0,
+          "pct": 0
+        }
+      },
+      "rolePct": {
+        "observability": 45.8,
+        "reasoning": 17.4,
+        "dependency": 12.7,
+        "reporting": 10.5,
+        "critic": 9.4,
+        "orchestrator": 4.2
+      }
+    },
+    "C": {
+      "usdPerRun": 0.324,
+      "usdPerCompletedRun": 0.347,
+      "completedRuns": 26,
+      "parts": {
+        "freshInput": {
+          "usd": 0.18,
+          "pct": 55.4
+        },
+        "cachedInput": {
+          "usd": 0.007,
+          "pct": 2.3
+        },
+        "answer": {
+          "usd": 0.066,
+          "pct": 20.5
+        },
+        "thinking": {
+          "usd": 0.071,
+          "pct": 21.8
+        },
+        "jev": {
+          "usd": 0,
+          "pct": 0
+        }
+      },
+      "rolePct": {
+        "observability": 48.8,
+        "dependency": 16.5,
+        "reporting": 15.7,
+        "reasoning": 12.8,
+        "orchestrator": 6.2
+      }
+    },
+    "D": {
+      "usdPerRun": 0.527,
+      "usdPerCompletedRun": 0.532,
+      "completedRuns": 26,
+      "parts": {
+        "freshInput": {
+          "usd": 0.283,
+          "pct": 53.6
+        },
+        "cachedInput": {
+          "usd": 0.01,
+          "pct": 1.9
+        },
+        "answer": {
+          "usd": 0.1,
+          "pct": 19
+        },
+        "thinking": {
+          "usd": 0.132,
+          "pct": 25.1
+        },
+        "jev": {
+          "usd": 0.002,
+          "pct": 0.4
+        }
+      },
+      "rolePct": {
+        "observability": 44.8,
+        "reasoning": 18.1,
+        "dependency": 13,
+        "critic": 10,
+        "reporting": 9.5,
+        "orchestrator": 4.2
+      }
+    },
+    "E": {
+      "usdPerRun": 0.416,
+      "usdPerCompletedRun": 0.416,
+      "completedRuns": 28,
+      "parts": {
+        "freshInput": {
+          "usd": 0.204,
+          "pct": 48.9
+        },
+        "cachedInput": {
+          "usd": 0.111,
+          "pct": 26.6
+        },
+        "answer": {
+          "usd": 0.041,
+          "pct": 9.9
+        },
+        "thinking": {
+          "usd": 0.061,
+          "pct": 14.6
+        },
+        "jev": {
+          "usd": 0,
+          "pct": 0
+        }
+      },
+      "rolePct": {
+        "baseline": 100
+      }
+    }
+  },
+  "cacheByRole": [
+    {
+      "role": "baseline",
+      "calls": 727,
+      "callsWithHit": 678,
+      "input": 24472536,
+      "cached": 20673799,
+      "cachedPct": 84.5
+    },
+    {
+      "role": "observability",
+      "calls": 1820,
+      "callsWithHit": 882,
+      "input": 15902734,
+      "cached": 5522088,
+      "cachedPct": 34.7
+    },
+    {
+      "role": "dependency",
+      "calls": 619,
+      "callsWithHit": 314,
+      "input": 4021963,
+      "cached": 1214216,
+      "cachedPct": 30.2
+    },
+    {
+      "role": "reasoning",
+      "calls": 194,
+      "callsWithHit": 12,
+      "input": 2465656,
+      "cached": 29903,
+      "cachedPct": 1.2
+    },
+    {
+      "role": "critic",
+      "calls": 110,
+      "callsWithHit": 0,
+      "input": 1600296,
+      "cached": 0,
+      "cachedPct": 0
+    },
+    {
+      "role": "reporting",
+      "calls": 108,
+      "callsWithHit": 0,
+      "input": 1590598,
+      "cached": 0,
+      "cachedPct": 0
+    },
+    {
+      "role": "orchestrator",
+      "calls": 114,
+      "callsWithHit": 0,
+      "input": 555267,
+      "cached": 0,
+      "cachedPct": 0
+    }
+  ],
+  "abstentionByArm": [
+    {
+      "arm": "A",
+      "runs": 4,
+      "correctAbstentions": 0,
+      "ofWhichForcedByHonestyRule": 0,
+      "unsupportedDiagnoses": 3,
+      "unsupportedAcceptedByCritic": 3
+    },
+    {
+      "arm": "B",
+      "runs": 4,
+      "correctAbstentions": 0,
+      "ofWhichForcedByHonestyRule": 0,
+      "unsupportedDiagnoses": 3,
+      "unsupportedAcceptedByCritic": 3
+    },
+    {
+      "arm": "C",
+      "runs": 4,
+      "correctAbstentions": 0,
+      "ofWhichForcedByHonestyRule": 0,
+      "unsupportedDiagnoses": 3,
+      "unsupportedAcceptedByCritic": 0
+    },
+    {
+      "arm": "D",
+      "runs": 4,
+      "correctAbstentions": 0,
+      "ofWhichForcedByHonestyRule": 0,
+      "unsupportedDiagnoses": 4,
+      "unsupportedAcceptedByCritic": 4
+    },
+    {
+      "arm": "E",
+      "runs": 4,
+      "correctAbstentions": 2,
+      "ofWhichForcedByHonestyRule": 1,
+      "unsupportedDiagnoses": 2,
+      "unsupportedAcceptedByCritic": 0
+    }
+  ],
+  "inconclusiveRuns": [
+    {
+      "run": "s12-A-A",
+      "arm": "A",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s12-A-B",
+      "arm": "B",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s12-A-C",
+      "arm": "C",
+      "status": "failed",
+      "outcome": "inconclusive",
+      "stopReason": "unrecoverable_error",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": false,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    },
+    {
+      "run": "s12-A-D",
+      "arm": "D",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s12-A-E",
+      "arm": "E",
+      "status": "completed",
+      "outcome": "inconclusive",
+      "stopReason": "budget_tool_calls",
+      "correctAbstention": true,
+      "unsupportedDiagnosis": false,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    },
+    {
+      "run": "s12-B-A",
+      "arm": "A",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s12-B-B",
+      "arm": "B",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s12-B-C",
+      "arm": "C",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "completed",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    },
+    {
+      "run": "s12-B-D",
+      "arm": "D",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s12-B-E",
+      "arm": "E",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "budget_tool_calls",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    },
+    {
+      "run": "s14-A-A",
+      "arm": "A",
+      "status": "failed",
+      "outcome": "inconclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": false,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    },
+    {
+      "run": "s14-A-B",
+      "arm": "B",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s14-A-C",
+      "arm": "C",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "completed",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    },
+    {
+      "run": "s14-A-D",
+      "arm": "D",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s14-A-E",
+      "arm": "E",
+      "status": "completed",
+      "outcome": "inconclusive",
+      "stopReason": "budget_tool_calls",
+      "correctAbstention": true,
+      "unsupportedDiagnosis": false,
+      "downgradedByHonestyRule": true,
+      "criticAccepted": null
+    },
+    {
+      "run": "s14-B-A",
+      "arm": "A",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s14-B-B",
+      "arm": "B",
+      "status": "failed",
+      "outcome": "inconclusive",
+      "stopReason": "deadline",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": false,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    },
+    {
+      "run": "s14-B-C",
+      "arm": "C",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "completed",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    },
+    {
+      "run": "s14-B-D",
+      "arm": "D",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "critic_accepted",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": true
+    },
+    {
+      "run": "s14-B-E",
+      "arm": "E",
+      "status": "completed",
+      "outcome": "conclusive",
+      "stopReason": "budget_tool_calls",
+      "correctAbstention": false,
+      "unsupportedDiagnosis": true,
+      "downgradedByHonestyRule": false,
+      "criticAccepted": null
+    }
+  ]
+}

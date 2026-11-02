@@ -70,6 +70,20 @@ on. The evaluation-specific items at the end are filled in from `eval/results/`.
   does visual QA). It is covered by API tests, a type check and a production build.
 - Live runs from the web UI are rate-limited and need an access code on the hosted demo.
 
+## What the evaluation does not cover
+
+- One run per arm per world. No repetitions, so run-to-run variance is unmeasured.
+- Six of 140 runs failed on Vertex problems and were not rerun. Five of them were on arms B, C and
+  D, after concurrency was raised from 2 to 4 to finish sooner (`docs/evaluation.md`). Those arms
+  are somewhat understated; arms A and E ran entirely at concurrency 2.
+- Two baseline runs were redone after an engine bug (`eval/runs-superseded/README.md`), and the
+  18 dev-phase runs are archived unscored (`eval/runs-dev/`).
+- The rubric was amended twice after the freeze, both times in a direction that can only lower a
+  score. Labels were not changed, even where one looks too strict (s01-B).
+- The evaluation ran on PGlite, not the hosted database.
+- The numbers describe commits `129a467` to `b2f6623`. Later commits change tool output sizes, the
+  forced final turn and recovery behaviour (`docs/evaluation.md`, **After the evaluation**).
+
 ## External dependencies
 
 | Dependency | Used for | Without it |

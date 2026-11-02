@@ -188,6 +188,9 @@ scoring. A test checks that folding the persisted events reproduces the live sta
 | Failed specialist | Its task fails; reasoning runs on what exists and sees the failure as a gap |
 | Reasoning fails twice | Outcome `failed`; a clearly labeled report is built from the ledger by code |
 | Model 429 / 5xx / network | Bounded exponential backoff (3 attempts), each attempt recorded; 400s never retried |
+| Plan call fails | The run falls back to the default plan and says why, instead of ending with no investigation |
+| Report call hangs | The report gets a fixed grace period past the run: 120 s after a deadline, 300 s otherwise. If that runs out too, a labeled report is built by code |
+| Tool budget used up | A notice tells the model to submit. The first such turn stays an ordinary request, so it can still hit the implicit cache; only if the model ignores it, or the budget allows no second try, is the turn restricted to the submit function |
 | Budget or deadline exhausted | The run stops investigating and goes to reporting with whatever exists; the final report call is always allowed once |
 | Cancellation | An `AbortController` per run, honored by tools and model calls; a code-built report |
 | Unsupported certainty | The honesty rule: if the critic found the evidence insufficient, or the run stopped on a budget or deadline without critic acceptance, a "conclusive" report needs a justification or is downgraded to inconclusive, and the inconsistency is flagged |

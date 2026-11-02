@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
- * Compare the evaluated code with the post-evaluation runs on the same dev scenarios. Writes
- * eval/results/post-evaluation.{json,md}. Generated, never hand-edited.
+ * Compare the evaluated code with the post-evaluation runs on the same four dev scenarios, one
+ * run each. Costs are compared on the conclusive scenarios only, because an s12 run cut short by
+ * a hung request is cheap for the wrong reason. Every run is listed, so nothing rests on a mean.
+ * Writes eval/results/post-evaluation.{json,md}. Generated, never hand-edited.
  */
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -11,40 +13,94 @@ import { scoreRun } from './score.js';
 import { RESULTS_DIR } from './summarize.js';
 
 const KEYS = ['s01-A', 's04-A', 's12-A', 's13-A'];
+const LIKE_FOR_LIKE = ['s01-A', 's04-A', 's13-A'];
+const SPECIALISTS = ['observability', 'dependency'];
+const SYNTHESIS = ['orchestrator', 'reasoning', 'critic', 'reporting'];
 const post = (d: string) => join(projectRoot(), 'eval', 'runs-post', d);
-const groups: Array<[string, string, string, string]> = [
-  ['Evaluated, 3.8 Flash', 'A', RUNS_DIR, 'A'],
-  ['Final code, 3.8 Flash', 'A', post('final-code'), 'A'],
-  ['Flash-Lite', 'A', post('flash-lite'), 'A'],
-  ['Evaluated, 3.8 Flash', 'E', RUNS_DIR, 'E'],
-  ['Flash-Lite', 'E', post('flash-lite'), 'E'],
+const groups: Array<[name: string, arm: string, dir: string]> = [
+  ['Evaluated, 3.8 Flash', 'A', RUNS_DIR],
+  ['Reordered prompts, 3.8 Flash', 'A', post('layout-attempt')],
+  ['Final code, 3.8 Flash', 'A', post('final-code')],
+  ['Flash-Lite', 'A', post('flash-lite')],
+  ['Evaluated, 3.8 Flash', 'E', RUNS_DIR],
+  ['Flash-Lite', 'E', post('flash-lite')],
 ];
-const rows = groups.map(([name, label, dir, arm]) => {
-  const fs: RunFile[] = readRunFiles(dir).filter((f) => KEYS.includes(f.job.key) && f.job.arm === arm);
-  const scores = fs.map((f) => scoreRun(f, runFileName(f.job)));
-  const avg = (g: (f: RunFile) => number) => fs.reduce((n, f) => n + g(f), 0) / fs.length;
-  const concl = scores.filter((s) => s.expectedOutcome === 'conclusive');
-  const input = avg((f) => f.metrics!.tokens.input ?? 0);
+
+interface Call {
+  role: string;
+  status: string;
+  errorKind: string | null;
+  usage: { input: number | null; cached: number | null } | null;
+}
+const calls = (f: RunFile) => f.events.filter((e) => e.type === 'llm.call').map((e) => e.payload as unknown as Call);
+const round = (n: number, d: number) => Math.round(n * 10 ** d) / 10 ** d;
+
+const rows = groups.map(([name, arm, dir]) => {
+  const fs = readRunFiles(dir).filter((f) => KEYS.includes(f.job.key) && f.job.arm === arm).sort((a, b) => a.job.key.localeCompare(b.job.key));
+  const runs = fs.map((f) => {
+    const s = scoreRun(f, runFileName(f.job));
+    const cs = calls(f);
+    return {
+      key: f.job.key,
+      status: f.status,
+      stopReason: s.stopReason,
+      outcome: s.outcome,
+      expected: s.expectedOutcome,
+      rootCauseCredit: s.rootCauseCredit,
+      evidence: `${s.requiredEvidence.found} of ${s.requiredEvidence.total}`,
+      toolCalls: f.metrics!.toolCalls,
+      modelCalls: cs.filter((c) => c.status === 'ok').length,
+      hungRequests: cs.filter((c) => c.errorKind === 'network').length,
+      latencyS: Math.round((f.metrics!.latencyMs ?? 0) / 1000),
+      inputTokens: f.metrics!.tokens.input ?? 0,
+      cachedTokens: f.metrics!.tokens.cached ?? 0,
+      specialistInput: cs.filter((c) => SPECIALISTS.includes(c.role)).reduce((n, c) => n + (c.usage?.input ?? 0), 0),
+      specialistCached: cs.filter((c) => SPECIALISTS.includes(c.role)).reduce((n, c) => n + (c.usage?.cached ?? 0), 0),
+      synthesisCalls: cs.filter((c) => SYNTHESIS.includes(c.role)).length,
+      synthesisCached: cs.filter((c) => SYNTHESIS.includes(c.role)).reduce((n, c) => n + (c.usage?.cached ?? 0), 0),
+      costUsd: round(f.metrics!.costUsd.total ?? 0, 3),
+    };
+  });
+  const same = runs.filter((r) => LIKE_FOR_LIKE.includes(r.key));
+  const sum = (g: (r: (typeof runs)[number]) => number) => same.reduce((n, r) => n + g(r), 0);
+  const conclusive = runs.filter((r) => r.expected === 'conclusive');
   return {
     name,
-    arm: label,
-    runs: fs.length,
-    rootCause: `${concl.reduce((n, s) => n + (s.rootCauseCredit ?? 0), 0)} / ${concl.length}`,
-    s12: scores.find((s) => s.key === 's12-A')?.correctAbstention ? 'abstained' : 'diagnosed',
-    recall: Math.round((scores.reduce((n, s) => n + (s.requiredEvidence.recall ?? 0), 0) / scores.length) * 100),
-    toolCalls: Math.round(avg((f) => f.metrics!.toolCalls) * 10) / 10,
-    latencyS: Math.round(avg((f) => (f.metrics!.latencyMs ?? 0) / 1000)),
-    inputTokens: Math.round(input),
-    cachedPct: Math.round((avg((f) => f.metrics!.tokens.cached ?? 0) / input) * 100),
-    costUsd: Math.round(avg((f) => f.metrics!.costUsd.total ?? 0) * 1000) / 1000,
-    cases: scores.map((s) => ({ key: s.key, credit: s.rootCauseCredit, outcome: s.outcome, top: s.top })),
+    arm,
+    rootCause: `${conclusive.reduce((n, r) => n + (r.rootCauseCredit ?? 0), 0)} of ${conclusive.length}`,
+    likeForLike: {
+      costUsd: round(sum((r) => r.costUsd) / same.length, 3),
+      inputTokens: Math.round(sum((r) => r.inputTokens) / same.length),
+      cachedPct: round((sum((r) => r.cachedTokens) / sum((r) => r.inputTokens)) * 100, 1),
+      specialistCachedPct: sum((r) => r.specialistInput) ? round((sum((r) => r.specialistCached) / sum((r) => r.specialistInput)) * 100, 1) : null,
+      synthesisCachedTokens: sum((r) => r.synthesisCalls) ? sum((r) => r.synthesisCached) : null,
+      latencyS: Math.round(sum((r) => r.latencyS) / same.length),
+    },
+    runs,
   };
 });
-writeFileSync(join(RESULTS_DIR, 'post-evaluation.json'), JSON.stringify({ scenarios: KEYS, rows }, null, 2) + '\n');
+writeFileSync(join(RESULTS_DIR, 'post-evaluation.json'), JSON.stringify({ scenarios: KEYS, likeForLike: LIKE_FOR_LIKE, rows }, null, 2) + '\n');
+
 const md = [
-  '| Configuration | Arm | Root cause | s12-A | Evidence recall | Tool calls | Latency | Input tokens | Cached | Est. cost per run |',
-  '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
-  ...rows.map((r) => `| ${r.name} | ${r.arm} | ${r.rootCause} | ${r.s12} | ${r.recall}% | ${r.toolCalls} | ${r.latencyS} s | ${r.inputTokens} | ${r.cachedPct}% | $${r.costUsd} |`),
+  '# Post-evaluation comparison (generated)',
+  '',
+  'Generated by `eval/compare-post.ts`. One run per configuration and scenario. Costs at list rates.',
+  '',
+  '## Like for like: s01, s04 and s13',
+  '',
+  '| Configuration | Arm | Root cause (all 3) | Est. cost per run | Input tokens | Cached | Specialist cached | Synthesis cached tokens | Latency |',
+  '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+  ...rows.map((r) => {
+    const l = r.likeForLike;
+    return `| ${r.name} | ${r.arm} | ${r.rootCause} | $${l.costUsd} | ${l.inputTokens} | ${l.cachedPct}% | ${l.specialistCachedPct === null ? 'n/a' : `${l.specialistCachedPct}%`} | ${l.synthesisCachedTokens ?? 'n/a'} | ${l.latencyS} s |`;
+  }),
+  '',
+  '## Every run',
+  '',
+  '| Configuration | Arm | Scenario | Stop reason | Outcome | Root-cause credit | Required evidence | Tool calls | Model calls | Hung requests | Latency | Est. cost |',
+  '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+  ...rows.flatMap((r) => r.runs.map((x) => `| ${r.name} | ${r.arm} | ${x.key} | ${x.stopReason} | ${x.outcome} | ${x.rootCauseCredit ?? 'n/a'} | ${x.evidence} | ${x.toolCalls} | ${x.modelCalls} | ${x.hungRequests} | ${x.latencyS} s | $${x.costUsd} |`)),
+  '',
 ].join('\n');
-writeFileSync(join(RESULTS_DIR, 'post-evaluation.md'), md + '\n');
+writeFileSync(join(RESULTS_DIR, 'post-evaluation.md'), md);
 console.log(md);

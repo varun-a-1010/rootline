@@ -27,6 +27,33 @@ It was built for an AI Engineer take-home assignment ([`docs/assignment.md`](doc
 Hosted demo: `https://rootline.slate-app.online` (recorded runs and evaluation results are open;
 starting a live run needs an access code because it spends real model money).
 
+## Results
+
+Five orchestrations ran once each on 28 synthetic worlds with Gemini 3.8 Flash: 140 scored runs.
+Costs are estimates at list rates; half pricing applied at the time.
+
+| Arm | Root cause (of 24) | Correct abstentions (of 4) | Unsupported diagnoses | Required evidence found | Est. cost per run | Latency |
+| --- | --- | --- | --- | --- | --- | --- |
+| A, split by source | 21.5 | 0 | 3 | 94.6% | $0.51 | 225 s |
+| B, causes first | 21.5 | 0 | 3 | 96.4% | $0.514 | 267 s |
+| C, no critic | 21 | 0 | 3 | 82.1% | $0.324 | 153 s |
+| D, Jev-assisted | 20.5 | 0 | 4 | 96.4% | $0.527 | 259 s |
+| E, single-agent baseline | 20 | 2 | 2 | 96.4% | $0.416 | 220 s |
+
+**The multi-agent design did not clearly beat the single agent.** A gap of 1.5 cases on 24 is
+within noise, and the baseline was cheaper and no slower. **The main weakness is abstention:** on
+scenarios that should end inconclusive, 15 of 20 runs gave a definite diagnosis, and critics
+accepted all ten of those in their arms.
+
+Six of 140 runs failed, all on Vertex problems, and five of those came after concurrency was raised
+from 2 to 4 to finish sooner, so arms B, C and D are somewhat understated. The model judge's metrics
+(claim support, mechanism agreement) were not produced: OpenRouter refused further calls after 26
+of 140 runs.
+
+These numbers come from `eval/results/` and describe commits `129a467` to `b2f6623`. Later commits
+are not covered; [`docs/evaluation.md`](docs/evaluation.md) has the method, the full tables and
+what changed afterwards.
+
 ## Quickstart (no database setup)
 
 Requires Node 22.12+ and npm.
@@ -70,6 +97,9 @@ npm run dev                      # API on :8787 and a Vite dev server with hot r
 | `npm run eval -- --scenarios s01,s02 --variants A,B --arms A,E` | Evaluation runs (resumable, budget-capped) into `eval/runs/` |
 | `npm run eval:summarize` | Regenerate `eval/results/summary.{json,md}` from the recorded runs |
 | `npx tsx eval/judge.ts [--validate]` | Model judge (Jev): validation agreement, then judged metrics |
+| `npx tsx eval/run-health.ts` | Regenerate `eval/results/run-health.{json,md}`: failures, concurrency, cost and cache breakdowns |
+| `npx tsx eval/cache-experiment.ts` | Live test of which request features allow implicit caching |
+| `npx tsx eval/compare-post.ts` | Compare the post-evaluation runs in `eval/runs-post/` with the evaluated code |
 | `npm run llm:check` | One live structured call, one tool loop and one Jev call |
 | `npm run build` / `npm start` / `npm run dev` | Build, serve, develop the web app |
 
