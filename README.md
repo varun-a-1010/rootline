@@ -154,7 +154,9 @@ Details: [`docs/architecture.md`](docs/architecture.md).
 
 - **Vertex AI, Gemini 3.8 Flash** (Google Cloud): every agent and the baseline. Needed for live
   runs and evaluation, not for `npm test`.
-- **OpenRouter, Jev** (`typesafe/jev-1.13`): arm D's decisions and the evaluation judge. Optional.
+- **OpenRouter, Jev** (`typesafe/jev-1.13`): a small decision model that answers typed questions
+  with probabilities. It is used for arm D's screening and grading and as the evaluation judge,
+  why is in [`docs/architecture.md`](docs/architecture.md). Optional.
 - **Agentflow viewer** (hosted at `flow.slate-app.online`): the animated graph that leads the web
   UI's home page, which replays a recorded run for any incident and orchestration, and each run
   view. The rest of the UI works without it.

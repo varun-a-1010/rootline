@@ -154,6 +154,23 @@ thinking level, objective text (`src/agents/prompts/objective.md`) and report sc
 | D. Jev-assisted | the base arm (picked on dev scenarios) plus Jev screening tool output, grading evidence against hypotheses and checking citations, so Flash reads less |
 | E. Single-agent baseline | one agent, all five tools, one sequential tool loop, `submit_report` with the same report schema |
 
+**Why Jev.** Jev (`typesafe/jev-1.13`, through OpenRouter) is a small decision model. You give
+it some material and a set of typed questions (pick one option, yes or no, or a score on a
+scale). It answers with probabilities rather than prose, and handles many questions in one call.
+It had two planned uses:
+
+- **In arm D, the small judgments Gemini would otherwise spend reading time on.** Jev scores each
+  tool record's relevance, so low-relevance records are collapsed; they stay in the ledger and
+  remain citable. It also grades every evidence–hypothesis pair as supporting or contradicting,
+  and flags cited support it does not find supportive.
+- **As the evaluation judge.** It is a different model family from the agents, so Gemini does not
+  grade Gemini.
+
+In the evaluation, arm D made about 5 Jev calls (132 questions) per run. It still cost slightly
+more than its base arm and was no more accurate. The judge agreed with 37 of 40 agent-labeled
+validation items, but stopped after 26 of 140 runs on an OpenRouter billing error. See
+[`evaluation.md`](evaluation.md).
+
 ## State and events
 
 Every change is a typed, zod-validated event with `seq`, `ts`, `runId`, `type`, optional
