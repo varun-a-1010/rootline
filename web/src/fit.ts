@@ -6,6 +6,11 @@
  * right of its node (26 px for the root), so when the columns are narrower than a label, labels on
  * the same row run into each other. requiredWidth() is the frame width at which the widest label
  * fits its column; when the panel is narrower, the viewer is laid out at that width and scaled down.
+ *
+ * This is a workaround for the viewer deployed today. The Agentflow repository has an unlanded
+ * change (its `layout-fit-label-extents` task) that fits label blocks and scales the stage inside
+ * the viewer itself. It keeps the contract version at 1.1.0, so it cannot be detected from here.
+ * Once it is live, delete this fitting; otherwise the deepest runs are shrunk twice.
  */
 export interface FitNode {
   id: string;
