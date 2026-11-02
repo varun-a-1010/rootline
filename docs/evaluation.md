@@ -134,6 +134,34 @@ allowances for unrecorded runs. Inside the $50 budget.
   frozen label accepts only `data_pipeline_failure`, so they scored 0. The fifth got partial
   credit. Fixing the label after seeing results would be tuning the answer key.
 
+### Where the arms differ
+
+From `eval/results/differences.md`, generated from the run files and labels by
+`eval/differences.ts`. 17 of the 28 incidents scored the same in all five arms. On the other 11:
+
+- **Multi-agent ahead of the baseline.** `s06-B`, the held-out SIP double debit, is the clearest
+  case. All four multi-agent arms named the deployment that shortened the debit timeout. The
+  baseline's report saw the timeout mismatch but put the root cause on the bank's latency
+  (`debit-worker / upstream_dependency_degradation`). On `s13-B`, the held-out payout delay where
+  the metrics tool keeps timing out, arms A and B scored and the baseline did not. That is a
+  scoring difference more than a reasoning one: the baseline's report describes the lock (an
+  export job's `FOR UPDATE` query) but files it under `job-scheduler / data_pipeline_failure`.
+  The deterministic score checks component and cause type, and the mechanism judge did not run.
+  On `s05-A` (two causes), arms B and D covered both and the baseline one. Arm C alone was ahead
+  on `s01-B` and `s05-B`.
+- **Baseline ahead:** the two correct abstentions (`s12-A`, `s14-A`), and single arms on `s10-A`
+  (A, half credit), `s07-B` (B, a false abstention), `s02-A` (D, an inconclusive report) and
+  `s06-A` (C, an inconclusive report).
+- **What the critic loop changed.** Comparing each run's first reasoning version with its final
+  report, the top cause changed in 5 runs: `s01-A` and `s02-B` in arm A, `s05-A` in B, `s06-B`
+  and `s10-A` in D. All five went from wrong to right, and no run went the other way. In
+  `s06-B-D` the first version blamed the bank (`bank-connector / upstream_dependency_degradation`),
+  as the baseline's report did, and the follow-up round moved it to the deployment that shortened
+  the timeout. The caveat matters: arm C, which has no critic, got
+  four of those five incidents right in a single round. The loop mostly recovered from a bad
+  first draft rather than reaching answers one round could not, which is why it does not show
+  as an accuracy gain over arm C.
+
 ### Run failures
 
 Six of 140 runs ended `failed`, all from Vertex problems and none from an agent's reasoning.

@@ -45,6 +45,18 @@ within noise, and the baseline was cheaper and no slower. **The main weakness is
 scenarios that should end inconclusive, 15 of 20 runs gave a definite diagnosis, and critics
 accepted all ten of those in their arms.
 
+**Where they differ.** 17 of 28 incidents scored the same in every arm; the other 11 are in
+[`eval/results/differences.md`](eval/results/differences.md). The clearest multi-agent win is
+`s06-B` (SIP double debit, held out). All four multi-agent arms named the deployment that shortened
+the debit timeout. The baseline saw the timeout mismatch but put the root cause on the bank's
+latency. On `s13-B` (payout delay while the metrics tool times out), arms A and B scored and the
+baseline did not. Its report does describe the lock, but files it under the wrong component, and
+the score checks component and cause type rather than the mechanism. The critic loop changed the
+top cause between the first reasoning version and the report in 5 runs, always from wrong to right
+and never the reverse. In `s06-B-D` it moved off the bank explanation. Arm C, with no critic, got
+four of those five incidents right in one round, so the loop mostly recovered from a bad first
+draft rather than adding accuracy. The baseline won both correct abstentions.
+
 Six of 140 runs failed, all on Vertex problems, and five of those came after concurrency was raised
 from 2 to 4 to finish sooner, so arms B, C and D are somewhat understated. The model judge's metrics
 (claim support, mechanism agreement) were not produced: OpenRouter refused further calls after 26
@@ -98,6 +110,7 @@ npm run dev                      # API on :8787 and a Vite dev server with hot r
 | `npm run eval:summarize` | Regenerate `eval/results/summary.{json,md}` from the recorded runs |
 | `npx tsx eval/judge.ts [--validate]` | Model judge (Jev): validation agreement, then judged metrics |
 | `npx tsx eval/run-health.ts` | Regenerate `eval/results/run-health.{json,md}`: failures, concurrency, cost and cache breakdowns |
+| `npx tsx eval/differences.ts` | Regenerate `eval/results/differences.{json,md}`: what the critic loop changed, and every incident where the arms disagree |
 | `npx tsx eval/cache-experiment.ts` | Live test of which request features allow implicit caching |
 | `npx tsx eval/compare-post.ts` | Compare the post-evaluation runs in `eval/runs-post/` with the evaluated code |
 | `npm run llm:check` | One live structured call, one tool loop and one Jev call |

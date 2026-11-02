@@ -1,0 +1,519 @@
+{
+  "generatedBy": "eval/differences.ts",
+  "definitions": {
+    "criticChange": "Conclusive incidents only. The top hypothesis of the first reasoning version is compared with the top hypothesis of the final report, against the label (component and cause type, as in root-cause scoring). A change needs a second reasoning version, which only a critic follow-up round produces; arm C has no critic. The baseline (E) has no separate reasoning versions.",
+    "disagreement": "An incident on which the five arms did not all score the same: root-cause credit for conclusive incidents, a correct abstention for inconclusive ones."
+  },
+  "criticChange": {
+    "A": {
+      "runs": 24,
+      "wrongToRight": 2,
+      "rightToWrong": 0,
+      "stayedRight": 20,
+      "stayedWrong": 2,
+      "fixed": [
+        "s01-A",
+        "s02-B"
+      ],
+      "broken": []
+    },
+    "B": {
+      "runs": 20,
+      "wrongToRight": 1,
+      "rightToWrong": 0,
+      "stayedRight": 18,
+      "stayedWrong": 1,
+      "fixed": [
+        "s05-A"
+      ],
+      "broken": []
+    },
+    "C": {
+      "runs": 23,
+      "wrongToRight": 0,
+      "rightToWrong": 0,
+      "stayedRight": 21,
+      "stayedWrong": 2,
+      "fixed": [],
+      "broken": []
+    },
+    "D": {
+      "runs": 21,
+      "wrongToRight": 2,
+      "rightToWrong": 0,
+      "stayedRight": 18,
+      "stayedWrong": 1,
+      "fixed": [
+        "s06-B",
+        "s10-A"
+      ],
+      "broken": []
+    }
+  },
+  "criticChangeRuns": [
+    {
+      "file": "s01-A-A-r1.json",
+      "key": "s01-A",
+      "arm": "A",
+      "split": "dev",
+      "reasoningVersions": 2,
+      "criticRounds": 2,
+      "first": "job-scheduler / data_pipeline_failure",
+      "final": "market-data-service / data_pipeline_failure",
+      "change": "wrong_to_right"
+    },
+    {
+      "file": "s02-B-A-r1.json",
+      "key": "s02-B",
+      "arm": "A",
+      "split": "heldout",
+      "reasoningVersions": 2,
+      "criticRounds": 2,
+      "first": "llm-provider / upstream_dependency_degradation",
+      "final": "llm-provider / rate_limiting_or_quota",
+      "change": "wrong_to_right"
+    },
+    {
+      "file": "s05-A-B-r1.json",
+      "key": "s05-A",
+      "arm": "B",
+      "split": "heldout",
+      "reasoningVersions": 2,
+      "criticRounds": 2,
+      "first": "user-context-service / upstream_dependency_degradation",
+      "final": "user-context-service / capacity_saturation",
+      "change": "wrong_to_right"
+    },
+    {
+      "file": "s06-B-D-r1.json",
+      "key": "s06-B",
+      "arm": "D",
+      "split": "heldout",
+      "reasoningVersions": 2,
+      "criticRounds": 2,
+      "first": "bank-connector / upstream_dependency_degradation",
+      "final": "debit-worker / retry_or_idempotency_bug",
+      "change": "wrong_to_right"
+    },
+    {
+      "file": "s10-A-D-r1.json",
+      "key": "s10-A",
+      "arm": "D",
+      "split": "heldout",
+      "reasoningVersions": 2,
+      "criticRounds": 2,
+      "first": "order-service / capacity_saturation",
+      "final": "order-service / config_change",
+      "change": "wrong_to_right"
+    }
+  ],
+  "disagreements": [
+    {
+      "key": "s01-B",
+      "split": "heldout",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "market-data-service / capacity_saturation"
+        },
+        "B": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "market-data-service / capacity_saturation"
+        },
+        "C": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "job-scheduler / data_pipeline_failure"
+        },
+        "D": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "market-data-service / capacity_saturation"
+        },
+        "E": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "market-data-service / capacity_saturation"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [
+        "C"
+      ],
+      "multiAgentArmsWorseThanBaseline": []
+    },
+    {
+      "key": "s02-A",
+      "split": "dev",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "llm-provider / rate_limiting_or_quota"
+        },
+        "B": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "llm-provider / rate_limiting_or_quota"
+        },
+        "C": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "llm-provider / rate_limiting_or_quota"
+        },
+        "D": {
+          "value": 0,
+          "outcome": "inconclusive",
+          "top": "assistant-orchestrator / rate_limiting_or_quota"
+        },
+        "E": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "llm-provider / rate_limiting_or_quota"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [],
+      "multiAgentArmsWorseThanBaseline": [
+        "D"
+      ]
+    },
+    {
+      "key": "s05-A",
+      "split": "heldout",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "user-context-service / cache_or_staleness"
+        },
+        "B": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "user-context-service / capacity_saturation"
+        },
+        "C": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "user-context-service / cache_or_staleness"
+        },
+        "D": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "user-context-service / cache_or_staleness"
+        },
+        "E": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "user-context-service / capacity_saturation"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [
+        "B",
+        "D"
+      ],
+      "multiAgentArmsWorseThanBaseline": []
+    },
+    {
+      "key": "s05-B",
+      "split": "heldout",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "user-context-service / cache_or_staleness"
+        },
+        "B": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "user-context-service / cache_or_staleness"
+        },
+        "C": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "user-context-service / cache_or_staleness"
+        },
+        "D": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "user-context-service / cache_or_staleness"
+        },
+        "E": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "user-context-service / cache_or_staleness"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [
+        "C"
+      ],
+      "multiAgentArmsWorseThanBaseline": []
+    },
+    {
+      "key": "s06-A",
+      "split": "dev",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "debit-worker / config_change"
+        },
+        "B": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "debit-worker / retry_or_idempotency_bug"
+        },
+        "C": {
+          "value": 0,
+          "outcome": "inconclusive",
+          "top": "debit-worker / retry_or_idempotency_bug"
+        },
+        "D": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "debit-worker / config_change"
+        },
+        "E": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "debit-worker / config_change"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [],
+      "multiAgentArmsWorseThanBaseline": [
+        "C"
+      ]
+    },
+    {
+      "key": "s06-B",
+      "split": "heldout",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "debit-worker / retry_or_idempotency_bug"
+        },
+        "B": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "debit-worker / retry_or_idempotency_bug"
+        },
+        "C": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "debit-worker / retry_or_idempotency_bug"
+        },
+        "D": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "debit-worker / retry_or_idempotency_bug"
+        },
+        "E": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "debit-worker / upstream_dependency_degradation"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "multiAgentArmsWorseThanBaseline": []
+    },
+    {
+      "key": "s07-B",
+      "split": "heldout",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "indexing-pipeline / data_pipeline_failure"
+        },
+        "B": {
+          "value": 0,
+          "outcome": "inconclusive",
+          "top": "job-scheduler / data_pipeline_failure"
+        },
+        "C": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "job-scheduler / data_pipeline_failure"
+        },
+        "D": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "indexing-pipeline / data_pipeline_failure"
+        },
+        "E": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "job-scheduler / config_change"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [],
+      "multiAgentArmsWorseThanBaseline": [
+        "B"
+      ]
+    },
+    {
+      "key": "s10-A",
+      "split": "heldout",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 0.5,
+          "outcome": "conclusive",
+          "top": "order-service / capacity_saturation"
+        },
+        "B": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "order-service / config_change"
+        },
+        "C": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "order-service / config_change"
+        },
+        "D": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "order-service / config_change"
+        },
+        "E": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "order-service / config_change"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [],
+      "multiAgentArmsWorseThanBaseline": [
+        "A"
+      ]
+    },
+    {
+      "key": "s12-A",
+      "split": "dev",
+      "expectedOutcome": "inconclusive",
+      "arms": {
+        "A": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "sms-provider / upstream_dependency_degradation"
+        },
+        "B": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "sms-provider / upstream_dependency_degradation"
+        },
+        "C": {
+          "value": 0,
+          "outcome": "inconclusive",
+          "top": "sms-provider / upstream_dependency_degradation"
+        },
+        "D": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "sms-provider / upstream_dependency_degradation"
+        },
+        "E": {
+          "value": 1,
+          "outcome": "inconclusive",
+          "top": "auth-service / infrastructure_failure"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [],
+      "multiAgentArmsWorseThanBaseline": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "key": "s13-B",
+      "split": "heldout",
+      "expectedOutcome": "conclusive",
+      "arms": {
+        "A": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "database / capacity_saturation"
+        },
+        "B": {
+          "value": 1,
+          "outcome": "conclusive",
+          "top": "database / capacity_saturation"
+        },
+        "C": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "database / data_pipeline_failure"
+        },
+        "D": {
+          "value": 0,
+          "outcome": "inconclusive",
+          "top": "database / capacity_saturation"
+        },
+        "E": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "job-scheduler / data_pipeline_failure"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [
+        "A",
+        "B"
+      ],
+      "multiAgentArmsWorseThanBaseline": []
+    },
+    {
+      "key": "s14-A",
+      "split": "heldout",
+      "expectedOutcome": "inconclusive",
+      "arms": {
+        "A": {
+          "value": 0,
+          "outcome": "inconclusive",
+          "top": "kyc-service / upstream_dependency_degradation"
+        },
+        "B": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "kyc-agency / upstream_dependency_degradation"
+        },
+        "C": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "kyc-service / upstream_dependency_degradation"
+        },
+        "D": {
+          "value": 0,
+          "outcome": "conclusive",
+          "top": "kyc-agency / upstream_dependency_degradation"
+        },
+        "E": {
+          "value": 1,
+          "outcome": "inconclusive",
+          "top": "kyc-service / upstream_dependency_degradation"
+        }
+      },
+      "multiAgentArmsBetterThanBaseline": [],
+      "multiAgentArmsWorseThanBaseline": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    }
+  ]
+}

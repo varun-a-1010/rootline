@@ -53,8 +53,11 @@ button:disabled { opacity: 0.5; cursor: default; }
 input, select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); font-size: 13px; }
 .flow-wrap { position: relative; width: 100%; height: 460px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); overflow: hidden; }
 .flow-wrap.big { height: min(76vh, 820px); min-height: 520px; }
+.flow-wrap:fullscreen { width: 100vw; height: 100vh; border: 0; border-radius: 0; }
 /* fit.ts may lay the viewer out wider than the panel and scale it down from the top-left corner. */
 .flow { display: block; width: 100%; height: 100%; border: 0; transform-origin: 0 0; }
+.flow-fs { position: absolute; top: 10px; right: 10px; z-index: 2; font-size: 12px; padding: 4px 10px; background: rgba(15, 17, 21, 0.72); color: #e7e5e0; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 6px; }
+.flow-fs:hover { background: rgba(15, 17, 21, 0.92); }
 .picker { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 4px 0 8px; }
 .picker label { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
 .picker select { font-size: 14px; max-width: min(560px, 90vw); }
