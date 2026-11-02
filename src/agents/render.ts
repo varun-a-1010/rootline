@@ -84,6 +84,14 @@ export function renderFindings(s: RunState): string {
   return out.join('\n') || '(no specialist findings)';
 }
 
+/**
+ * The stable opening of every synthesis prompt. Implicit caching matches on a shared prefix, so
+ * the append-only ledger comes first and anything that changes between calls comes after it.
+ */
+export function renderSharedContext(ctx: RunContext, s: RunState): string {
+  return [renderIncident(ctx.incident), '', 'Evidence ledger:', renderLedger(Object.values(s.evidence), 1400, ctx.collapsedEvidence), '', 'Specialist findings:', renderFindings(s)].join('\n');
+}
+
 export function renderHypotheses(hs: Hypothesis[]): string {
   if (hs.length === 0) return '(none yet)';
   return hs

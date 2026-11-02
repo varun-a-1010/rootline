@@ -36,7 +36,7 @@ export const EnvSchema = z.object({
   // server
   ROOTLINE_ACCESS_CODE: z.string().optional(),
   ROOTLINE_RUNS_PER_IP_PER_HOUR: int(3),
-  ROOTLINE_RUNS_PER_DAY: int(40),
+  ROOTLINE_RUNS_PER_DAY: int(10),
   ROOTLINE_FLOW_VIEWER_URL: z.string().url().default('https://flow.slate-app.online'),
 });
 export type Env = z.infer<typeof EnvSchema>;

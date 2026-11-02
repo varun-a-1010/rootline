@@ -40,7 +40,7 @@ export const QueryLogsInput = z.object({
     .describe(
       'If set, return counts of matching lines grouped by this attribute (top 25) instead of the lines. "message" groups by message template (numbers and ids masked).',
     ),
-  limit: z.number().int().min(1).max(100).optional().describe('Page size, max 100 (default 50).'),
+  limit: z.number().int().min(1).max(100).optional().describe('Page size, max 100 (default 25).'),
   order: z.enum(['asc', 'desc']).optional().describe('Time order (default asc).'),
   cursor: z.string().max(200).optional().describe('nextCursor from a previous page of the same query.'),
 });
@@ -52,7 +52,7 @@ export const QueryMetricsInput = z.object({
   metric: z.string().min(2).max(60).describe('Metric name, e.g. error_rate. Unknown names return the available list.'),
   from: IsoTime.describe('Start of the time range (inclusive).'),
   to: IsoTime.describe('End of the time range (exclusive).'),
-  resolution: Resolution.optional().describe('Bucket size. Default: the finest that keeps the series within 120 points. At most 360 points per series.'),
+  resolution: Resolution.optional().describe('Bucket size. Default: the finest that keeps the series within 60 points. At most 360 points per series.'),
   aggregation: z.enum(['avg', 'min', 'max']).optional().describe('How points are combined within a bucket (default avg). Count metrics are per-minute rates.'),
   group_by: z.string().max(40).optional().describe('Label to split the series by (e.g. bank, route). Without it you get the overall series.'),
 });

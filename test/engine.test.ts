@@ -187,6 +187,13 @@ describe('termination reasons and the honesty rule', () => {
 });
 
 describe('failure recovery', () => {
+  it('a failed plan call falls back to the default plan and the run still investigates', async () => {
+    const r = await run('A', brain({ failRole: 'orchestrator', criticDecisions: ['accept'] }));
+    expect(r.state.planFallback).toBe(true);
+    expect(r.state.toolResults.length).toBeGreaterThan(0);
+    expect(r.state.stopReason).toBe('critic_accepted');
+  });
+
   it('a failed specialist leaves a failed task and a gap; reasoning still runs on what exists', async () => {
     const r = await run('A', brain({ failRole: 'observability', criticDecisions: ['accept'] }));
     const obs = Object.values(r.state.tasks).filter((t) => t.role === 'observability' && t.round === 0);

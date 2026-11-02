@@ -67,6 +67,18 @@ describe('Vertex Gemini provider (3.8 Flash contract)', () => {
     expect(r.functionCalls).toEqual([{ id: 'call_1', name: 'query_logs', args: { services: ['a'] } }]);
   });
 
+  it('restricts allowed functions without changing the declarations', async () => {
+    const bodies: Record<string, any>[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (_u: string, init: RequestInit) => {
+      bodies.push(JSON.parse(String(init.body)));
+      return okBody([{ functionCall: { name: 'submit', args: {} } }], { promptTokenCount: 1 });
+    }));
+    const tools = [{ name: 'a', description: 'd', parameters: { type: 'OBJECT' as const } }, { name: 'submit', description: 'd', parameters: { type: 'OBJECT' as const } }];
+    await vertex().generate({ role: 'x', system: 's', contents: [], tools, toolMode: 'ANY', allowedFunctions: ['submit'], thinkingLevel: 'low', signal });
+    expect(bodies[0]!.tools[0].functionDeclarations).toHaveLength(2);
+    expect(bodies[0]!.toolConfig.functionCallingConfig).toEqual({ mode: 'ANY', allowedFunctionNames: ['submit'] });
+  });
+
   it('refuses to mix responseSchema with tools', async () => {
     await expect(vertex().generate({ role: 'x', system: 's', contents: [], responseSchema: { type: 'OBJECT' }, tools: [{ name: 't', description: 'd', parameters: { type: 'OBJECT' } }], thinkingLevel: 'low', signal })).rejects.toMatchObject({ kind: 'bad_request' });
   });

@@ -3,8 +3,8 @@ import { checkCitations } from '../engine/citations.js';
 import type { RunContext } from '../engine/context.js';
 import type { EvidenceLedger } from '../engine/ledger.js';
 import { latestHypotheses, type RunState } from '../engine/run-state.js';
-import { systemPrompt } from './prompts.js';
-import { istLabel, renderFindings, renderHypotheses, renderIncident, renderLedger, renderToolFailures } from './render.js';
+import { prompt } from './prompts.js';
+import { istLabel, renderHypotheses, renderSharedContext, renderToolFailures } from './render.js';
 
 const BUDGET_STOPS: StopReason[] = ['budget_tool_calls', 'budget_llm_calls', 'budget_tokens', 'deadline', 'max_rounds', 'no_new_evidence', 'unrecoverable_error'];
 
@@ -13,7 +13,7 @@ export async function runReporting(ctx: RunContext, task: TaskSpec, signal: Abor
   const stopReason = ctx.stopReason ?? 'completed';
   const lastCritic = s.criticDecisions[s.criticDecisions.length - 1];
   const text = [
-    renderIncident(ctx.incident),
+    renderSharedContext(ctx, s),
     '',
     `The investigation stopped: ${stopReason}.${lastCritic ? ` Last critic decision (round ${lastCritic.round}): ${lastCritic.decision} — ${lastCritic.rationale}` : ' No critic reviewed this investigation.'}`,
     ...(lastCritic ? lastCritic.objections.map((o) => `- open objection to ${o.hypothesisId} (${o.type}): ${o.detail}`) : []),
@@ -21,18 +21,14 @@ export async function runReporting(ctx: RunContext, task: TaskSpec, signal: Abor
     'Final hypotheses:',
     renderHypotheses(latestHypotheses(s)),
     '',
-    'Specialist findings:',
-    renderFindings(s),
-    '',
     'Tool calls that failed (gaps):',
     renderToolFailures(s),
     '',
-    'Evidence ledger:',
-    renderLedger(Object.values(s.evidence), 900, ctx.collapsedEvidence),
+    prompt('reporting'),
     '',
     'Write the final report.',
   ].join('\n');
-  const body = await ctx.structured(task.id, 'report', { role: 'reporting', system: systemPrompt('reporting'), contents: [{ role: 'user', parts: [{ text }] }] }, ReportBody, signal);
+  const body = await ctx.structured(task.id, 'report', { role: 'reporting', system: prompt('objective'), contents: [{ role: 'user', parts: [{ text }] }] }, ReportBody, signal);
   ctx.log.emit('agent.output', { role: 'reporting', kind: 'report', output: body }, task.id);
   const report = finalizeReport(ctx, task.id, s, body, stopReason, 'reporting_agent');
   ctx.log.emit('report.ready', { report, markdown: renderMarkdown(report, s) }, task.id);

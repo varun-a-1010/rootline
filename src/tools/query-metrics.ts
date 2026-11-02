@@ -5,7 +5,7 @@ import { ToolInputError, type ToolContext, type ToolDef, type ToolOutput } from 
 
 const RES_SECONDS = { '1m': 60, '5m': 300, '15m': 900, '1h': 3600 } as const;
 type Res = keyof typeof RES_SECONDS;
-const DEFAULT_MAX_POINTS = 120;
+const DEFAULT_MAX_POINTS = 60;
 const HARD_MAX_POINTS = 360;
 
 interface Series {

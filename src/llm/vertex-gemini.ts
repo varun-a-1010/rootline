@@ -76,7 +76,7 @@ export class VertexGeminiProvider implements LlmProvider {
         ...(req.maxOutputTokens ? { maxOutputTokens: req.maxOutputTokens } : {}),
       },
       ...(req.tools?.length
-        ? { tools: [{ functionDeclarations: req.tools }], toolConfig: { functionCallingConfig: { mode: req.toolMode ?? 'AUTO' } } }
+        ? { tools: [{ functionDeclarations: req.tools }], toolConfig: { functionCallingConfig: { mode: req.toolMode ?? 'AUTO', ...(req.allowedFunctions ? { allowedFunctionNames: req.allowedFunctions } : {}) } } }
         : {}),
     };
     const started = Date.now();

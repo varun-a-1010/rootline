@@ -211,7 +211,8 @@ export async function runInvestigation(o: RunOptions): Promise<RunResult> {
       const reportTask: TaskSpec = { id: ctx.nextTaskId(), role: 'reporting', question: 'Write the final investigation report', scope: null, dependsOn: [], round: 0, origin: 'system', rationale: null, discriminates: [], requestedCall: null };
       log.emit('task.scheduled', reportTask, reportTask.id);
       log.emit('task.started', { role: 'reporting', attempt: 1 }, reportTask.id);
-      const grace = AbortSignal.timeout(o.reportGraceMs ?? 120_000);
+      // Tight only after a deadline; otherwise long enough for three attempts on a hung request.
+      const grace = AbortSignal.timeout(o.reportGraceMs ?? (stopReason === 'deadline' ? 120_000 : 300_000));
       try {
         report = await runReporting(ctx, reportTask, grace);
         log.emit('task.completed', { role: 'reporting', summary: `${report.outcome}: ${report.rootCauseStatement.slice(0, 300)}`, hadGaps: report.gaps.length > 0 }, reportTask.id);

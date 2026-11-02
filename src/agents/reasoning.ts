@@ -2,8 +2,8 @@ import { CandidatesOutput, ReasoningOutput, type Hypothesis, type TaskSpec } fro
 import { checkCitations } from '../engine/citations.js';
 import type { RunContext } from '../engine/context.js';
 import { latestHypotheses } from '../engine/run-state.js';
-import { systemPrompt } from './prompts.js';
-import { renderBudget, renderCatalog, renderDependencies, renderFindings, renderHypotheses, renderIncident, renderLedger, renderToolFailures } from './render.js';
+import { prompt, systemPrompt } from './prompts.js';
+import { renderBudget, renderCatalog, renderDependencies, renderHypotheses, renderIncident, renderSharedContext, renderToolFailures } from './render.js';
 
 /** Arm B: candidate causes from the report and catalog alone, before any tool call. */
 export async function proposeCandidates(ctx: RunContext, task: TaskSpec): Promise<CandidatesOutput> {
@@ -31,7 +31,7 @@ export async function runReasoning(ctx: RunContext, task: TaskSpec, extras?: Rea
   const lastCritic = s.criticDecisions[s.criticDecisions.length - 1];
   const candidates = s.candidates;
   const text = [
-    renderIncident(ctx.incident),
+    renderSharedContext(ctx, s),
     '',
     `Reasoning round ${task.round}. ${renderBudget(ctx)}`,
     ...(candidates && previous.length === 0
@@ -44,19 +44,15 @@ export async function runReasoning(ctx: RunContext, task: TaskSpec, extras?: Rea
       ? ['', `Critic (round ${lastCritic.round}) decided ${lastCritic.decision}: ${lastCritic.rationale}`, ...lastCritic.objections.map((o) => `- objection to ${o.hypothesisId} (${o.type}): ${o.detail}`)]
       : []),
     '',
-    'Specialist findings:',
-    renderFindings(s),
-    '',
     'Tool calls that failed (gaps, not evidence):',
     renderToolFailures(s),
     ...(extras ? ['', extras(ctx)] : []),
     '',
-    'Evidence ledger:',
-    renderLedger(Object.values(s.evidence), 1400, ctx.collapsedEvidence),
+    prompt('reasoning'),
     '',
     'Produce the ranked hypotheses.',
   ].join('\n');
-  const out = await ctx.structured(task.id, 'synthesis', { role: 'reasoning', system: systemPrompt('reasoning'), contents: [{ role: 'user', parts: [{ text }] }] }, ReasoningOutput);
+  const out = await ctx.structured(task.id, 'synthesis', { role: 'reasoning', system: prompt('objective'), contents: [{ role: 'user', parts: [{ text }] }] }, ReasoningOutput);
   if (out.hypotheses.length === 0) throw new Error('reasoning returned no hypotheses');
   const hypotheses = out.hypotheses
     .map((h) => sanitizeHypothesis(ctx, task, h))

@@ -77,7 +77,7 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
     if (ctx.signal.aborted && !grace && !deadlineFinal()) throw new LlmError('aborted', 'run aborted');
     if (grace) {
       turns += 1;
-      const res = await ctx.generate(spec.task.id, 'report', { role: spec.agent, system: spec.system, contents, tools: [terminalDecl], toolMode: 'ANY' }, grace);
+      const res = await ctx.generate(spec.task.id, 'report', { role: spec.agent, system: spec.system, contents, tools: decls, toolMode: 'ANY', allowedFunctions: [spec.terminal.name] }, grace);
       const call = res.functionCalls.find((c) => c.name === spec.terminal.name);
       const parsed = call ? spec.terminal.schema.safeParse(call.args) : null;
       if (parsed?.success) return { output: parsed.data, toolCalls, turns, failure: null, outOfBudget: false };
@@ -101,8 +101,10 @@ export async function runToolLoop<T>(ctx: RunContext, spec: LoopSpec<T>): Promis
         role: spec.agent,
         system: spec.system,
         contents,
-        tools: final ? [terminalDecl] : decls,
+        tools: decls,
         toolMode: 'ANY',
+        // Same declarations every turn: changing them would miss the cache on the largest call.
+        ...(final ? { allowedFunctions: [spec.terminal.name] } : {}),
       });
     } catch (e) {
       if (ctx.signal.aborted && deadlineFinal()) continue;

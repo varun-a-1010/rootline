@@ -40,7 +40,7 @@ export const queryLogs: ToolDef<QueryLogsInput> = {
       contains: input.contains?.trim().toLowerCase(),
       where: input.where ? [...input.where].sort((a, b) => a.field.localeCompare(b.field)) : undefined,
       count_by: input.count_by,
-      limit: input.count_by ? undefined : (input.limit ?? 50),
+      limit: input.count_by ? undefined : (input.limit ?? 25),
       order: input.count_by ? undefined : (input.order ?? 'asc'),
       cursor: input.cursor,
     };

@@ -14,6 +14,7 @@ export interface RateCard {
 
 export const RATES: Record<string, RateCard> = {
   'gemini-3.8-flash': { inputPerM: 1.5, outputPerM: 7.5, cachedInputPerM: 0.15 },
+  'gemini-3.5-flash-lite': { inputPerM: 0.3, outputPerM: 2.5, cachedInputPerM: 0.03 },
   'typesafe/jev-1.13': { inputPerM: 0.042, outputPerM: 0, cachedInputPerM: 0.042 },
   'typesafe/jev-1.14': { inputPerM: 0.042, outputPerM: 0, cachedInputPerM: 0.042 },
   'scripted-flash': { inputPerM: 1.5, outputPerM: 7.5, cachedInputPerM: 0.15 },

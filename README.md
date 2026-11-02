@@ -93,7 +93,7 @@ npm run dev                      # API on :8787 and a Vite dev server with hot r
 | `ROOTLINE_EVAL_CONCURRENCY` / `ROOTLINE_EVAL_MAX_USD` | 2 / 50 | Evaluation concurrency and spending cap |
 | `PORT` | 8787 | HTTP port |
 | `ROOTLINE_ACCESS_CODE` | (optional) | Required to start live runs from the web app when set |
-| `ROOTLINE_RUNS_PER_IP_PER_HOUR` / `ROOTLINE_RUNS_PER_DAY` | 3 / 40 | Live-run limits |
+| `ROOTLINE_RUNS_PER_IP_PER_HOUR` / `ROOTLINE_RUNS_PER_DAY` | 3 / 10 | Live-run limits |
 | `ROOTLINE_FLOW_VIEWER_URL` | `https://flow.slate-app.online` | Agentflow viewer embedded in the run view |
 
 ## How it works (short)

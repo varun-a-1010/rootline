@@ -74,6 +74,8 @@ export interface GenerateRequest {
   tools?: FunctionDeclaration[];
   /** ANY forces a function call every turn. */
   toolMode?: 'AUTO' | 'ANY';
+  /** Restrict which declared functions may be called, keeping the tool list (and cache) intact. */
+  allowedFunctions?: string[];
   thinkingLevel: ThinkingLevel;
   maxOutputTokens?: number;
   signal: AbortSignal;

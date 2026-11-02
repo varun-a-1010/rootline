@@ -37,12 +37,17 @@ export async function planInvestigation(ctx: RunContext, planTask: TaskSpec, can
       ],
     },
   ];
+  let reason = 'the model plan was invalid after one repair';
   for (let attempt = 1; attempt <= 2; attempt++) {
     let out: PlanOutput;
     try {
       out = await ctx.structured(planTask.id, 'synthesis', { role: 'orchestrator', system: systemPrompt('orchestrator'), contents }, PlanOutput);
     } catch (e) {
-      if (e instanceof LlmError && e.kind === 'invalid_output') break;
+      // Any model failure (bad output, quota, hung request): the default plan still investigates.
+      if (e instanceof LlmError && e.kind !== 'aborted') {
+        reason = e.kind === 'invalid_output' ? reason : `the plan call failed (${e.kind})`;
+        break;
+      }
       throw e;
     }
     ctx.log.emit('plan.proposed', { ...out, attempt }, planTask.id);
@@ -56,7 +61,7 @@ export async function planInvestigation(ctx: RunContext, planTask: TaskSpec, can
     contents.push({ role: 'model', parts: [{ text: JSON.stringify(out) }] }, { role: 'user', parts: [{ text: `The plan failed validation:\n- ${errors.join('\n- ')}\nReturn a corrected plan.` }] });
   }
   const tasks = defaultPlan(ctx, planTask, nextId);
-  ctx.log.emit('plan.fallback', { reason: 'the model plan was invalid after one repair', tasks }, planTask.id);
+  ctx.log.emit('plan.fallback', { reason, tasks }, planTask.id);
   return tasks;
 }
 

@@ -3,8 +3,8 @@ import { checkCitations } from '../engine/citations.js';
 import type { RunContext } from '../engine/context.js';
 import { latestHypotheses } from '../engine/run-state.js';
 import { criticChecks } from './critic-checks.js';
-import { systemPrompt } from './prompts.js';
-import { renderBudget, renderHypotheses, renderIncident, renderLedger, renderToolFailures } from './render.js';
+import { prompt } from './prompts.js';
+import { renderBudget, renderHypotheses, renderSharedContext, renderToolFailures } from './render.js';
 
 export type CriticExtras = (ctx: RunContext) => string;
 
@@ -18,7 +18,7 @@ export async function runCritic(ctx: RunContext, task: TaskSpec, extras?: Critic
   const lastRound = task.round + 1 >= maxRounds;
   const executed = s.toolResults.map((r) => `- ${r.tool} ${JSON.stringify(r.canonical)} -> ${r.status}${r.evidenceId ? ` (${r.evidenceId})` : ''}`);
   const text = [
-    renderIncident(ctx.incident),
+    renderSharedContext(ctx, s),
     '',
     `Critique round ${task.round + 1} of at most ${maxRounds}.${lastRound ? ' This is the last round: follow-ups will not run, so decide between accept and insufficient_evidence.' : ''} ${renderBudget(ctx)}`,
     '',
@@ -35,12 +35,11 @@ export async function runCritic(ctx: RunContext, task: TaskSpec, extras?: Critic
     'Queries already executed (do not repeat them):',
     executed.join('\n') || '(none)',
     '',
-    'Evidence ledger:',
-    renderLedger(Object.values(s.evidence), 1400, ctx.collapsedEvidence),
+    prompt('critic'),
     '',
     'Decide.',
   ].join('\n');
-  const out = await ctx.structured(task.id, 'synthesis', { role: 'critic', system: systemPrompt('critic'), contents: [{ role: 'user', parts: [{ text }] }] }, CriticOutput);
+  const out = await ctx.structured(task.id, 'synthesis', { role: 'critic', system: prompt('objective'), contents: [{ role: 'user', parts: [{ text }] }] }, CriticOutput);
   const objections = out.objections.map((o) => {
     const { valid, invalid } = checkCitations(o.evidenceIds, ctx.ledger);
     for (const id of invalid) ctx.log.emit('citation.invalid', { agent: 'critic', evidenceId: id, context: `objection to ${o.hypothesisId}` }, task.id);
