@@ -204,7 +204,9 @@ So every arm and the baseline meet exactly the same faults for the same logical 
 
 ## Agentflow view
 
-The run view embeds the separately hosted Agentflow viewer. `src/flow/agentflow.ts` maps the
+The home page and the run view embed the separately hosted Agentflow viewer. The home page
+replays a recorded evaluation run for the chosen incident and orchestration, with its graded
+outcome from `eval/results/summary.json`; it starts no model calls. `src/flow/agentflow.ts` maps the
 event log to viewer nodes (live `flow:sync` snapshots; `flow:replay` built from recorded event
 timestamps, compressed to about 60 s when a run took longer than 90 s, with the factor shown).
 Rounds become new nodes because the viewer has no cycles. The viewer is a visualization, not a

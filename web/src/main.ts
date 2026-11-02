@@ -49,44 +49,97 @@ async function route(): Promise<void> {
   }
 }
 
-// ------------------------------------------------------------------------------ incidents
+// ------------------------------------------------------------------------------ home: watch a recorded run
 
 let selectedArm = 'A';
 let selectedWorld: string | null = null;
 
+/** Grade a recorded run against its answer key, from eval/results/summary.json. */
+function grade(c: Any): string {
+  if (!c) return '';
+  if (c.expectedOutcome === 'inconclusive') return c.correctAbstention ? badge('correctly inconclusive', 'ok') : badge('should have been inconclusive', 'bad');
+  if (c.rootCauseCredit === 1) return badge('right root cause', 'ok');
+  if (c.rootCauseCredit) return badge(`partly right (${c.rootCauseCredit})`, 'warn');
+  return badge('wrong root cause', 'bad');
+}
+
 async function incidentsPage(): Promise<void> {
-  const [incidents, recent] = await Promise.all([api('/api/incidents'), api('/api/runs').catch(() => [])]);
+  const [incidents, recorded, summary, recent] = await Promise.all([
+    api('/api/incidents'),
+    api('/api/eval/runs').catch(() => []),
+    api('/api/eval/summary').catch(() => null),
+    api('/api/runs').catch(() => []),
+  ]);
   selectedWorld ??= incidents[0]?.worldId ?? null;
-  const rows = incidents
-    .map(
-      (i: Any) =>
-        `<tr class="click" data-w="${i.worldId}"><td><input type="radio" name="w" ${i.worldId === selectedWorld ? 'checked' : ''}></td><td>${esc(i.key ?? '')}</td><td>${esc(i.split ?? '')}</td><td><b>${esc(i.incident.title)}</b><div class="muted small">${esc(i.incident.summary)}</div></td><td>${esc(i.incident.severity)}</td><td class="small">${esc(i.incident.reportedBy)}</td></tr>`,
-    )
+  const incidentOptions = incidents
+    .map((i: Any) => `<option value="${esc(i.worldId)}" ${i.worldId === selectedWorld ? 'selected' : ''}>${esc(i.key ?? '')} · ${esc(i.incident.title)}</option>`)
     .join('');
-  const arms = config.arms
-    .map((a: Any) => `<div class="arm ${a.id === selectedArm ? 'sel' : ''}" data-arm="${a.id}"><b>${a.id}. ${esc(a.title)}</b><div class="muted small">${esc(a.description)}</div></div>`)
-    .join('');
+  const armOptions = config.arms.map((a: Any) => `<option value="${esc(a.id)}" ${a.id === selectedArm ? 'selected' : ''}>${esc(a.id)}. ${esc(a.title)}</option>`).join('');
   const recentRows = recent
     .map((r: Any) => `<tr class="click" data-run="${r.run_id}"><td class="small">${esc(r.run_id)}</td><td>${esc(r.incident_id)}</td><td>${esc(r.arm)}</td><td>${esc(r.status)}</td><td>${outcomeBadge(r.outcome)}</td><td class="small">${esc(r.stop_reason ?? '')}</td></tr>`)
     .join('');
   h(`
-    <h1>Synthetic incidents</h1>
-    <p class="muted">A fictional Indian investing app with an AI assistant built in. Every service, user, bank and number is invented. Pick an incident and an orchestration, then watch the investigation. Recorded evaluation runs are under <a href="#/eval-runs">Recorded runs</a>.</p>
+    <h1>Watch an investigation</h1>
+    <p class="muted">A fictional Indian investing app with an AI assistant built in; every service, user, bank and number is invented. Pick an incident and an orchestration to replay its recorded evaluation run. The graph is built only from the run's recorded events.</p>
+    <div class="picker">
+      <label>Incident <select id="pickIncident">${incidentOptions}</select></label>
+      <label>Orchestration <select id="pickArm">${armOptions}</select></label>
+    </div>
+    <div id="pickText" class="small muted" style="margin-bottom:10px"></div>
+    <div id="stage"></div>
+    <div id="verdict" class="panel"></div>
     <div class="panel">
-      <h2 style="margin-top:0">Orchestration</h2>
-      <div class="arms">${arms}</div>
+      <h2 style="margin-top:0">Run it live</h2>
+      <p class="small muted">Starts a new investigation of the selected incident with the selected orchestration. It calls real models, so it needs an access code.</p>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        ${config.accessCodeRequired ? '<input id="code" type="password" placeholder="Access code (live runs)" />' : ''}
+        ${config.accessCodeRequired ? '<input id="code" type="password" placeholder="Access code" />' : ''}
         <button id="start">Start live investigation</button>
         <span id="msg" class="small muted"></span>
       </div>
     </div>
-    <div class="panel"><table><thead><tr><th></th><th>Key</th><th>Split</th><th>Incident</th><th>Sev</th><th>Reported by</th></tr></thead><tbody>${rows}</tbody></table></div>
     ${recent.length ? `<div class="panel"><h2 style="margin-top:0">Recent live runs</h2><table><thead><tr><th>Run</th><th>Incident</th><th>Arm</th><th>Status</th><th>Outcome</th><th>Stop</th></tr></thead><tbody>${recentRows}</tbody></table></div>` : ''}
   `);
-  app.querySelectorAll<HTMLElement>('[data-w]').forEach((el) => (el.onclick = () => ((selectedWorld = el.dataset.w!), incidentsPage())));
-  app.querySelectorAll<HTMLElement>('[data-arm]').forEach((el) => (el.onclick = () => ((selectedArm = el.dataset.arm!), incidentsPage())));
+  let current: { destroy(): void } | null = null;
+  cleanup.push(() => current?.destroy());
+  const show = async () => {
+    current?.destroy();
+    current = null;
+    const inc = incidents.find((i: Any) => i.worldId === selectedWorld);
+    const arm = config.arms.find((a: Any) => a.id === selectedArm);
+    document.getElementById('pickText')!.innerHTML = `${inc ? `<b>Reported:</b> ${esc(inc.incident.summary)}` : ''}${arm ? `<br><b>${esc(arm.id)}. ${esc(arm.title)}:</b> ${esc(arm.description)}` : ''}`;
+    const stage = document.getElementById('stage')!;
+    const verdict = document.getElementById('verdict')!;
+    const rec = recorded.find((r: Any) => r.job.key === inc?.key && r.job.arm === selectedArm);
+    if (!rec) {
+      stage.innerHTML = '<p class="muted">There is no recorded run for this incident and orchestration.</p>';
+      verdict.innerHTML = '';
+      return;
+    }
+    stage.innerHTML = '<iframe id="flow" class="flow big" title="Agentflow"></iframe><div id="flowNote" class="small muted" style="margin:4px 0 12px"></div>';
+    const handle = mountFlow(document.getElementById('flow') as HTMLIFrameElement, config.flowViewerUrl, (n) => {
+      const el = document.getElementById('flowNote');
+      if (el) el.textContent = n;
+    });
+    current = handle;
+    verdict.innerHTML = '<span class="small muted">Loading the recorded run…</span>';
+    const file = encodeURIComponent(rec.file);
+    const [r, f] = await Promise.all([api(`/api/eval/runs/${file}`), api(`/api/eval/runs/${file}/flow`)]);
+    if (current !== handle) return; // a newer selection replaced this one
+    const s = r.state;
+    const terminal = s.report ? { status: (s.status === 'completed' ? 'ok' : 'failed') as 'ok' | 'failed', summary: `${s.report.outcome}: ${s.report.rootCauseStatement}` } : null;
+    handle.replay(s.incident?.title ?? 'Investigation', `Arm ${selectedArm} · ${arm?.title ?? ''} · recorded run`, f.replay, terminal);
+    const c = summary?.cases?.find((x: Any) => x.file === rec.file);
+    const secs = s.endedAt ? ((s.endedAt - s.startedAt) / 1000).toFixed(0) : '?';
+    verdict.innerHTML = `
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${outcomeBadge(s.report?.outcome ?? s.outcome)} ${grade(c)} ${s.stopReason ? badge(`stop: ${s.stopReason}`) : ''}</div>
+      <p style="margin:8px 0">${esc(s.report?.rootCauseStatement ?? 'No report was produced.')}</p>
+      <div class="meta muted"><span>${secs} s</span><span>${s.toolResults.length} tool calls</span><span>${s.llmCalls.filter((x: Any) => x.attempt === 1).length} model calls</span><span>${s.criticDecisions.length} critic rounds</span>${rec.costUsd != null ? `<span>est. $${rec.costUsd.toFixed(3)}</span>` : ''}</div>
+      <p style="margin:10px 0 0"><a href="#/eval-run/${file}">Open the full run: report, hypotheses, critic decisions, evidence →</a></p>`;
+  };
+  (document.getElementById('pickIncident') as HTMLSelectElement).onchange = (e) => ((selectedWorld = (e.target as HTMLSelectElement).value), show());
+  (document.getElementById('pickArm') as HTMLSelectElement).onchange = (e) => ((selectedArm = (e.target as HTMLSelectElement).value), show());
   app.querySelectorAll<HTMLElement>('[data-run]').forEach((el) => (el.onclick = () => (location.hash = `#/run/${el.dataset.run}`)));
+  void show().catch((e) => (document.getElementById('verdict')!.innerHTML = `<p class="err">${esc((e as Error).message)}</p>`));
   (document.getElementById('start') as HTMLButtonElement).onclick = async () => {
     const msg = document.getElementById('msg')!;
     try {
@@ -112,10 +165,8 @@ let tab = 'report';
 async function runPage(src: Source): Promise<void> {
   const base = src.kind === 'live' ? `/api/runs/${encodeURIComponent(src.id)}` : `/api/eval/runs/${encodeURIComponent(src.id)}`;
   h(`<div id="hdr" class="panel">Loading…</div>
-     <div class="grid2">
-       <div><iframe id="flow" class="flow" title="Agentflow"></iframe><div id="flowNote" class="small muted"></div></div>
-       <div class="panel"><div class="tabs" id="tabs"></div><div id="body"></div></div>
-     </div>`);
+     <iframe id="flow" class="flow big" title="Agentflow"></iframe><div id="flowNote" class="small muted" style="margin:4px 0 12px"></div>
+     <div class="panel"><div class="tabs" id="tabs"></div><div id="body"></div></div>`);
   const flow = mountFlow(document.getElementById('flow') as HTMLIFrameElement, config.flowViewerUrl, (note) => (document.getElementById('flowNote')!.textContent = note));
   cleanup.push(flow.destroy);
   let state: Any = null;
@@ -341,10 +392,12 @@ async function evalPage(): Promise<void> {
 }
 
 async function evalRunsPage(): Promise<void> {
-  const runs = await api('/api/eval/runs');
-  h(`<h1>Recorded evaluation runs</h1><p class="muted">Every evaluation run's full event log and report (<code>eval/runs/</code>). Click to replay.</p>
-    <div class="panel"><table><thead><tr><th>File</th><th>Arm</th><th>Status</th><th>Outcome</th><th>Stop</th><th>Tools</th><th>Latency</th><th>Est. $</th></tr></thead><tbody>
-    ${runs.map((r: Any) => `<tr class="click" data-f="${esc(r.file)}"><td>${esc(r.file)}</td><td>${esc(r.job.arm)}</td><td>${esc(r.status)}</td><td>${outcomeBadge(r.outcome)}</td><td class="small">${esc(r.stopReason ?? '')}</td><td>${r.toolCalls ?? ''}</td><td>${r.latencyMs ? `${(r.latencyMs / 1000).toFixed(0)} s` : ''}</td><td>${r.costUsd?.toFixed(3) ?? ''}</td></tr>`).join('')}
+  const [runs, incidents] = await Promise.all([api('/api/eval/runs'), api('/api/incidents').catch(() => [])]);
+  const titles = new Map<string, string>(incidents.map((i: Any) => [i.key, i.incident.title]));
+  const armTitles = new Map<string, string>(config.arms.map((a: Any) => [a.id, a.title]));
+  h(`<h1>Recorded evaluation runs</h1><p class="muted">All ${runs.length} evaluation runs, each with its full event log and report (<code>eval/runs/</code>). Click one to replay it in the Agentflow graph.</p>
+    <div class="panel"><table><thead><tr><th>Incident</th><th>Orchestration</th><th>Outcome</th><th>Stop</th><th>Tools</th><th>Latency</th><th>Est. $</th></tr></thead><tbody>
+    ${runs.map((r: Any) => `<tr class="click" data-f="${esc(r.file)}"><td><b>${esc(r.job.key)}</b> ${esc(titles.get(r.job.key) ?? '')}<div class="small muted">${esc(r.file)}</div></td><td>${esc(r.job.arm)}. ${esc(armTitles.get(r.job.arm) ?? '')}</td><td>${outcomeBadge(r.outcome)}</td><td class="small">${esc(r.stopReason ?? '')}</td><td>${r.toolCalls ?? ''}</td><td>${r.latencyMs ? `${(r.latencyMs / 1000).toFixed(0)} s` : ''}</td><td>${r.costUsd?.toFixed(3) ?? ''}</td></tr>`).join('')}
     </tbody></table></div>`);
   app.querySelectorAll<HTMLElement>('[data-f]').forEach((el) => (el.onclick = () => (location.hash = `#/eval-run/${encodeURIComponent(el.dataset.f!)}`)));
 }

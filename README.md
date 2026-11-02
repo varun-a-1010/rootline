@@ -124,7 +124,7 @@ npm run dev                      # API on :8787 and a Vite dev server with hot r
 | `PORT` | 8787 | HTTP port |
 | `ROOTLINE_ACCESS_CODE` | (optional) | Required to start live runs from the web app when set |
 | `ROOTLINE_RUNS_PER_IP_PER_HOUR` / `ROOTLINE_RUNS_PER_DAY` | 3 / 10 | Live-run limits |
-| `ROOTLINE_FLOW_VIEWER_URL` | `https://flow.slate-app.online` | Agentflow viewer embedded in the run view |
+| `ROOTLINE_FLOW_VIEWER_URL` | `https://flow.slate-app.online` | Agentflow viewer embedded on the home page and in each run view |
 
 ## How it works (short)
 
@@ -142,8 +142,9 @@ Details: [`docs/architecture.md`](docs/architecture.md).
 - **Vertex AI, Gemini 3.8 Flash** (Google Cloud): every agent and the baseline. Needed for live
   runs and evaluation, not for `npm test`.
 - **OpenRouter, Jev** (`typesafe/jev-1.13`): arm D's decisions and the evaluation judge. Optional.
-- **Agentflow viewer** (hosted at `flow.slate-app.online`): the animated graph in the web UI's
-  run view. The rest of the UI works without it.
+- **Agentflow viewer** (hosted at `flow.slate-app.online`): the animated graph that leads the web
+  UI's home page, which replays a recorded run for any incident and orchestration, and each run
+  view. The rest of the UI works without it.
 - **Deltabase** (optional): the hosted demo's Postgres. Locally everything runs on PGlite.
 - npm packages: zod, @electric-sql/pglite, pg, hono, @hono/node-server, google-auth-library,
   fflate; dev: typescript, vitest, tsx, vite.
