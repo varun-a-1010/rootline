@@ -10,6 +10,11 @@ valid outcome.
 It was built for an AI Engineer take-home assignment ([`docs/assignment.md`](docs/assignment.md)).
 **All services, incidents, users and data in this repository are synthetic.**
 
+**Start here:** [demo video (4½ min)](https://youtu.be/P0tyFWfaBHs) ·
+[live app](https://rootline.slate-app.online) ·
+[technical note](docs/technical-note.md) · [evaluation](docs/evaluation.md) ·
+[architecture](docs/architecture.md)
+
 ## What you get
 
 | Deliverable | Where |

@@ -81,7 +81,7 @@ sequenceDiagram
   participant P as Reporting
   E->>O: incident, catalog, dependency graph, budget
   O-->>E: plan (2-6 tasks)
-  Note over E: validate: known services, window, both roles,<br/>dedupe; one repair, else default plan
+  Note over E: validate: known services, window, both roles,<br/>dedupe, one repair, else default plan
   par specialists run concurrently
     E->>S1: task (logs and metrics)
     S1->>S1: tool loop: query_logs / query_metrics
